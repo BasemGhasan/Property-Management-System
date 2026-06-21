@@ -1,0 +1,97 @@
+// ============================================================================
+// App — root component. Production routing for all four modules.
+//
+// Batch 1: Auth & Onboarding
+// Batch 2: Resident Module
+// Batch 3: Property Owner Module
+// Batch 4: Admin Module
+//
+// Uses MemoryRouter so the full app works inside the preview sandbox.
+// In production this would be replaced with BrowserRouter.
+// ============================================================================
+
+// Imports
+import { MemoryRouter, Routes, Route, Navigate } from "react-router";
+import { ROUTES } from "./constants/auth";
+import { RESIDENT_ROUTES } from "./constants/resident";
+import { OWNER_ROUTES } from "./constants/owner";
+import { ADMIN_ROUTES } from "./constants/admin";
+
+// ── Batch 1 — Auth & Onboarding ─────────────────────────────────────────────
+import LoginPage from "./pages/login";
+import RoleSelectionPage from "./pages/roleSelection";
+import ResidentRegistrationPage from "./pages/residentRegistration";
+import PropertyOwnerRegistrationPage from "./pages/propertyOwnerRegistration";
+import ForgotPasswordPage from "./pages/forgotPassword";
+import ResetPasswordPage from "./pages/resetPassword";
+
+// ── Batch 2 — Resident Module ────────────────────────────────────────────────
+import ResidentDashboard from "./pages/resident/residentDashboard";
+import SubmitRequestPage from "./pages/resident/submitRequest";
+import RequestHistoryPage from "./pages/resident/requestHistory";
+import RequestDetailsPage from "./pages/resident/requestDetails";
+import ResidentProfilePage from "./pages/resident/residentProfile";
+
+// ── Batch 3 — Property Owner Module ─────────────────────────────────────────
+import OwnerDashboard from "./pages/owner/ownerDashboard";
+import PropertyListPage from "./pages/owner/propertyList";
+import OwnerPropertyDetailsPage from "./pages/owner/propertyDetails";
+import MaintenanceRequestsPage from "./pages/owner/maintenanceRequests";
+import RequestManagementPage from "./pages/owner/requestManagement";
+import OwnerReportsPage from "./pages/owner/ownerReports";
+import OwnerProfilePage from "./pages/owner/ownerProfile";
+
+// ── Batch 4 — Admin Module ───────────────────────────────────────────────────
+import AdminDashboard from "./pages/admin/adminDashboard";
+import UserManagementPage from "./pages/admin/userManagement";
+import PropertyManagementPage from "./pages/admin/propertyManagement";
+import AdminPropertyDetailsPage from "./pages/admin/propertyDetails";
+import CategoryManagementPage from "./pages/admin/categoryManagement";
+import RequestMonitoringPage from "./pages/admin/requestMonitoring";
+import AdminProfilePage from "./pages/admin/adminProfile";
+
+// Component
+export default function App() {
+  return (
+    // Start at login — the natural entry point for all users.
+    <MemoryRouter initialEntries={[ROUTES.login]}>
+      <Routes>
+        {/* ── Batch 1 ─────────────────────────────────────────────────── */}
+        <Route path={ROUTES.login}            element={<LoginPage />} />
+        <Route path={ROUTES.roleSelection}    element={<RoleSelectionPage />} />
+        <Route path={ROUTES.registerResident} element={<ResidentRegistrationPage />} />
+        <Route path={ROUTES.registerOwner}    element={<PropertyOwnerRegistrationPage />} />
+        <Route path={ROUTES.forgotPassword}   element={<ForgotPasswordPage />} />
+        <Route path={ROUTES.resetPassword}    element={<ResetPasswordPage />} />
+
+        {/* ── Batch 2 ─────────────────────────────────────────────────── */}
+        <Route path={RESIDENT_ROUTES.dashboard}              element={<ResidentDashboard />} />
+        <Route path={RESIDENT_ROUTES.submit}                 element={<SubmitRequestPage />} />
+        <Route path={RESIDENT_ROUTES.history}                element={<RequestHistoryPage />} />
+        <Route path={`${RESIDENT_ROUTES.details}/:id`}       element={<RequestDetailsPage />} />
+        <Route path={RESIDENT_ROUTES.profile}                element={<ResidentProfilePage />} />
+
+        {/* ── Batch 3 ─────────────────────────────────────────────────── */}
+        <Route path={OWNER_ROUTES.dashboard}                 element={<OwnerDashboard />} />
+        <Route path={OWNER_ROUTES.properties}                element={<PropertyListPage />} />
+        <Route path={`${OWNER_ROUTES.propertyDetails}/:id`}  element={<OwnerPropertyDetailsPage />} />
+        <Route path={OWNER_ROUTES.requests}                  element={<MaintenanceRequestsPage />} />
+        <Route path={`${OWNER_ROUTES.requestManage}/:id`}    element={<RequestManagementPage />} />
+        <Route path={OWNER_ROUTES.reports}                   element={<OwnerReportsPage />} />
+        <Route path={OWNER_ROUTES.profile}                   element={<OwnerProfilePage />} />
+
+        {/* ── Batch 4 ─────────────────────────────────────────────────── */}
+        <Route path={ADMIN_ROUTES.dashboard}                 element={<AdminDashboard />} />
+        <Route path={ADMIN_ROUTES.users}                     element={<UserManagementPage />} />
+        <Route path={ADMIN_ROUTES.properties}                element={<PropertyManagementPage />} />
+        <Route path={`${ADMIN_ROUTES.properties}/:id`}       element={<AdminPropertyDetailsPage />} />
+        <Route path={ADMIN_ROUTES.categories}                element={<CategoryManagementPage />} />
+        <Route path={ADMIN_ROUTES.requests}                  element={<RequestMonitoringPage />} />
+        <Route path={ADMIN_ROUTES.profile}                   element={<AdminProfilePage />} />
+
+        {/* Fallback → login */}
+        <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
