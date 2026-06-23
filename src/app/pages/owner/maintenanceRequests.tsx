@@ -12,7 +12,7 @@ import { SelectField } from "../../components/auth/selectField";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
 import { SecondaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
-import { getOwnerRequests, MOCK_PROPERTIES } from "../../services/ownerService";
+import { getOwnerRequests, getProperties } from "../../services/ownerService";
 import { OWNER_ROUTES } from "../../constants/owner";
 import { ISSUE_CATEGORIES, PRIORITY_OPTIONS, categoryLabel } from "../../constants/resident";
 import { REQUEST_STATUS_OPTIONS, PAGE_SIZE } from "../../constants/filters";
@@ -29,21 +29,18 @@ export default function MaintenanceRequestsPage() {
   const [priority, setPriority] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  const [propertyOptions, setPropertyOptions] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
     let active = true;
-    getOwnerRequests().then((data) => {
+    Promise.all([getOwnerRequests(), getProperties()]).then(([reqs, props]) => {
       if (!active) return;
-      setRequests(data);
+      setRequests(reqs);
+      setPropertyOptions(props.map((p) => ({ value: p.id, label: p.name })));
       setLoading(false);
     });
     return () => { active = false; };
   }, []);
-
-  const propertyOptions = useMemo(
-    () => MOCK_PROPERTIES.map((p) => ({ value: p.id, label: p.name })),
-    []
-  );
 
   const resetPage = useCallback(() => setPage(1), []);
 

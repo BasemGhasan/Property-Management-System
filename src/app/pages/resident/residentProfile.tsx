@@ -13,12 +13,15 @@ import { CheckboxField } from "../../components/auth/checkboxField";
 import { PrimaryButton } from "../../components/auth/buttons";
 import { SuccessMessage } from "../../components/auth/messages";
 import { FormSection } from "../../components/shared/formSection";
+import { getStoredUser } from "../../lib/auth";
+import { api } from "../../lib/apiClient";
 
 // Component
 export default function ResidentProfilePage() {
-  const [fullName, setFullName] = useState("Jane Doe");
-  const [email, setEmail]       = useState("jane.doe@example.com");
-  const [phone, setPhone]       = useState("+1 555 014 2233");
+  const stored = getStoredUser();
+  const [fullName, setFullName] = useState(stored?.fullName ?? "");
+  const [email, setEmail]       = useState(stored?.email ?? "");
+  const [phone, setPhone]       = useState(stored?.phone ?? "");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword]         = useState("");
@@ -30,11 +33,12 @@ export default function ResidentProfilePage() {
   const [savedProfile,  setSavedProfile]  = useState(false);
   const [savedPassword, setSavedPassword] = useState(false);
 
-  const handleSaveProfile = useCallback((e: React.FormEvent) => {
+  const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    await api.put("/api/users/me", { fullName, phone });
     setSavedProfile(true);
     setTimeout(() => setSavedProfile(false), 2500);
-  }, []);
+  }, [fullName, phone]);
 
   const handleUpdatePassword = useCallback((e: React.FormEvent) => {
     e.preventDefault();

@@ -1,17 +1,4 @@
-// ============================================================================
-// App — root component. Production routing for all four modules.
-//
-// Batch 1: Auth & Onboarding
-// Batch 2: Resident Module
-// Batch 3: Property Owner Module
-// Batch 4: Admin Module
-//
-// Uses MemoryRouter so the full app works inside the preview sandbox.
-// In production this would be replaced with BrowserRouter.
-// ============================================================================
-
-// Imports
-import { MemoryRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { ROUTES } from "./constants/auth";
 import { RESIDENT_ROUTES } from "./constants/resident";
 import { OWNER_ROUTES } from "./constants/owner";
@@ -50,13 +37,11 @@ import CategoryManagementPage from "./pages/admin/categoryManagement";
 import RequestMonitoringPage from "./pages/admin/requestMonitoring";
 import AdminProfilePage from "./pages/admin/adminProfile";
 
-// Component
 export default function App() {
   return (
-    // Start at login — the natural entry point for all users.
-    <MemoryRouter initialEntries={[ROUTES.login]}>
+    <BrowserRouter>
       <Routes>
-        {/* ── Batch 1 ─────────────────────────────────────────────────── */}
+        {/* ── Auth ─────────────────────────────────────────────────────── */}
         <Route path={ROUTES.login}            element={<LoginPage />} />
         <Route path={ROUTES.roleSelection}    element={<RoleSelectionPage />} />
         <Route path={ROUTES.registerResident} element={<ResidentRegistrationPage />} />
@@ -64,14 +49,14 @@ export default function App() {
         <Route path={ROUTES.forgotPassword}   element={<ForgotPasswordPage />} />
         <Route path={ROUTES.resetPassword}    element={<ResetPasswordPage />} />
 
-        {/* ── Batch 2 ─────────────────────────────────────────────────── */}
+        {/* ── Resident ─────────────────────────────────────────────────── */}
         <Route path={RESIDENT_ROUTES.dashboard}              element={<ResidentDashboard />} />
         <Route path={RESIDENT_ROUTES.submit}                 element={<SubmitRequestPage />} />
         <Route path={RESIDENT_ROUTES.history}                element={<RequestHistoryPage />} />
         <Route path={`${RESIDENT_ROUTES.details}/:id`}       element={<RequestDetailsPage />} />
         <Route path={RESIDENT_ROUTES.profile}                element={<ResidentProfilePage />} />
 
-        {/* ── Batch 3 ─────────────────────────────────────────────────── */}
+        {/* ── Owner ────────────────────────────────────────────────────── */}
         <Route path={OWNER_ROUTES.dashboard}                 element={<OwnerDashboard />} />
         <Route path={OWNER_ROUTES.properties}                element={<PropertyListPage />} />
         <Route path={`${OWNER_ROUTES.propertyDetails}/:id`}  element={<OwnerPropertyDetailsPage />} />
@@ -80,7 +65,7 @@ export default function App() {
         <Route path={OWNER_ROUTES.reports}                   element={<OwnerReportsPage />} />
         <Route path={OWNER_ROUTES.profile}                   element={<OwnerProfilePage />} />
 
-        {/* ── Batch 4 ─────────────────────────────────────────────────── */}
+        {/* ── Admin ────────────────────────────────────────────────────── */}
         <Route path={ADMIN_ROUTES.dashboard}                 element={<AdminDashboard />} />
         <Route path={ADMIN_ROUTES.users}                     element={<UserManagementPage />} />
         <Route path={ADMIN_ROUTES.properties}                element={<PropertyManagementPage />} />
@@ -92,6 +77,6 @@ export default function App() {
         {/* Fallback → login */}
         <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
       </Routes>
-    </MemoryRouter>
+    </BrowserRouter>
   );
 }

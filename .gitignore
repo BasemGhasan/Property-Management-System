@@ -17,13 +17,18 @@ out/
 .env.production.local
 *.pem
 
+# .NET build artifacts
+bin/
+obj/
+publish/
+*.user
+
 # IDEs, Editors, and OS Files
 .vscode/
 .idea/
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.swp
 .DS_Store
 Thumbs.db

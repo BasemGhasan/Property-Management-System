@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router";
 import { Shield, Bell, LogOut, Menu, X, ChevronDown } from "lucide-react";
 import { ADMIN_NAV } from "../constants/admin";
 import { ROUTES } from "../constants/auth";
+import { getStoredUser } from "../lib/auth";
 
 // Interfaces
 interface AdminLayoutProps {
@@ -88,6 +89,9 @@ export function AdminLayout({ title, actions, children }: AdminLayoutProps) {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const user = getStoredUser();
+  const displayName = user?.fullName ?? "Admin";
+  const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -129,8 +133,8 @@ export function AdminLayout({ title, actions, children }: AdminLayoutProps) {
               onClick={() => navigate("/admin/profile")}
               className="flex items-center gap-2 rounded-xl border border-slate-800 px-2 py-1.5 transition-colors hover:bg-slate-800"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs text-white">AD</span>
-              <span className="hidden text-sm text-slate-300 sm:block">Admin</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs text-white">{initials}</span>
+              <span className="hidden text-sm text-slate-300 sm:block">{displayName}</span>
               <ChevronDown size={15} className="hidden text-slate-500 sm:block" />
             </button>
           </div>

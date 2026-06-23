@@ -1,185 +1,133 @@
-// ============================================================================
-// requestService — mock data layer for maintenance requests.
-// Mirrors the Batch 1 authService pattern: async functions + simulated latency.
-// Replace with real API calls when a backend is wired up.
-// ============================================================================
-
-// Imports
+import { api } from "../lib/apiClient";
 import type {
   MaintenanceRequest,
   ResidentNotification,
+  RequestStatus,
+  RequestPriority,
+  TimelineStep,
 } from "../constants/resident";
 
-// ============================================================================
-// Helpers
-// ============================================================================
+// ── Backend response shape ──────────────────────────────────────────────────
 
-/** Simulate network latency so loading states are visible. */
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+interface ApiRequest {
+  id: number;
+  residentId: number;
+  residentName: string;
+  propertyId: number;
+  propertyName: string;
+  categoryId: number;
+  categoryName: string;
+  title: string;
+  description?: string;
+  priority: string;
+  status: string;
+  ownerNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  evidence: { id: number; fileUrl: string; fileName?: string }[];
+}
 
-// ============================================================================
-// Mock data
-// ============================================================================
+// ── Mapping helpers ─────────────────────────────────────────────────────────
 
-const MOCK_REQUESTS: MaintenanceRequest[] = [
-  {
-    id: "REQ-1042",
-    title: "Kitchen sink leaking under cabinet",
-    description:
-      "Water is pooling inside the cabinet beneath the kitchen sink. It seems to drip from the pipe joint and has started to damage the wood.",
-    property: "Maple Court Residences — Unit 12B",
-    category: "water-leakage",
-    priority: "high",
-    status: "in-progress",
-    submittedAt: "2026-06-15",
-    photos: [
-      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80",
-      "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800&q=80",
-    ],
-    timeline: [
-      { label: "Request Submitted", date: "Jun 15, 2026", state: "done" },
-      { label: "Owner Reviewed", date: "Jun 16, 2026", state: "done" },
-      { label: "Work In Progress", date: "Jun 17, 2026", state: "current" },
-      { label: "Completed", state: "upcoming" },
-    ],
-  },
-  {
-    id: "REQ-1038",
-    title: "AC not cooling in living room",
-    description:
-      "The air conditioner runs but only blows warm air. Temperature does not drop even after an hour.",
-    property: "Maple Court Residences — Unit 12B",
-    category: "air-conditioner",
-    priority: "medium",
-    status: "pending",
-    submittedAt: "2026-06-14",
-    photos: [
-      "https://images.unsplash.com/photo-1631545806609-c2b999c5b1f0?w=800&q=80",
-    ],
-    timeline: [
-      { label: "Request Submitted", date: "Jun 14, 2026", state: "current" },
-      { label: "Owner Reviewed", state: "upcoming" },
-      { label: "Work In Progress", state: "upcoming" },
-      { label: "Completed", state: "upcoming" },
-    ],
-  },
-  {
-    id: "REQ-1025",
-    title: "Bedroom power outlet sparking",
-    description:
-      "One of the wall outlets in the main bedroom produced a spark when plugging in a charger. Not using it for safety.",
-    property: "Maple Court Residences — Unit 12B",
-    category: "electrical",
-    priority: "critical",
-    status: "completed",
-    submittedAt: "2026-06-02",
-    photos: [
-      "https://images.unsplash.com/photo-1558389186-438424b00a6b?w=800&q=80",
-    ],
-    timeline: [
-      { label: "Request Submitted", date: "Jun 02, 2026", state: "done" },
-      { label: "Owner Reviewed", date: "Jun 02, 2026", state: "done" },
-      { label: "Work In Progress", date: "Jun 03, 2026", state: "done" },
-      { label: "Completed", date: "Jun 05, 2026", state: "done" },
-    ],
-    completion: {
-      notes:
-        "Replaced the faulty outlet and inspected the surrounding wiring. Circuit tested and confirmed safe.",
-      date: "Jun 05, 2026",
-      photos: [
-        "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&q=80",
-      ],
-    },
-  },
-  {
-    id: "REQ-1019",
-    title: "Ants in the kitchen pantry",
-    description: "Small ants appearing around the pantry shelves daily.",
-    property: "Maple Court Residences — Unit 12B",
-    category: "pest-control",
-    priority: "low",
-    status: "completed",
-    submittedAt: "2026-05-28",
-    photos: [],
-    timeline: [
-      { label: "Request Submitted", date: "May 28, 2026", state: "done" },
-      { label: "Owner Reviewed", date: "May 28, 2026", state: "done" },
-      { label: "Work In Progress", date: "May 29, 2026", state: "done" },
-      { label: "Completed", date: "May 30, 2026", state: "done" },
-    ],
-    completion: {
-      notes: "Applied pet-safe treatment to pantry and sealed entry gaps.",
-      date: "May 30, 2026",
-      photos: [],
-    },
-  },
-  {
-    id: "REQ-1007",
-    title: "Slow internet in home office",
-    description: "Connection drops several times a day, mostly afternoons.",
-    property: "Maple Court Residences — Unit 12B",
-    category: "internet",
-    priority: "medium",
-    status: "rejected",
-    submittedAt: "2026-05-20",
-    photos: [],
-    timeline: [
-      { label: "Request Submitted", date: "May 20, 2026", state: "done" },
-      { label: "Owner Reviewed", date: "May 21, 2026", state: "done" },
-      { label: "Rejected", date: "May 21, 2026", state: "done" },
-    ],
-  },
-];
+function mapStatus(s: string): RequestStatus {
+  switch (s) {
+    case "InProgress": return "in-progress";
+    case "Resolved":   return "completed";
+    case "Rejected":   return "rejected";
+    default:           return "pending";
+  }
+}
 
-const MOCK_NOTIFICATIONS: ResidentNotification[] = [
-  {
-    id: "n1",
-    type: "reviewed",
-    message: "Your request REQ-1042 (Kitchen sink leak) has been reviewed by the owner.",
-    time: "2h ago",
-  },
-  {
-    id: "n2",
-    type: "status",
-    message: "REQ-1042 status updated to In Progress.",
-    time: "5h ago",
-  },
-  {
-    id: "n3",
-    type: "completed",
-    message: "REQ-1025 (Outlet sparking) was marked completed.",
-    time: "Yesterday",
-  },
-];
+function mapPriority(p: string): RequestPriority {
+  switch (p) {
+    case "Urgent": return "critical";
+    case "High":   return "high";
+    case "Low":    return "low";
+    default:       return "medium";
+  }
+}
 
-// ============================================================================
-// Service functions
-// ============================================================================
+function buildTimeline(status: RequestStatus, createdAt: string, updatedAt: string): TimelineStep[] {
+  const fmt = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-/** Fetch all requests for the current resident. */
+  const steps: TimelineStep[] = [
+    { label: "Request Submitted", date: fmt(createdAt), state: "done" },
+    { label: "Owner Reviewed", state: "upcoming" },
+    { label: "Work In Progress", state: "upcoming" },
+    { label: "Completed", state: "upcoming" },
+  ];
+
+  if (status === "in-progress") {
+    steps[1] = { ...steps[1], date: fmt(updatedAt), state: "done" };
+    steps[2] = { ...steps[2], date: fmt(updatedAt), state: "current" };
+  } else if (status === "completed") {
+    steps[1] = { ...steps[1], state: "done" };
+    steps[2] = { ...steps[2], state: "done" };
+    steps[3] = { ...steps[3], date: fmt(updatedAt), state: "done" };
+  } else if (status === "rejected") {
+    steps[1] = { ...steps[1], date: fmt(updatedAt), state: "done" };
+    steps[2] = { label: "Rejected", date: fmt(updatedAt), state: "done" };
+    steps.pop();
+  } else {
+    steps[0] = { ...steps[0], state: "current" };
+  }
+
+  return steps;
+}
+
+function toFrontend(r: ApiRequest): MaintenanceRequest {
+  const status = mapStatus(r.status);
+  const priority = mapPriority(r.priority);
+
+  return {
+    id: `REQ-${r.id}`,
+    title: r.title,
+    description: r.description ?? "",
+    property: r.propertyName,
+    category: r.categoryName.toLowerCase().replace(/\s+/g, "-"),
+    priority,
+    status,
+    submittedAt: r.createdAt.split("T")[0],
+    photos: r.evidence.map((e) => e.fileUrl),
+    timeline: buildTimeline(status, r.createdAt, r.updatedAt),
+    ...(status === "completed" && r.ownerNotes
+      ? {
+          completion: {
+            notes: r.ownerNotes,
+            date: new Date(r.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+            photos: [],
+          },
+        }
+      : {}),
+  };
+}
+
+// ── Service functions ────────────────────────────────────────────────────────
+
 export async function getRequests(): Promise<MaintenanceRequest[]> {
-  await delay(500);
-  return MOCK_REQUESTS;
+  const data = await api.get<ApiRequest[]>("/api/requests");
+  return data.map(toFrontend);
 }
 
-/** Fetch a single request by id. */
-export async function getRequestById(
-  id: string
-): Promise<MaintenanceRequest | undefined> {
-  await delay(400);
-  return MOCK_REQUESTS.find((r) => r.id === id);
+export async function getRequestById(id: string): Promise<MaintenanceRequest | undefined> {
+  const numericId = id.replace("REQ-", "");
+  try {
+    const data = await api.get<ApiRequest>(`/api/requests/${numericId}`);
+    return toFrontend(data);
+  } catch {
+    return undefined;
+  }
 }
 
-/** Fetch recent notifications. */
 export async function getNotifications(): Promise<ResidentNotification[]> {
-  await delay(300);
-  return MOCK_NOTIFICATIONS;
+  // Notifications will be driven by SNS in Task #2 — return empty for now.
+  return [];
 }
 
-/** Submit a new maintenance request (mock). */
 export async function submitRequest(
-  _payload: Omit<MaintenanceRequest, "id" | "status" | "timeline" | "submittedAt">
+  payload: Omit<MaintenanceRequest, "id" | "status" | "timeline" | "submittedAt">
 ): Promise<{ success: boolean; id: string }> {
-  await delay(1200);
-  return { success: true, id: `REQ-${Math.floor(1000 + Math.random() * 9000)}` };
+  // Caller must pass propertyId and categoryId via extra fields
+  const result = await api.post<{ id: number }>("/api/requests", payload);
+  return { success: true, id: `REQ-${result.id}` };
 }

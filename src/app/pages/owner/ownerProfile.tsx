@@ -4,7 +4,7 @@
 // ============================================================================
 
 // Imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { User, Mail, Phone, Building2, Users, Save, KeyRound } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { InputField } from "../../components/auth/inputField";
@@ -13,12 +13,25 @@ import { CheckboxField } from "../../components/auth/checkboxField";
 import { PrimaryButton } from "../../components/auth/buttons";
 import { SuccessMessage } from "../../components/auth/messages";
 import { FormSection } from "../../components/shared/formSection";
+import { getStoredUser } from "../../lib/auth";
+import { api } from "../../lib/apiClient";
+import { getProperties } from "../../services/ownerService";
 
 // Component
 export default function OwnerProfilePage() {
-  const [fullName, setFullName] = useState("Michael Chen");
-  const [email, setEmail]       = useState("michael.chen@example.com");
-  const [phone, setPhone]       = useState("+1 555 300 4422");
+  const stored = getStoredUser();
+  const [fullName, setFullName] = useState(stored?.fullName ?? "");
+  const [email, setEmail]       = useState(stored?.email ?? "");
+  const [phone, setPhone]       = useState(stored?.phone ?? "");
+  const [propertyCount, setPropertyCount] = useState(0);
+  const [residentCount, setResidentCount] = useState(0);
+
+  useEffect(() => {
+    getProperties().then((props) => {
+      setPropertyCount(props.length);
+      setResidentCount(props.reduce((s, p) => s + p.residents.length, 0));
+    });
+  }, []);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword]         = useState("");
@@ -29,11 +42,12 @@ export default function OwnerProfilePage() {
   const [savedProfile,  setSavedProfile]  = useState(false);
   const [savedPassword, setSavedPassword] = useState(false);
 
-  const handleSaveProfile = useCallback((e: React.FormEvent) => {
+  const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    await api.put("/api/users/me", { fullName, phone });
     setSavedProfile(true);
     setTimeout(() => setSavedProfile(false), 2500);
-  }, []);
+  }, [fullName, phone]);
 
   const handleUpdatePassword = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -66,14 +80,14 @@ export default function OwnerProfilePage() {
               <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3">
                 <Building2 size={18} className="text-blue-400" />
                 <div>
-                  <p className="text-lg text-slate-100">3</p>
+                  <p className="text-lg text-slate-100">{propertyCount}</p>
                   <p className="text-xs text-slate-500">Properties Owned</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3">
                 <Users size={18} className="text-blue-400" />
                 <div>
-                  <p className="text-lg text-slate-100">6</p>
+                  <p className="text-lg text-slate-100">{residentCount}</p>
                   <p className="text-xs text-slate-500">Total Residents</p>
                 </div>
               </div>

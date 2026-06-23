@@ -1,16 +1,6 @@
-// ============================================================================
-// authService — mock authentication layer
-// ----------------------------------------------------------------------------
-// These functions simulate network requests. Replace the bodies with real API
-// calls (e.g. Supabase / REST) when wiring up a backend. Each returns a Promise
-// so the UI can show realistic loading states.
-// ============================================================================
-
+import { api } from "../lib/apiClient";
+import { saveAuth, clearAuth, type StoredUser } from "../lib/auth";
 import type { UserRole } from "../constants/auth";
-
-// ============================================================================
-// Interfaces
-// ============================================================================
 
 export interface LoginPayload {
   email: string;
@@ -24,58 +14,81 @@ export interface RegisterPayload {
   email: string;
   phone: string;
   password: string;
-  /** Role-specific extra fields (property names, profession, etc.). */
   extra?: Record<string, unknown>;
 }
 
 export interface AuthResult {
   success: boolean;
   message: string;
+  role?: StoredUser["role"];
 }
 
-// ============================================================================
-// Helpers
-// ============================================================================
+interface ApiAuthResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: StoredUser;
+}
 
-/** Simulate latency so loading spinners are visible during demos. */
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// ============================================================================
-// Service functions (mock implementations)
-// ============================================================================
-
-/** Attempt to sign a user in. Demo rule: any valid email + 6+ char password. */
 export async function login(payload: LoginPayload): Promise<AuthResult> {
-  await delay(1200);
+  try {
+    const res = await api.post<ApiAuthResponse>("/api/auth/login", {
+      email: payload.email,
+      password: payload.password,
+      rememberMe: payload.rememberMe,
+    });
 
-  // Demo-only failure example to exercise error states.
-  if (payload.password === "wrongpass") {
-    return { success: false, message: "Invalid email or password." };
+    if (res.success && res.token && res.user) {
+      saveAuth(res.token, res.user);
+      return { success: true, message: res.message, role: res.user.role };
+    }
+
+    return { success: false, message: res.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Login failed.";
+    return { success: false, message };
   }
-
-  return { success: true, message: "Signed in successfully." };
 }
 
-/** Register a new account of the given role. */
 export async function register(payload: RegisterPayload): Promise<AuthResult> {
-  await delay(1400);
-  return {
-    success: true,
-    message: `${payload.fullName}, your account has been created.`,
-  };
+  try {
+    const role = payload.role.charAt(0).toUpperCase() + payload.role.slice(1);
+    const res = await api.post<ApiAuthResponse>("/api/auth/register", {
+      role,
+      fullName: payload.fullName,
+      email: payload.email,
+      password: payload.password,
+      phone: payload.phone ?? null,
+    });
+
+    if (res.success && res.token && res.user) {
+      saveAuth(res.token, res.user);
+      return { success: true, message: res.message, role: res.user.role };
+    }
+
+    return { success: false, message: res.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Registration failed.";
+    return { success: false, message };
+  }
 }
 
-/** Request a password reset email. */
 export async function sendResetLink(email: string): Promise<AuthResult> {
-  await delay(1200);
-  return {
-    success: true,
-    message: `Password reset link sent to ${email}.`,
-  };
+  try {
+    await api.post("/api/auth/forgot-password", { email });
+    return { success: true, message: `Password reset link sent to ${email}.` };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Request failed.";
+    return { success: false, message };
+  }
 }
 
-/** Persist a brand new password from the reset flow. */
 export async function resetPassword(_password: string): Promise<AuthResult> {
-  await delay(1200);
+  // Full reset flow requires the token from email — placeholder for now.
   return { success: true, message: "Password successfully updated." };
+}
+
+export function logout() {
+  clearAuth();
+  window.location.href = "/login";
 }

@@ -14,8 +14,8 @@ import { CheckboxField } from "../components/auth/checkboxField";
 import { PrimaryButton, SecondaryButton } from "../components/auth/buttons";
 import { ErrorMessage } from "../components/auth/messages";
 import { ROUTES } from "../constants/auth";
-import { RESIDENT_ROUTES } from "../constants/resident";
 import { login } from "../services/authService";
+import { dashboardRouteForRole } from "../lib/auth";
 import { isValidEmail, isRequired } from "../services/validators";
 
 // Interfaces
@@ -65,10 +65,9 @@ export default function LoginPage() {
       const result = await login({ email, password, rememberMe });
       setLoading(false);
 
-      if (result.success) {
-        // Route into the Resident Module (Batch 2) on successful sign-in.
+      if (result.success && result.role) {
         setFormError("");
-        navigate(RESIDENT_ROUTES.dashboard);
+        navigate(dashboardRouteForRole(result.role));
       } else {
         setFormError(result.message);
       }
