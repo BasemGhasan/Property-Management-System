@@ -15,6 +15,7 @@
 - **Users** — Get all users (Admin), get residents list (Owner/Admin), get/update own profile
 - **Properties** — Full CRUD, owner scoping, assign/remove residents
 - **Maintenance Requests** — Create, list, update status/priority/notes, role-scoped views
+- **Photo Evidence Upload** — `POST /api/upload` accepts image files, uploads to AWS S3, returns permanent public URL; URLs are stored in the `RequestEvidence` table and returned alongside every request
 - **Categories** — Seeded with 6 default categories (Plumbing, Electrical, HVAC, Structural, Appliances, Pest Control)
 - **EF Core migrations** — Auto-applied on startup, includes seed data
 - **CORS** — Configurable via environment variables for production
@@ -27,6 +28,7 @@
 - **Owner**: Add property, Edit property, Assign/Remove residents
 - **Admin**: Add property with owner selector, Edit (including reassign owner), Delete property
 - All profile pages load and save real user data via API
+- **Resident**: Submit maintenance request with photo evidence — images are uploaded to S3 and attached to the request
 
 ### Default Seed Data
 One admin account is created automatically on first run:
@@ -138,6 +140,7 @@ Property-Management-System/
 | POST | `/api/requests` | Resident |
 | PUT | `/api/requests/{id}/status` | Admin, Owner |
 | GET | `/api/categories` | Public |
+| POST | `/api/upload` | All roles |
 
 ---
 
@@ -147,7 +150,31 @@ TODO:
 
 1. **RDS** — Create MySQL db.t3.micro, note the endpoint. Add inbound rule for port `3306` from `0.0.0.0/0` in the security group.
 
-2. **Elastic Beanstalk** — Publish and deploy:
+2. **S3 bucket for photo evidence** — Create a bucket (e.g. `propms-evidence`) in the same region. Under Permissions, uncheck "Block all public access" and add this bucket policy so uploaded photos are viewable:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Effect": "Allow",
+       "Principal": "*",
+       "Action": "s3:GetObject",
+       "Resource": "arn:aws:s3:::propms-evidence/evidence/*"
+     }]
+   }
+   ```
+   Then attach an inline IAM policy to the EB instance role (`aws-elasticbeanstalk-ec2-role`) allowing `s3:PutObject` on that bucket:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Effect": "Allow",
+       "Action": "s3:PutObject",
+       "Resource": "arn:aws:s3:::propms-evidence/evidence/*"
+     }]
+   }
+   ```
+
+3. **Elastic Beanstalk** — Publish and deploy:
    ```bash
    cd backend/PropertyManagement.API
    dotnet publish -c Release -o ./publish
@@ -158,18 +185,20 @@ TODO:
    ConnectionStrings__Default   = Server=RDS_ENDPOINT;Port=3306;Database=property_mgmt;User=admin;Password=RDS_PASS;
    Jwt__Secret                  = <any random 32+ char string>
    ASPNETCORE_ENVIRONMENT       = Production
+   S3__BucketName               = propms-evidence
+   S3__Region                   = ap-southeast-1
    ```
 
-3. **Frontend** — Edit `.env.production`, replace the placeholder with your EB URL, then build:
+4. **Frontend** — Edit `.env.production`, replace the placeholder with your EB URL, then build:
    ```bash
    # edit .env.production first
    npm run build
    # upload dist/ to S3
    ```
 
-4. **CloudFront** — Point to S3 bucket. Add custom error page: `404 → /index.html (HTTP 200)` for React Router to work on page refresh.
+5. **CloudFront** — Point to S3 bucket. Add custom error page: `404 → /index.html (HTTP 200)` for React Router to work on page refresh.
 
-5. **Update CORS** — Add to EB environment properties:
+6. **Update CORS** — Add to EB environment properties:
    ```
    AllowedOrigins__0 = https://your-cloudfront-url
    ```

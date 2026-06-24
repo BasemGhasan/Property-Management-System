@@ -8,7 +8,8 @@ public record CreateRequestDto(
     [Required] int CategoryId,
     [Required, MaxLength(200)] string Title,
     [MaxLength(2000)] string? Description,
-    RequestPriority Priority = RequestPriority.Medium
+    RequestPriority Priority = RequestPriority.Medium,
+    List<string>? PhotoUrls = null
 );
 
 public record UpdateRequestStatusDto(

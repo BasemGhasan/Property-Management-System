@@ -3,7 +3,7 @@
 // ============================================================================
 
 // Imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Send, X, CheckCircle2 } from "lucide-react";
 import { DashboardLayout } from "../../layouts/dashboardLayout";
@@ -13,17 +13,10 @@ import { TextAreaField } from "../../components/auth/textAreaField";
 import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
 import { SuccessMessage } from "../../components/auth/messages";
 import { FileUploadCard, type UploadedFile } from "../../components/dashboard/fileUploadCard";
-import { submitRequest } from "../../services/requestService";
-import {
-  RESIDENT_ROUTES,
-  RESIDENT_PROPERTIES,
-  ISSUE_CATEGORIES,
-  PRIORITY_OPTIONS,
-  type RequestPriority,
-} from "../../constants/resident";
+import { api } from "../../lib/apiClient";
+import { RESIDENT_ROUTES, PRIORITY_OPTIONS, type RequestPriority } from "../../constants/resident";
 import { isRequired } from "../../services/validators";
 
-// Interfaces
 interface FormErrors {
   property?: string;
   category?: string;
@@ -32,11 +25,19 @@ interface FormErrors {
   description?: string;
 }
 
-// Component
+interface PropertyOption { id: number; name: string; }
+interface CategoryOption { id: number; name: string; }
+
+function mapPriorityToApi(p: string): string {
+  if (p === "critical") return "Urgent";
+  return p.charAt(0).toUpperCase() + p.slice(1);
+}
+
 export default function SubmitRequestPage() {
   const navigate = useNavigate();
 
-  // Form state
+  const [propertyOptions, setPropertyOptions] = useState<PropertyOption[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
   const [property, setProperty] = useState("");
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("");
@@ -47,42 +48,54 @@ export default function SubmitRequestPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Validate all required fields.
+  useEffect(() => {
+    Promise.all([
+      api.get<PropertyOption[]>("/api/properties"),
+      api.get<CategoryOption[]>("/api/categories"),
+    ]).then(([props, cats]) => {
+      setPropertyOptions(props);
+      setCategoryOptions(cats);
+    });
+  }, []);
+
   const validate = useCallback((): FormErrors => {
     const next: FormErrors = {};
-    if (!isRequired(property)) next.property = "Select a property.";
-    if (!isRequired(category)) next.category = "Select a category.";
-    if (!isRequired(priority)) next.priority = "Select a priority.";
-    if (!isRequired(title)) next.title = "Add a short title.";
+    if (!isRequired(property))    next.property    = "Select a property.";
+    if (!isRequired(category))    next.category    = "Select a category.";
+    if (!isRequired(priority))    next.priority    = "Select a priority.";
+    if (!isRequired(title))       next.title       = "Add a short title.";
     if (!isRequired(description)) next.description = "Describe the issue.";
     return next;
   }, [property, category, priority, title, description]);
 
-  // Submit handler
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      const validation = validate();
-      setErrors(validation);
-      if (Object.keys(validation).length > 0) return;
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validation = validate();
+    setErrors(validation);
+    if (Object.keys(validation).length > 0) return;
 
-      setLoading(true);
-      await submitRequest({
-        title,
-        description,
-        property,
-        category,
-        priority: priority as RequestPriority,
-        photos: files.map((f) => f.url),
-      });
-      setLoading(false);
-      setSuccess(true);
+    setLoading(true);
 
-      // Return to dashboard shortly after confirming.
-      setTimeout(() => navigate(RESIDENT_ROUTES.dashboard), 1600);
-    },
-    [validate, title, description, property, category, priority, files, navigate]
-  );
+    // Upload photos to S3 first
+    const photoUrls: string[] = [];
+    for (const f of files) {
+      const result = await api.upload<{ url: string }>("/api/upload", f.file);
+      photoUrls.push(result.url);
+    }
+
+    await api.post("/api/requests", {
+      propertyId: Number(property),
+      categoryId: Number(category),
+      priority: mapPriorityToApi(priority),
+      title,
+      description,
+      photoUrls,
+    });
+
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => navigate(RESIDENT_ROUTES.dashboard), 1600);
+  }, [validate, property, category, priority, title, description, files, navigate]);
 
   return (
     <DashboardLayout title="Submit Request">
@@ -102,7 +115,7 @@ export default function SubmitRequestPage() {
               label="Property"
               name="property"
               placeholder="Select your property"
-              options={RESIDENT_PROPERTIES}
+              options={propertyOptions.map((p) => ({ value: String(p.id), label: p.name }))}
               value={property}
               error={errors.property}
               onChange={(e) => setProperty(e.target.value)}
@@ -111,7 +124,7 @@ export default function SubmitRequestPage() {
               label="Issue Category"
               name="category"
               placeholder="Select a category"
-              options={ISSUE_CATEGORIES}
+              options={categoryOptions.map((c) => ({ value: String(c.id), label: c.name }))}
               value={category}
               error={errors.category}
               onChange={(e) => setCategory(e.target.value)}

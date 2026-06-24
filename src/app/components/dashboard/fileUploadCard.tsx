@@ -12,6 +12,8 @@ export interface UploadedFile {
   name: string;
   /** Object URL used for the preview thumbnail. */
   url: string;
+  /** Raw File object used for S3 upload. */
+  file: File;
 }
 
 interface FileUploadCardProps {
@@ -36,6 +38,7 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
           id: `${f.name}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
           name: f.name,
           url: URL.createObjectURL(f),
+          file: f,
         }));
       onChange([...files, ...next]);
     },

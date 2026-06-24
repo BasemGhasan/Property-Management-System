@@ -83,6 +83,20 @@ public class RequestsController(AppDbContext db) : ControllerBase
         db.MaintenanceRequests.Add(request);
         await db.SaveChangesAsync();
 
+        if (dto.PhotoUrls?.Count > 0)
+        {
+            foreach (var url in dto.PhotoUrls)
+            {
+                db.RequestEvidence.Add(new RequestEvidence
+                {
+                    RequestId = request.Id,
+                    FileUrl = url,
+                    FileName = Path.GetFileName(new Uri(url).LocalPath)
+                });
+            }
+            await db.SaveChangesAsync();
+        }
+
         var created = await db.MaintenanceRequests
             .Include(r => r.Resident)
             .Include(r => r.Property)
