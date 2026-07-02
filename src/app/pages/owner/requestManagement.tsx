@@ -13,7 +13,7 @@ import { RequestTimeline } from "../../components/dashboard/requestTimeline";
 import { SelectField } from "../../components/auth/selectField";
 import { TextAreaField } from "../../components/auth/textAreaField";
 import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
-import { SuccessMessage } from "../../components/auth/messages";
+import { SuccessMessage, ErrorMessage } from "../../components/auth/messages";
 import { LoadingState } from "../../components/shared/loadingState";
 import { InfoRow } from "../../components/shared/infoRow";
 import { getOwnerRequestById, updateOwnerRequest } from "../../services/ownerService";
@@ -35,6 +35,7 @@ export default function RequestManagementPage() {
   const [completionNotes, setCompletionNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -52,10 +53,23 @@ export default function RequestManagementPage() {
   const handleSave = useCallback(async () => {
     if (!id) return;
     setSaving(true);
-    await updateOwnerRequest(id, { status, priority, completionNotes });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setSaveError(false);
+    const ok = await updateOwnerRequest(id, { status, priority, completionNotes });
+    if (ok) {
+      const fresh = await getOwnerRequestById(id);
+      if (fresh) {
+        setRequest(fresh);
+        setStatus(fresh.status);
+        setPriority(fresh.priority);
+        setCompletionNotes(fresh.completionNotes ?? "");
+      }
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } else {
+      setSaving(false);
+      setSaveError(true);
+    }
   }, [id, status, priority, completionNotes]);
 
   if (loading) {
@@ -84,6 +98,7 @@ export default function RequestManagementPage() {
         {/* Left — details + controls */}
         <div className="flex flex-col gap-6 lg:col-span-2">
           {saved && <SuccessMessage>Request updated successfully.</SuccessMessage>}
+          {saveError && <ErrorMessage>Failed to update the request. Please try again.</ErrorMessage>}
 
           {/* Header */}
           <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">

@@ -11,7 +11,7 @@ import { InputField } from "../../components/auth/inputField";
 import { SelectField } from "../../components/auth/selectField";
 import { TextAreaField } from "../../components/auth/textAreaField";
 import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
-import { SuccessMessage } from "../../components/auth/messages";
+import { SuccessMessage, ErrorMessage } from "../../components/auth/messages";
 import { FileUploadCard, type UploadedFile } from "../../components/dashboard/fileUploadCard";
 import { api } from "../../lib/apiClient";
 import { RESIDENT_ROUTES, PRIORITY_OPTIONS, type RequestPriority } from "../../constants/resident";
@@ -47,6 +47,7 @@ export default function SubmitRequestPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -75,26 +76,33 @@ export default function SubmitRequestPage() {
     if (Object.keys(validation).length > 0) return;
 
     setLoading(true);
+    setSubmitError("");
 
-    // Upload photos to S3 first
-    const photoUrls: string[] = [];
-    for (const f of files) {
-      const result = await api.upload<{ url: string }>("/api/upload", f.file);
-      photoUrls.push(result.url);
+    try {
+      // Upload photos to S3 first
+      const photoUrls: string[] = [];
+      for (const f of files) {
+        const result = await api.upload<{ url: string }>("/api/upload", f.file);
+        photoUrls.push(result.url);
+      }
+
+      await api.post("/api/requests", {
+        propertyId: Number(property),
+        categoryId: Number(category),
+        priority: mapPriorityToApi(priority),
+        title,
+        description,
+        photoUrls,
+      });
+
+      setSuccess(true);
+      setTimeout(() => navigate(RESIDENT_ROUTES.dashboard), 1600);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to submit request.";
+      setSubmitError(message);
+    } finally {
+      setLoading(false);
     }
-
-    await api.post("/api/requests", {
-      propertyId: Number(property),
-      categoryId: Number(category),
-      priority: mapPriorityToApi(priority),
-      title,
-      description,
-      photoUrls,
-    });
-
-    setLoading(false);
-    setSuccess(true);
-    setTimeout(() => navigate(RESIDENT_ROUTES.dashboard), 1600);
   }, [validate, property, category, priority, title, description, files, navigate]);
 
   return (
@@ -108,6 +116,7 @@ export default function SubmitRequestPage() {
           {success && (
             <SuccessMessage>Maintenance request submitted successfully.</SuccessMessage>
           )}
+          {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
 
           {/* Property + Category */}
           <div className="grid gap-5 sm:grid-cols-2">

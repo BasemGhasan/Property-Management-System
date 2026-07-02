@@ -39,6 +39,7 @@ export default function PropertyOwnerRegistrationPage() {
   const [termsError, setTermsError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Derived count of properties owned.
   const propertyCount = useMemo(
@@ -74,7 +75,8 @@ export default function PropertyOwnerRegistrationPage() {
         return;
 
       setLoading(true);
-      await register({
+      setSubmitError("");
+      const result = await register({
         role: "owner",
         fullName: fields.fullName,
         email: fields.email,
@@ -83,7 +85,11 @@ export default function PropertyOwnerRegistrationPage() {
         extra: { properties: propertyNames.filter((p) => isRequired(p)) },
       });
       setLoading(false);
-      setSuccess(true);
+      if (result.success) {
+        setSuccess(true);
+      } else {
+        setSubmitError(result.message ?? "Registration failed. Please try again.");
+      }
     },
     [fields, propertyNames, acceptedTerms, validateCommon, setErrors]
   );
@@ -110,6 +116,8 @@ export default function PropertyOwnerRegistrationPage() {
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+        {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
+
         <CommonRegistrationFields fields={fields} errors={errors} setField={setField} />
 
         {/* Property information section */}

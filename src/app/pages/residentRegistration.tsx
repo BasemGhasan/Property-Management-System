@@ -36,6 +36,7 @@ export default function ResidentRegistrationPage() {
   const [termsError, setTermsError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Submit handler
   const handleSubmit = useCallback(
@@ -48,7 +49,8 @@ export default function ResidentRegistrationPage() {
       if (Object.keys(validation).length > 0 || !acceptedTerms) return;
 
       setLoading(true);
-      await register({
+      setSubmitError("");
+      const result = await register({
         role: "resident",
         fullName: fields.fullName,
         email: fields.email,
@@ -57,7 +59,11 @@ export default function ResidentRegistrationPage() {
         extra: { propertyName },
       });
       setLoading(false);
-      setSuccess(true);
+      if (result.success) {
+        setSuccess(true);
+      } else {
+        setSubmitError(result.message ?? "Registration failed. Please try again.");
+      }
     },
     [fields, propertyName, acceptedTerms, validateCommon, setErrors]
   );
@@ -84,6 +90,8 @@ export default function ResidentRegistrationPage() {
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+        {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
+
         <CommonRegistrationFields fields={fields} errors={errors} setField={setField} />
 
         <InputField
