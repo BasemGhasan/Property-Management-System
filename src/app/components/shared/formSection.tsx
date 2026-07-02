@@ -21,11 +21,11 @@ export function FormSection({
   title,
   icon: Icon,
   children,
-  accentColor = "text-blue-400",
+  accentColor = "text-primary",
 }: FormSectionProps) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-6">
-      <h3 className="mb-5 flex items-center gap-2 text-slate-200">
+    <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+      <h3 className="mb-5 flex items-center gap-2 text-foreground">
         <Icon size={18} className={accentColor} />
         {title}
       </h3>

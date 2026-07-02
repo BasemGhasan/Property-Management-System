@@ -54,7 +54,7 @@ export default function AdminProfilePage() {
         <form onSubmit={handleSaveProfile} className="flex flex-col gap-6">
           {savedProfile && <SuccessMessage>Profile updated successfully.</SuccessMessage>}
 
-          <FormSection title="Personal Information" icon={User} accentColor="text-violet-400">
+          <FormSection title="Personal Information" icon={User} accentColor="text-violet-700">
             <div className="flex flex-col gap-5">
               <InputField label="Full Name" name="fullName" icon={<User size={18} />} value={fullName} onChange={(e) => setFullName(e.target.value)} />
               <div className="grid gap-5 sm:grid-cols-2">
@@ -64,7 +64,7 @@ export default function AdminProfilePage() {
             </div>
           </FormSection>
 
-          <FormSection title="Notification Preferences" icon={Bell} accentColor="text-violet-400">
+          <FormSection title="Notification Preferences" icon={Bell} accentColor="text-violet-700">
             <div className="flex flex-col gap-4">
               <CheckboxField id="adminEmailNotif" checked={emailNotif} onChange={setEmailNotif}>
                 Email alerts for new user registrations and critical requests
@@ -81,7 +81,7 @@ export default function AdminProfilePage() {
         </form>
 
         <form onSubmit={handleUpdatePassword}>
-          <FormSection title="Security" icon={KeyRound} accentColor="text-violet-400">
+          <FormSection title="Security" icon={KeyRound} accentColor="text-violet-700">
             {savedPassword && (
               <div className="mb-4"><SuccessMessage>Password updated successfully.</SuccessMessage></div>
             )}

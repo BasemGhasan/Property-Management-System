@@ -83,7 +83,7 @@ export default function RequestManagementPage() {
   if (!request) {
     return (
       <OwnerLayout title="Request Management">
-        <p className="py-12 text-center text-slate-500">Request not found.</p>
+        <p className="py-12 text-center text-muted-foreground">Request not found.</p>
       </OwnerLayout>
     );
   }
@@ -101,18 +101,18 @@ export default function RequestManagementPage() {
           {saveError && <ErrorMessage>Failed to update the request. Please try again.</ErrorMessage>}
 
           {/* Header */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-slate-100">{request.title}</h2>
-                <p className="mt-0.5 text-sm text-slate-500">{request.id}</p>
+                <h2 className="text-foreground">{request.title}</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">{request.id}</p>
               </div>
               <div className="flex gap-2">
                 <PriorityBadge priority={priority} />
                 <StatusBadge status={status} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-4">
               <InfoRow label="Property">{request.propertyName}</InfoRow>
               <InfoRow label="Resident">{request.residentName}</InfoRow>
               <InfoRow label="Category">{categoryLabel(request.category)}</InfoRow>
@@ -121,18 +121,18 @@ export default function RequestManagementPage() {
           </div>
 
           {/* Description */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-            <h3 className="mb-2 text-slate-200">Description</h3>
-            <p className="text-sm leading-relaxed text-slate-400">{request.description}</p>
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
+            <h3 className="mb-2 text-foreground">Description</h3>
+            <p className="text-sm leading-relaxed text-muted-foreground">{request.description}</p>
           </div>
 
           {/* Photos */}
           {request.photos.length > 0 && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-              <h3 className="mb-3 text-slate-200">Photos</h3>
+            <div className="rounded-2xl border border-border bg-card/40 p-5">
+              <h3 className="mb-3 text-foreground">Photos</h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {request.photos.map((src, i) => (
-                  <div key={i} className="aspect-video overflow-hidden rounded-xl border border-slate-700">
+                  <div key={i} className="aspect-video overflow-hidden rounded-xl border border-border">
                     <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
                   </div>
                 ))}
@@ -141,8 +141,8 @@ export default function RequestManagementPage() {
           )}
 
           {/* Owner controls */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-            <h3 className="mb-4 text-slate-200">Update Request</h3>
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
+            <h3 className="mb-4 text-foreground">Update Request</h3>
             <div className="flex flex-col gap-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <SelectField
@@ -180,8 +180,8 @@ export default function RequestManagementPage() {
 
         {/* Right — timeline */}
         <div className="lg:col-span-1">
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-            <h3 className="mb-5 text-slate-200">Request Timeline</h3>
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
+            <h3 className="mb-5 text-foreground">Request Timeline</h3>
             <RequestTimeline steps={request.timeline} />
           </div>
         </div>

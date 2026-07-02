@@ -17,7 +17,7 @@ interface ValidationMessageProps {
 export function ValidationMessage({ message }: ValidationMessageProps) {
   if (!message) return null;
   return (
-    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-red-400">
+    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-red-700">
       <AlertCircle size={14} />
       {message}
     </p>
@@ -33,7 +33,7 @@ interface BannerProps {
 
 export function ErrorMessage({ children }: BannerProps) {
   return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+    <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-sm text-red-800">
       <XCircle size={18} className="mt-0.5 shrink-0" />
       <span>{children}</span>
     </div>
@@ -45,7 +45,7 @@ export function ErrorMessage({ children }: BannerProps) {
 // ----------------------------------------------------------------------------
 export function SuccessMessage({ children }: BannerProps) {
   return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">
+    <div className="flex items-start gap-2.5 rounded-xl border border-green-200 bg-green-100 px-4 py-3 text-sm text-green-800">
       <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
       <span>{children}</span>
     </div>

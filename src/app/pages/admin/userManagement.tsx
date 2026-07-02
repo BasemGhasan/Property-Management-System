@@ -18,10 +18,10 @@ import type { AdminUser } from "../../constants/admin";
 // Role pill
 function RolePill({ role }: { role: AdminUser["role"] }) {
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs ${
+    <span className={`inline-flex items-center border px-2 py-0.5 font-data text-[11px] uppercase tracking-wide ${
       role === "owner"
-        ? "border-blue-500/30 bg-blue-500/10 text-blue-300"
-        : "border-slate-600/50 bg-slate-700/30 text-slate-300"
+        ? "border-plum/25 bg-plum-soft text-plum"
+        : "border-border bg-background text-muted-foreground"
     }`}>
       {role === "owner" ? "Property Owner" : "Resident"}
     </span>
@@ -65,14 +65,14 @@ export default function UserManagementPage() {
     <AdminLayout title="User Management">
       <div className="flex flex-col gap-5">
         {/* Filters */}
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-800/40 p-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card/40 p-4 sm:flex-row sm:items-end">
           <div className="relative flex-1">
-            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, email or ID..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
           <div className="sm:w-52">
@@ -91,11 +91,11 @@ export default function UserManagementPage() {
         {loading ? (
           <LoadingState />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-slate-800">
+          <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+                <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-5 py-3">User ID</th>
                     <th className="px-5 py-3">Full Name</th>
@@ -105,12 +105,12 @@ export default function UserManagementPage() {
                     <th className="px-5 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {filtered.map((u) => (
-                    <tr key={u.id} className="bg-slate-900/20 transition-colors hover:bg-slate-800/40">
-                      <td className="px-5 py-3 text-slate-500 text-xs">{u.id}</td>
-                      <td className="px-5 py-3 text-slate-200">{u.fullName}</td>
-                      <td className="px-5 py-3 text-slate-400">{u.email}</td>
+                    <tr key={u.id} className="bg-background/20 transition-colors hover:bg-accent">
+                      <td className="px-5 py-3 text-muted-foreground text-xs">{u.id}</td>
+                      <td className="px-5 py-3 text-foreground">{u.fullName}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{u.email}</td>
                       <td className="px-5 py-3"><RolePill role={u.role} /></td>
                       <td className="px-5 py-3"><StatusPill active={u.active} /></td>
                       <td className="px-5 py-3">
@@ -118,7 +118,7 @@ export default function UserManagementPage() {
                           <button
                             onClick={() => openModal(u)}
                             title="View details"
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                           >
                             <Eye size={16} />
                           </button>
@@ -127,8 +127,8 @@ export default function UserManagementPage() {
                             title={u.active ? "Deactivate" : "Activate"}
                             className={`rounded-lg p-1.5 transition-colors ${
                               u.active
-                                ? "text-slate-400 hover:bg-red-500/10 hover:text-red-400"
-                                : "text-slate-400 hover:bg-green-500/10 hover:text-green-400"
+                                ? "text-muted-foreground hover:bg-red-100 hover:text-red-700"
+                                : "text-muted-foreground hover:bg-green-100 hover:text-green-700"
                             }`}
                           >
                             {u.active ? <UserX size={16} /> : <UserCheck size={16} />}
@@ -142,20 +142,20 @@ export default function UserManagementPage() {
             </div>
 
             {/* Mobile cards */}
-            <div className="flex flex-col divide-y divide-slate-800 md:hidden">
+            <div className="flex flex-col divide-y divide-border md:hidden">
               {filtered.map((u) => (
                 <div key={u.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
-                    <p className="text-sm text-slate-200">{u.fullName}</p>
-                    <p className="mt-0.5 text-xs text-slate-500">{u.email}</p>
+                    <p className="text-sm text-foreground">{u.fullName}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{u.email}</p>
                     <div className="mt-2 flex gap-2">
                       <RolePill role={u.role} />
                       <StatusPill active={u.active} />
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => openModal(u)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"><Eye size={16} /></button>
-                    <button onClick={() => handleToggle(u.id)} className={`rounded-lg p-1.5 ${u.active ? "text-red-400" : "text-green-400"}`}>
+                    <button onClick={() => openModal(u)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><Eye size={16} /></button>
+                    <button onClick={() => handleToggle(u.id)} className={`rounded-lg p-1.5 ${u.active ? "text-red-700" : "text-green-700"}`}>
                       {u.active ? <UserX size={16} /> : <UserCheck size={16} />}
                     </button>
                   </div>
@@ -164,7 +164,7 @@ export default function UserManagementPage() {
             </div>
 
             {filtered.length === 0 && (
-              <p className="p-12 text-center text-slate-500">No users match your filters.</p>
+              <p className="p-12 text-center text-muted-foreground">No users match your filters.</p>
             )}
           </div>
         )}

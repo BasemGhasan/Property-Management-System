@@ -106,8 +106,8 @@ export default function ResidentRegistrationPage() {
         <div className="flex flex-col gap-1.5">
           <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
             I agree to the{" "}
-            <span className="text-blue-400">Terms &amp; Conditions</span> and{" "}
-            <span className="text-blue-400">Privacy Policy</span>.
+            <span className="text-primary">Terms &amp; Conditions</span> and{" "}
+            <span className="text-primary">Privacy Policy</span>.
           </CheckboxField>
           {termsError && <ErrorMessage>{termsError}</ErrorMessage>}
         </div>
@@ -120,7 +120,7 @@ export default function ResidentRegistrationPage() {
         <button
           type="button"
           onClick={() => navigate(ROUTES.roleSelection)}
-          className="inline-flex items-center justify-center gap-2 text-sm text-slate-400 transition-colors hover:text-slate-200"
+          className="inline-flex items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft size={16} />
           Back to account type

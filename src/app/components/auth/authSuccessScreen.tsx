@@ -23,12 +23,12 @@ export function AuthSuccessScreen({
 }: AuthSuccessScreenProps) {
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15 text-green-400">
+      <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700">
         <CheckCircle2 size={34} />
       </span>
 
-      <h1 className="text-slate-50">{title}</h1>
-      <p className="mt-2 mb-7 text-sm text-slate-400">{message}</p>
+      <h1 className="text-foreground">{title}</h1>
+      <p className="mt-2 mb-7 text-sm text-muted-foreground">{message}</p>
 
       <PrimaryButton type="button" onClick={onAction}>
         {actionLabel}

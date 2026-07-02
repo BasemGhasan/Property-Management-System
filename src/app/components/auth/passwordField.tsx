@@ -38,13 +38,13 @@ export function PasswordField({
 
   return (
     <div className="w-full">
-      <label htmlFor={inputId} className="mb-1.5 block text-sm text-slate-300">
+      <label htmlFor={inputId} className="mb-1.5 block text-sm text-secondary-foreground">
         {label}
       </label>
 
       <div className="relative">
         {/* Leading lock icon */}
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
           <Lock size={18} />
         </span>
 
@@ -54,11 +54,11 @@ export function PasswordField({
           value={value}
           {...rest}
           className={[
-            "w-full rounded-xl border bg-slate-900/60 py-3 pl-11 pr-11 text-slate-100 placeholder:text-slate-500",
+            "w-full rounded-xl border bg-background/60 py-3 pl-11 pr-11 text-foreground placeholder:text-muted-foreground",
             "transition-colors focus:outline-none focus:ring-2",
             error
               ? "border-red-500/60 focus:ring-red-500/40"
-              : "border-slate-700 focus:border-blue-500 focus:ring-blue-500/40",
+              : "border-border focus:border-primary focus:ring-primary/40",
             className,
           ].join(" ")}
         />
@@ -68,7 +68,7 @@ export function PasswordField({
           type="button"
           onClick={toggleVisible}
           aria-label={visible ? "Hide password" : "Show password"}
-          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-300"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
         >
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
@@ -83,15 +83,15 @@ export function PasswordField({
                 key={bar}
                 className={[
                   "h-1.5 flex-1 rounded-full transition-colors",
-                  bar <= strength.score ? strength.color : "bg-slate-700",
+                  bar <= strength.score ? strength.color : "bg-muted",
                 ].join(" ")}
               />
             ))}
           </div>
           {strength.label && (
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Password strength:{" "}
-              <span className="text-slate-200">{strength.label}</span>
+              <span className="text-foreground">{strength.label}</span>
             </p>
           )}
         </div>

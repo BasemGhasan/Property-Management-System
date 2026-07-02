@@ -60,23 +60,23 @@ export default function CategoryManagementPage() {
     >
       <div className="flex flex-col gap-5">
         {/* Summary */}
-        <div className="flex gap-3 text-sm text-slate-500">
+        <div className="flex gap-3 text-sm text-muted-foreground">
           <span>{categories.length} total</span>
           <span>·</span>
-          <span className="text-green-400">{active} active</span>
+          <span className="text-green-700">{active} active</span>
           <span>·</span>
-          <span className="text-red-400">{inactive} disabled</span>
+          <span className="text-red-700">{inactive} disabled</span>
         </div>
 
         {/* Table */}
         {loading ? (
           <LoadingState />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-slate-800">
+          <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+                <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-5 py-3">Category Name</th>
                     <th className="px-5 py-3">Slug</th>
@@ -85,19 +85,19 @@ export default function CategoryManagementPage() {
                     <th className="px-5 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {categories.map((cat) => (
-                    <tr key={cat.id} className="bg-slate-900/20 transition-colors hover:bg-slate-800/40">
-                      <td className="px-5 py-3 text-slate-200">{cat.name}</td>
-                      <td className="px-5 py-3 font-mono text-xs text-slate-500">{cat.slug}</td>
+                    <tr key={cat.id} className="bg-background/20 transition-colors hover:bg-accent">
+                      <td className="px-5 py-3 text-foreground">{cat.name}</td>
+                      <td className="px-5 py-3 font-mono text-xs text-muted-foreground">{cat.slug}</td>
                       <td className="px-5 py-3">
                         <PriorityBadge priority={cat.defaultPriority as RequestPriority} />
                       </td>
                       <td className="px-5 py-3">
-                        <span className={`rounded-full border px-2.5 py-1 text-xs ${
+                        <span className={`border px-2 py-0.5 font-data text-[11px] uppercase tracking-wide ${
                           cat.active
-                            ? "border-green-500/30 bg-green-500/10 text-green-300"
-                            : "border-red-500/30 bg-red-500/10 text-red-300"
+                            ? "border-success/25 bg-success-soft text-success"
+                            : "border-critical/25 bg-critical-soft text-critical"
                         }`}>
                           {cat.active ? "Active" : "Disabled"}
                         </span>
@@ -107,7 +107,7 @@ export default function CategoryManagementPage() {
                           <button
                             onClick={() => openEdit(cat)}
                             title="Edit"
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                           >
                             <Pencil size={15} />
                           </button>
@@ -116,8 +116,8 @@ export default function CategoryManagementPage() {
                             title={cat.active ? "Disable" : "Enable"}
                             className={`rounded-lg p-1.5 transition-colors ${
                               cat.active
-                                ? "text-slate-400 hover:bg-red-500/10 hover:text-red-400"
-                                : "text-slate-400 hover:bg-green-500/10 hover:text-green-400"
+                                ? "text-muted-foreground hover:bg-red-100 hover:text-red-700"
+                                : "text-muted-foreground hover:bg-green-100 hover:text-green-700"
                             }`}
                           >
                             {cat.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
@@ -131,19 +131,19 @@ export default function CategoryManagementPage() {
             </div>
 
             {/* Mobile cards */}
-            <div className="flex flex-col divide-y divide-slate-800 md:hidden">
+            <div className="flex flex-col divide-y divide-border md:hidden">
               {categories.map((cat) => (
                 <div key={cat.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
-                    <p className="text-sm text-slate-200">{cat.name}</p>
-                    <p className="mt-0.5 font-mono text-xs text-slate-500">{cat.slug}</p>
+                    <p className="text-sm text-foreground">{cat.name}</p>
+                    <p className="mt-0.5 font-mono text-xs text-muted-foreground">{cat.slug}</p>
                     <div className="mt-2 flex gap-2">
                       <PriorityBadge priority={cat.defaultPriority as RequestPriority} />
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => openEdit(cat)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"><Pencil size={15} /></button>
-                    <button onClick={() => handleToggle(cat.id)} className={`rounded-lg p-1.5 ${cat.active ? "text-red-400" : "text-green-400"}`}>
+                    <button onClick={() => openEdit(cat)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><Pencil size={15} /></button>
+                    <button onClick={() => handleToggle(cat.id)} className={`rounded-lg p-1.5 ${cat.active ? "text-red-700" : "text-green-700"}`}>
                       {cat.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                     </button>
                   </div>

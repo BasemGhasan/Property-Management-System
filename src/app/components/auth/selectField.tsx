@@ -34,7 +34,7 @@ export function SelectField({
 
   return (
     <div className="w-full">
-      <label htmlFor={selectId} className="mb-1.5 block text-sm text-slate-300">
+      <label htmlFor={selectId} className="mb-1.5 block text-sm text-secondary-foreground">
         {label}
       </label>
 
@@ -43,11 +43,11 @@ export function SelectField({
           id={selectId}
           {...rest}
           className={[
-            "w-full appearance-none rounded-xl border bg-slate-900/60 px-4 py-3 text-slate-100",
+            "w-full appearance-none rounded-xl border bg-background/60 px-4 py-3 text-foreground",
             "transition-colors focus:outline-none focus:ring-2",
             error
               ? "border-red-500/60 focus:ring-red-500/40"
-              : "border-slate-700 focus:border-blue-500 focus:ring-blue-500/40",
+              : "border-border focus:border-primary focus:ring-primary/40",
             className,
           ].join(" ")}
         >
@@ -55,7 +55,7 @@ export function SelectField({
             {placeholder}
           </option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-slate-800">
+            <option key={opt.value} value={opt.value} className="bg-card">
               {opt.label}
             </option>
           ))}
@@ -63,7 +63,7 @@ export function SelectField({
 
         <ChevronDown
           size={18}
-          className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+          className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
         />
       </div>
 

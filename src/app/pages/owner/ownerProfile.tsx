@@ -77,18 +77,18 @@ export default function OwnerProfilePage() {
           {/* Property summary is read-only — derived from the database in production */}
           <FormSection title="Property Summary" icon={Building2}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3">
-                <Building2 size={18} className="text-blue-400" />
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-background/40 px-4 py-3">
+                <Building2 size={18} className="text-primary" />
                 <div>
-                  <p className="text-lg text-slate-100">{propertyCount}</p>
-                  <p className="text-xs text-slate-500">Properties Owned</p>
+                  <p className="text-lg text-foreground">{propertyCount}</p>
+                  <p className="text-xs text-muted-foreground">Properties Owned</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3">
-                <Users size={18} className="text-blue-400" />
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-background/40 px-4 py-3">
+                <Users size={18} className="text-primary" />
                 <div>
-                  <p className="text-lg text-slate-100">{residentCount}</p>
-                  <p className="text-xs text-slate-500">Total Residents</p>
+                  <p className="text-lg text-foreground">{residentCount}</p>
+                  <p className="text-xs text-muted-foreground">Total Residents</p>
                 </div>
               </div>
             </div>

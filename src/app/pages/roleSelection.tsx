@@ -62,7 +62,7 @@ export default function RoleSelectionPage() {
         <button
           type="button"
           onClick={() => navigate(ROUTES.login)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm text-slate-400 transition-colors hover:text-slate-200"
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft size={16} />
           Back to login

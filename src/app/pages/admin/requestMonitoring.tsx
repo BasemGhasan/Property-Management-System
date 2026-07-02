@@ -19,21 +19,21 @@ import type { OwnerRequest } from "../../constants/owner";
 // Read-only request detail panel shown beneath the table on row click
 function RequestDetailPanel({ request, onClose }: { request: OwnerRequest; onClose: () => void }) {
   return (
-    <div className="rounded-2xl border border-slate-700 bg-slate-800/60 p-5">
+    <div className="rounded-2xl border border-border bg-muted p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-slate-100">{request.title}</h3>
-          <p className="mt-0.5 text-xs text-slate-500">{request.id} · {request.propertyName} · {request.residentName}</p>
+          <h3 className="text-foreground">{request.title}</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">{request.id} · {request.propertyName} · {request.residentName}</p>
         </div>
         <div className="flex gap-2">
           <PriorityBadge priority={request.priority} />
           <StatusBadge status={request.status} />
         </div>
       </div>
-      <p className="mb-4 text-sm leading-relaxed text-slate-400">{request.description}</p>
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{request.description}</p>
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Submitted: {request.submittedAt}</span>
-        <button onClick={onClose} className="text-slate-400 hover:text-slate-200">Close ×</button>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground">Close ×</button>
       </div>
     </div>
   );
@@ -83,14 +83,14 @@ export default function RequestMonitoringPage() {
     <AdminLayout title="Maintenance Requests">
       <div className="flex flex-col gap-5">
         {/* Filters */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-4">
+        <div className="rounded-2xl border border-border bg-card/40 p-4">
           <div className="relative mb-4">
-            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => { setSearch(e.target.value); resetPage(); }}
               placeholder="Search by ID, title or resident..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -108,32 +108,32 @@ export default function RequestMonitoringPage() {
           <LoadingState />
         ) : (
           <>
-            <div className="overflow-hidden rounded-2xl border border-slate-800">
+            <div className="overflow-hidden rounded-2xl border border-border">
               {/* Desktop */}
               <div className="hidden md:block">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+                  <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
                       {["ID", "Property", "Resident", "Category", "Priority", "Status", "Date", ""].map((h, i) => (
                         <th key={i} className="px-5 py-3">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800">
+                  <tbody className="divide-y divide-border">
                     {pageItems.map((r) => (
-                      <tr key={r.id} className={`bg-slate-900/20 transition-colors hover:bg-slate-800/40 ${detail?.id === r.id ? "ring-1 ring-inset ring-violet-500/30" : ""}`}>
-                        <td className="px-5 py-3 text-xs text-slate-500">{r.id}</td>
-                        <td className="px-5 py-3 text-slate-400">{r.propertyName}</td>
-                        <td className="px-5 py-3 text-slate-400">{r.residentName}</td>
-                        <td className="px-5 py-3 text-slate-400">{categoryLabel(r.category)}</td>
+                      <tr key={r.id} className={`bg-background/20 transition-colors hover:bg-accent ${detail?.id === r.id ? "ring-1 ring-inset ring-primary/30" : ""}`}>
+                        <td className="px-5 py-3 text-xs text-muted-foreground">{r.id}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{r.propertyName}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{r.residentName}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{categoryLabel(r.category)}</td>
                         <td className="px-5 py-3"><PriorityBadge priority={r.priority} /></td>
                         <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
-                        <td className="px-5 py-3 text-slate-400">{r.submittedAt}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{r.submittedAt}</td>
                         <td className="px-5 py-3">
                           <button
                             onClick={() => setDetail(detail?.id === r.id ? null : r)}
                             title="View details"
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                           >
                             <Eye size={16} />
                           </button>
@@ -145,32 +145,32 @@ export default function RequestMonitoringPage() {
               </div>
 
               {/* Mobile cards */}
-              <div className="flex flex-col divide-y divide-slate-800 md:hidden">
+              <div className="flex flex-col divide-y divide-border md:hidden">
                 {pageItems.map((r) => (
                   <button
                     key={r.id}
                     onClick={() => setDetail(detail?.id === r.id ? null : r)}
-                    className="flex flex-col gap-2 px-4 py-4 text-left hover:bg-slate-800/40"
+                    className="flex flex-col gap-2 px-4 py-4 text-left hover:bg-accent"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm text-slate-200">{r.title}</p>
+                      <p className="text-sm text-foreground">{r.title}</p>
                       <StatusBadge status={r.status} />
                     </div>
-                    <p className="text-xs text-slate-500">{r.residentName} · {r.propertyName}</p>
+                    <p className="text-xs text-muted-foreground">{r.residentName} · {r.propertyName}</p>
                     <div className="flex gap-2"><PriorityBadge priority={r.priority} /></div>
                   </button>
                 ))}
               </div>
 
               {filtered.length === 0 && (
-                <p className="p-12 text-center text-slate-500">No requests match your filters.</p>
+                <p className="p-12 text-center text-muted-foreground">No requests match your filters.</p>
               )}
             </div>
 
             {/* Pagination */}
             {filtered.length > PAGE_SIZE && (
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-500">Page {page} of {totalPages} · {filtered.length} results</p>
+                <p className="text-sm text-muted-foreground">Page {page} of {totalPages} · {filtered.length} results</p>
                 <div className="flex gap-2">
                   <SecondaryButton fullWidth={false} disabled={page === 1} onClick={() => setPage((p) => p - 1)}>Previous</SecondaryButton>
                   <SecondaryButton fullWidth={false} disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next</SecondaryButton>

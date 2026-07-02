@@ -85,32 +85,32 @@ export default function AdminPropertyDetailsPage() {
       {/* Edit Modal */}
       {showEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-popover p-6">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-slate-100">Edit Property</h2>
-              <button onClick={() => setShowEdit(false)} className="text-slate-500 hover:text-slate-200"><X size={20} /></button>
+              <h2 className="text-foreground">Edit Property</h2>
+              <button onClick={() => setShowEdit(false)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
             </div>
             <form onSubmit={handleSaveEdit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-slate-400">Property Name *</label>
+                <label className="text-sm text-muted-foreground">Property Name *</label>
                 <input required value={editName} onChange={(e) => setEditName(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none" />
+                  className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-slate-400">Address *</label>
+                <label className="text-sm text-muted-foreground">Address *</label>
                 <input required value={editAddress} onChange={(e) => setEditAddress(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none" />
+                  className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Number of Units</label>
+                  <label className="text-sm text-muted-foreground">Number of Units</label>
                   <input type="number" min={1} value={editUnits} onChange={(e) => setEditUnits(Number(e.target.value))}
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Assigned Owner</label>
+                  <label className="text-sm text-muted-foreground">Assigned Owner</label>
                   <select value={editOwnerId} onChange={(e) => setEditOwnerId(e.target.value)}
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none">
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none">
                     <option value="">— Keep current —</option>
                     {owners.map((o) => (
                       <option key={o.id} value={o.id}>{o.fullName}</option>
@@ -120,7 +120,7 @@ export default function AdminPropertyDetailsPage() {
               </div>
               <div className="mt-2 flex gap-3">
                 <button type="button" onClick={() => setShowEdit(false)}
-                  className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-400 hover:text-slate-200">Cancel</button>
+                  className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
                 <PrimaryButton type="submit" loading={saving} fullWidth={false} className="flex-1">Save Changes</PrimaryButton>
               </div>
             </form>
@@ -131,12 +131,12 @@ export default function AdminPropertyDetailsPage() {
       {/* Delete Confirm Modal */}
       {showConfirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6">
-            <h2 className="mb-2 text-slate-100">Delete Property?</h2>
-            <p className="mb-6 text-sm text-slate-400">This will deactivate <span className="text-slate-200">{adminProp?.name}</span> and cannot be undone from the UI.</p>
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-popover p-6">
+            <h2 className="mb-2 text-foreground">Delete Property?</h2>
+            <p className="mb-6 text-sm text-muted-foreground">This will deactivate <span className="text-foreground">{adminProp?.name}</span> and cannot be undone from the UI.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowConfirmDelete(false)}
-                className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-400 hover:text-slate-200">Cancel</button>
+                className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
               <button onClick={handleDelete} disabled={deleting}
                 className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm text-white hover:bg-red-700 disabled:opacity-60">
                 {deleting ? "Deleting…" : "Delete"}
@@ -149,28 +149,28 @@ export default function AdminPropertyDetailsPage() {
       {loading ? (
         <LoadingState />
       ) : !adminProp ? (
-        <p className="py-12 text-center text-slate-500">Property not found.</p>
+        <p className="py-12 text-center text-muted-foreground">Property not found.</p>
       ) : (
         <div className="flex flex-col gap-6 max-w-3xl">
           {/* Property info */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-slate-100">{adminProp.name}</h2>
-                <p className="mt-1 text-sm text-slate-500">{adminProp.address}</p>
+                <h2 className="text-foreground">{adminProp.name}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{adminProp.address}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`rounded-full border px-3 py-1 text-xs ${
                   adminProp.active
-                    ? "border-green-500/30 bg-green-500/10 text-green-300"
-                    : "border-red-500/30 bg-red-500/10 text-red-300"
+                    ? "border-green-200 bg-green-100 text-green-800"
+                    : "border-red-200 bg-red-100 text-red-800"
                 }`}>
                   {adminProp.active ? "Active" : "Inactive"}
                 </span>
-                <button onClick={openEdit} className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-blue-500/40 hover:text-blue-300">
+                <button onClick={openEdit} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary">
                   <Pencil size={13} /> Edit
                 </button>
-                <button onClick={() => setShowConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-red-500/40 hover:text-red-400">
+                <button onClick={() => setShowConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-red-200 hover:text-red-700">
                   <Trash2 size={13} /> Delete
                 </button>
               </div>
@@ -180,24 +180,24 @@ export default function AdminPropertyDetailsPage() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { icon: Users, label: "Residents", value: adminProp.residentCount, color: "bg-blue-500/15 text-blue-400" },
-              { icon: Wrench, label: "Total Requests", value: adminProp.totalRequests, color: "bg-orange-500/15 text-orange-400" },
-              { icon: CheckCircle2, label: "Owner", value: adminProp.ownerName, color: "bg-green-500/15 text-green-400" },
+              { icon: Users, label: "Residents", value: adminProp.residentCount, color: "bg-primary/15 text-primary" },
+              { icon: Wrench, label: "Total Requests", value: adminProp.totalRequests, color: "bg-orange-100 text-orange-700" },
+              { icon: CheckCircle2, label: "Owner", value: adminProp.ownerName, color: "bg-green-100 text-green-700" },
             ].map(({ icon: Icon, label, value, color }) => (
-              <div key={label} className="flex flex-col items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-800/40 p-4 text-center">
+              <div key={label} className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card/40 p-4 text-center">
                 <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${color}`}><Icon size={18} /></span>
-                <p className="text-sm text-slate-100">{value}</p>
-                <p className="text-xs text-slate-500">{label}</p>
+                <p className="text-sm text-foreground">{value}</p>
+                <p className="text-xs text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>
 
           {/* Assigned owner */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-            <h3 className="mb-3 text-slate-200">Assigned Owner</h3>
+          <div className="rounded-2xl border border-border bg-card/40 p-5">
+            <h3 className="mb-3 text-foreground">Assigned Owner</h3>
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-slate-200">{adminProp.ownerName}</p>
-              <a href={`mailto:${adminProp.ownerEmail}`} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-blue-300">
+              <p className="text-sm text-foreground">{adminProp.ownerName}</p>
+              <a href={`mailto:${adminProp.ownerEmail}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
                 <Mail size={14} /> {adminProp.ownerEmail}
               </a>
             </div>
@@ -205,25 +205,25 @@ export default function AdminPropertyDetailsPage() {
 
           {/* Residents */}
           {ownerProp && ownerProp.residents.length > 0 && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-              <h3 className="mb-4 text-slate-200">Residents ({ownerProp.residents.length})</h3>
-              <div className="flex flex-col divide-y divide-slate-800">
+            <div className="rounded-2xl border border-border bg-card/40 p-5">
+              <h3 className="mb-4 text-foreground">Residents ({ownerProp.residents.length})</h3>
+              <div className="flex flex-col divide-y divide-border">
                 {ownerProp.residents.map((r) => (
                   <div key={r.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-xs text-slate-300">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs text-secondary-foreground">
                         {r.name.split(" ").map((n) => n[0]).join("")}
                       </span>
                       <div>
-                        <p className="text-sm text-slate-200">{r.name}</p>
-                        <p className="text-xs text-slate-500">Unit {r.unit}</p>
+                        <p className="text-sm text-foreground">{r.name}</p>
+                        <p className="text-xs text-muted-foreground">Unit {r.unit}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-4 pl-11 sm:pl-0">
-                      <a href={`mailto:${r.email}`} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-300">
+                      <a href={`mailto:${r.email}`} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary">
                         <Mail size={13} /> {r.email}
                       </a>
-                      <a href={`tel:${r.phone}`} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-300">
+                      <a href={`tel:${r.phone}`} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary">
                         <Phone size={13} /> {r.phone}
                       </a>
                     </div>

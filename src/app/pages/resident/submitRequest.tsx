@@ -110,7 +110,7 @@ export default function SubmitRequestPage() {
       <div className="mx-auto max-w-3xl">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-5 rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-7"
+          className="flex flex-col gap-5 rounded-2xl border border-border bg-card/40 p-5 sm:p-7"
           noValidate
         >
           {success && (

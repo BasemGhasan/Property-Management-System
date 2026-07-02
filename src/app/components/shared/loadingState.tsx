@@ -9,7 +9,7 @@ import { LoadingSpinner } from "../auth/loadingSpinner";
 // Component
 export function LoadingState() {
   return (
-    <div className="flex justify-center py-24 text-slate-500">
+    <div className="flex justify-center py-24 text-muted-foreground">
       <LoadingSpinner size={28} />
     </div>
   );

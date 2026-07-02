@@ -93,10 +93,10 @@ export default function ResidentDashboard() {
             {/* Recent requests */}
             <div className="lg:col-span-2">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-slate-200">Recent Requests</h2>
+                <h2 className="text-foreground">Recent Requests</h2>
                 <button
                   onClick={() => navigate(RESIDENT_ROUTES.history)}
-                  className="text-sm text-blue-400 hover:text-blue-300"
+                  className="text-sm text-primary hover:text-primary/80"
                 >
                   View all
                 </button>

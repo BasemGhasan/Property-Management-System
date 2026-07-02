@@ -23,7 +23,7 @@ import {
 function PhotoGallery({ photos }: { photos: string[] }) {
   if (photos.length === 0) {
     return (
-      <p className="flex items-center gap-2 text-sm text-slate-500">
+      <p className="flex items-center gap-2 text-sm text-muted-foreground">
         <ImageOff size={16} /> No photos attached.
       </p>
     );
@@ -31,7 +31,7 @@ function PhotoGallery({ photos }: { photos: string[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {photos.map((src, i) => (
-        <div key={i} className="aspect-video overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+        <div key={i} className="aspect-video overflow-hidden rounded-xl border border-border bg-popover">
           <img src={src} alt={`Attachment ${i + 1}`} className="h-full w-full object-cover" />
         </div>
       ))}
@@ -75,7 +75,7 @@ export default function RequestDetailsPage() {
       {loading ? (
         <LoadingState />
       ) : !request ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-12 text-center text-slate-500">
+        <div className="rounded-2xl border border-border bg-card/40 p-12 text-center text-muted-foreground">
           Request not found.
         </div>
       ) : (
@@ -83,11 +83,11 @@ export default function RequestDetailsPage() {
           {/* Left column: info, description, photos, completion */}
           <div className="flex flex-col gap-6 lg:col-span-2">
             {/* Header */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-6">
+            <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
               <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-slate-100">{request.title}</h2>
-                  <p className="mt-0.5 text-sm text-slate-500">{request.id}</p>
+                  <h2 className="text-foreground">{request.title}</h2>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{request.id}</p>
                 </div>
                 <div className="flex gap-2">
                   <PriorityBadge priority={request.priority} />
@@ -96,7 +96,7 @@ export default function RequestDetailsPage() {
               </div>
 
               {/* Request information grid */}
-              <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-3">
                 <InfoRow label="Property">{request.property}</InfoRow>
                 <InfoRow label="Category">{categoryLabel(request.category)}</InfoRow>
                 <InfoRow label="Date Submitted">{request.submittedAt}</InfoRow>
@@ -104,28 +104,28 @@ export default function RequestDetailsPage() {
             </div>
 
             {/* Description */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-6">
-              <h3 className="mb-2 text-slate-200">Issue Description</h3>
-              <p className="text-sm leading-relaxed text-slate-400">{request.description}</p>
+            <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+              <h3 className="mb-2 text-foreground">Issue Description</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">{request.description}</p>
             </div>
 
             {/* Photos */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-6">
-              <h3 className="mb-3 text-slate-200">Uploaded Photos</h3>
+            <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+              <h3 className="mb-3 text-foreground">Uploaded Photos</h3>
               <PhotoGallery photos={request.photos} />
             </div>
 
             {/* Completion section — completed only */}
             {request.status === "completed" && request.completion && (
-              <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-5 sm:p-6">
-                <h3 className="mb-3 flex items-center gap-2 text-green-300">
+              <div className="rounded-2xl border border-green-200 bg-green-500/5 p-5 sm:p-6">
+                <h3 className="mb-3 flex items-center gap-2 text-green-800">
                   <CheckCircle2 size={18} />
                   Completion Details
                 </h3>
                 <div className="mb-4 grid gap-4 sm:grid-cols-2">
                   <InfoRow label="Completed On">{request.completion.date}</InfoRow>
                 </div>
-                <p className="mb-4 text-sm leading-relaxed text-slate-300">
+                <p className="mb-4 text-sm leading-relaxed text-secondary-foreground">
                   {request.completion.notes}
                 </p>
                 <PhotoGallery photos={request.completion.photos} />
@@ -135,8 +135,8 @@ export default function RequestDetailsPage() {
 
           {/* Right column: timeline */}
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5 sm:p-6">
-              <h3 className="mb-5 text-slate-200">Request Timeline</h3>
+            <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+              <h3 className="mb-5 text-foreground">Request Timeline</h3>
               <RequestTimeline steps={request.timeline} />
             </div>
           </div>

@@ -121,13 +121,13 @@ export default function PropertyOwnerRegistrationPage() {
         <CommonRegistrationFields fields={fields} errors={errors} setField={setField} />
 
         {/* Property information section */}
-        <div className="rounded-2xl border border-slate-700 bg-slate-900/40 p-4 sm:p-5">
+        <div className="rounded-2xl border border-border bg-background/40 p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-slate-200">
-              <Building2 size={18} className="text-blue-400" />
+            <div className="flex items-center gap-2 text-foreground">
+              <Building2 size={18} className="text-primary" />
               Property Information
             </div>
-            <span className="rounded-full bg-slate-700/70 px-2.5 py-0.5 text-xs text-slate-300">
+            <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-secondary-foreground">
               {propertyCount} owned
             </span>
           </div>
@@ -149,7 +149,7 @@ export default function PropertyOwnerRegistrationPage() {
                     type="button"
                     onClick={() => removeProperty(index)}
                     aria-label="Remove property"
-                    className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition-colors hover:border-red-500/50 hover:text-red-400"
+                    className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted-foreground transition-colors hover:border-red-500/50 hover:text-red-700"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -174,8 +174,8 @@ export default function PropertyOwnerRegistrationPage() {
         <div className="flex flex-col gap-1.5">
           <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
             I agree to the{" "}
-            <span className="text-blue-400">Terms &amp; Conditions</span> and{" "}
-            <span className="text-blue-400">Privacy Policy</span>.
+            <span className="text-primary">Terms &amp; Conditions</span> and{" "}
+            <span className="text-primary">Privacy Policy</span>.
           </CheckboxField>
           {termsError && <ErrorMessage>{termsError}</ErrorMessage>}
         </div>
@@ -188,7 +188,7 @@ export default function PropertyOwnerRegistrationPage() {
         <button
           type="button"
           onClick={() => navigate(ROUTES.roleSelection)}
-          className="inline-flex items-center justify-center gap-2 text-sm text-slate-400 transition-colors hover:text-slate-200"
+          className="inline-flex items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft size={16} />
           Back to account type

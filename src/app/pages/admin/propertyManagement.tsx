@@ -81,12 +81,12 @@ export default function PropertyManagementPage() {
         {/* Search + Add */}
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by property name, owner or ID..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
           <PrimaryButton type="button" fullWidth={false} onClick={() => setShowModal(true)}>
@@ -97,32 +97,32 @@ export default function PropertyManagementPage() {
         {/* Add Property Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-popover p-6">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-slate-100">Add Property</h2>
-                <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-slate-200"><X size={20} /></button>
+                <h2 className="text-foreground">Add Property</h2>
+                <button onClick={() => setShowModal(false)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
               </div>
               <form onSubmit={handleAdd} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Property Name *</label>
+                  <label className="text-sm text-muted-foreground">Property Name *</label>
                   <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Maple Court Residences"
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Address *</label>
+                  <label className="text-sm text-muted-foreground">Address *</label>
                   <input required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 12 Maple Street, Springfield"
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm text-slate-400">Units</label>
+                    <label className="text-sm text-muted-foreground">Units</label>
                     <input type="number" min={1} value={unitCount} onChange={(e) => setUnitCount(Number(e.target.value))}
-                      className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none" />
+                      className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm text-slate-400">Assign Owner</label>
+                    <label className="text-sm text-muted-foreground">Assign Owner</label>
                     <select value={ownerId} onChange={(e) => setOwnerId(e.target.value)}
-                      className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none">
+                      className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none">
                       <option value="">— Self (Admin) —</option>
                       {owners.map((o) => (
                         <option key={o.id} value={o.id}>{o.fullName}</option>
@@ -132,7 +132,7 @@ export default function PropertyManagementPage() {
                 </div>
                 <div className="mt-2 flex gap-3">
                   <button type="button" onClick={() => setShowModal(false)}
-                    className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-400 hover:text-slate-200">Cancel</button>
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
                   <PrimaryButton type="submit" loading={saving} fullWidth={false} className="flex-1">
                     Create Property
                   </PrimaryButton>
@@ -147,11 +147,11 @@ export default function PropertyManagementPage() {
         {loading ? (
           <LoadingState />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-slate-800">
+          <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+                <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-5 py-3">Property ID</th>
                     <th className="px-5 py-3">Name</th>
@@ -162,21 +162,21 @@ export default function PropertyManagementPage() {
                     <th className="px-5 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {filtered.map((p) => (
-                    <tr key={p.id} className="bg-slate-900/20 transition-colors hover:bg-slate-800/40">
-                      <td className="px-5 py-3 text-xs text-slate-500">{p.id}</td>
-                      <td className="px-5 py-3 text-slate-200">{p.name}</td>
-                      <td className="px-5 py-3 text-slate-400">{p.ownerName}</td>
-                      <td className="px-5 py-3 text-slate-400">{p.residentCount}</td>
-                      <td className="px-5 py-3 text-slate-400">{p.totalRequests}</td>
+                    <tr key={p.id} className="bg-background/20 transition-colors hover:bg-accent">
+                      <td className="px-5 py-3 text-xs text-muted-foreground">{p.id}</td>
+                      <td className="px-5 py-3 text-foreground">{p.name}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{p.ownerName}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{p.residentCount}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{p.totalRequests}</td>
                       <td className="px-5 py-3"><StatusPill active={p.active} /></td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)}
                             title="View details"
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                           >
                             <Eye size={16} />
                           </button>
@@ -185,8 +185,8 @@ export default function PropertyManagementPage() {
                             title={p.active ? "Deactivate" : "Activate"}
                             className={`rounded-lg p-1.5 transition-colors ${
                               p.active
-                                ? "text-slate-400 hover:bg-red-500/10 hover:text-red-400"
-                                : "text-slate-400 hover:bg-green-500/10 hover:text-green-400"
+                                ? "text-muted-foreground hover:bg-red-100 hover:text-red-700"
+                                : "text-muted-foreground hover:bg-green-100 hover:text-green-700"
                             }`}
                           >
                             {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
@@ -200,17 +200,17 @@ export default function PropertyManagementPage() {
             </div>
 
             {/* Mobile cards */}
-            <div className="flex flex-col divide-y divide-slate-800 md:hidden">
+            <div className="flex flex-col divide-y divide-border md:hidden">
               {filtered.map((p) => (
                 <div key={p.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
-                    <p className="text-sm text-slate-200">{p.name}</p>
-                    <p className="mt-0.5 text-xs text-slate-500">{p.ownerName} · {p.residentCount} residents</p>
+                    <p className="text-sm text-foreground">{p.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{p.ownerName} · {p.residentCount} residents</p>
                     <div className="mt-2"><StatusPill active={p.active} /></div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200"><Eye size={16} /></button>
-                    <button onClick={() => handleToggle(p.id)} className={`rounded-lg p-1.5 ${p.active ? "text-red-400" : "text-green-400"}`}>
+                    <button onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><Eye size={16} /></button>
+                    <button onClick={() => handleToggle(p.id)} className={`rounded-lg p-1.5 ${p.active ? "text-red-700" : "text-green-700"}`}>
                       {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                     </button>
                   </div>
@@ -219,7 +219,7 @@ export default function PropertyManagementPage() {
             </div>
 
             {filtered.length === 0 && (
-              <p className="p-12 text-center text-slate-500">No properties found.</p>
+              <p className="p-12 text-center text-muted-foreground">No properties found.</p>
             )}
           </div>
         )}

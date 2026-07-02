@@ -14,7 +14,7 @@ interface EmptyStateProps {
 // Component
 export function EmptyState({ message = "No results found." }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-500">
+    <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
       <SearchX size={32} className="opacity-40" />
       <p className="text-sm">{message}</p>
     </div>

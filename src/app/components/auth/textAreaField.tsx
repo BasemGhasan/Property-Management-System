@@ -26,7 +26,7 @@ export function TextAreaField({
 
   return (
     <div className="w-full">
-      <label htmlFor={fieldId} className="mb-1.5 block text-sm text-slate-300">
+      <label htmlFor={fieldId} className="mb-1.5 block text-sm text-secondary-foreground">
         {label}
       </label>
 
@@ -35,11 +35,11 @@ export function TextAreaField({
         rows={rows}
         {...rest}
         className={[
-          "w-full resize-y rounded-xl border bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500",
+          "w-full resize-y rounded-xl border bg-background/60 px-4 py-3 text-foreground placeholder:text-muted-foreground",
           "transition-colors focus:outline-none focus:ring-2",
           error
             ? "border-red-500/60 focus:ring-red-500/40"
-            : "border-slate-700 focus:border-blue-500 focus:ring-blue-500/40",
+            : "border-border focus:border-primary focus:ring-primary/40",
           className,
         ].join(" ")}
       />

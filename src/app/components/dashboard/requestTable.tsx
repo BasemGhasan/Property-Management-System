@@ -19,7 +19,7 @@ export function RequestTable({ requests, onRowClick }: RequestTableProps) {
   // Empty state
   if (requests.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-12 text-center text-slate-500">
+      <div className="rounded-2xl border border-border bg-card/40 p-12 text-center text-muted-foreground">
         No requests match your filters.
       </div>
     );
@@ -28,9 +28,9 @@ export function RequestTable({ requests, onRowClick }: RequestTableProps) {
   return (
     <>
       {/* Desktop / tablet table */}
-      <div className="hidden overflow-hidden rounded-2xl border border-slate-800 md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border md:block">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+          <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-5 py-3">Request ID</th>
               <th className="px-5 py-3">Property</th>
@@ -40,23 +40,23 @@ export function RequestTable({ requests, onRowClick }: RequestTableProps) {
               <th className="px-5 py-3">Date</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800">
+          <tbody className="divide-y divide-border">
             {requests.map((r) => (
               <tr
                 key={r.id}
                 onClick={() => onRowClick(r.id)}
-                className="cursor-pointer bg-slate-900/20 transition-colors hover:bg-slate-800/50"
+                className="cursor-pointer bg-background/20 transition-colors hover:bg-accent"
               >
-                <td className="px-5 py-4 text-slate-300">{r.id}</td>
-                <td className="px-5 py-4 text-slate-400">{r.property}</td>
-                <td className="px-5 py-4 text-slate-400">{categoryLabel(r.category)}</td>
+                <td className="px-5 py-4 text-secondary-foreground">{r.id}</td>
+                <td className="px-5 py-4 text-muted-foreground">{r.property}</td>
+                <td className="px-5 py-4 text-muted-foreground">{categoryLabel(r.category)}</td>
                 <td className="px-5 py-4">
                   <PriorityBadge priority={r.priority} />
                 </td>
                 <td className="px-5 py-4">
                   <StatusBadge status={r.status} />
                 </td>
-                <td className="px-5 py-4 text-slate-400">{r.submittedAt}</td>
+                <td className="px-5 py-4 text-muted-foreground">{r.submittedAt}</td>
               </tr>
             ))}
           </tbody>

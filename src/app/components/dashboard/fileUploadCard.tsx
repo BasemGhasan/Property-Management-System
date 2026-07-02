@@ -67,7 +67,7 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
 
   return (
     <div className="w-full">
-      <label className="mb-1.5 block text-sm text-slate-300">Photos</label>
+      <label className="mb-1.5 block text-sm text-secondary-foreground">Photos</label>
 
       {/* Drop zone */}
       <div
@@ -84,20 +84,20 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
         className={[
           "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-colors",
           dragging
-            ? "border-blue-500 bg-blue-500/10"
+            ? "border-primary bg-primary/10"
             : error
-            ? "border-red-500/50 bg-slate-900/40"
-            : "border-slate-700 bg-slate-900/40 hover:border-slate-600",
+            ? "border-red-500/50 bg-background/40"
+            : "border-border bg-background/40 hover:border-primary/40",
         ].join(" ")}
       >
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-blue-400">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-input text-primary">
           <UploadCloud size={22} />
         </span>
-        <p className="text-sm text-slate-300">
+        <p className="text-sm text-secondary-foreground">
           Drag &amp; drop photos here, or{" "}
-          <span className="text-blue-400">browse</span>
+          <span className="text-primary">browse</span>
         </p>
-        <p className="text-xs text-slate-500">PNG, JPG up to 10MB · multiple allowed</p>
+        <p className="text-xs text-muted-foreground">PNG, JPG up to 10MB · multiple allowed</p>
 
         <input
           ref={inputRef}
@@ -110,7 +110,7 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
       </div>
 
       {/* Field error */}
-      {error && <p className="mt-1.5 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-1.5 text-sm text-red-700">{error}</p>}
 
       {/* Previews */}
       {files.length > 0 && (
@@ -118,7 +118,7 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
           {files.map((file) => (
             <div
               key={file.id}
-              className="group relative aspect-square overflow-hidden rounded-xl border border-slate-700 bg-slate-900"
+              className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-popover"
             >
               <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
               <button
@@ -136,7 +136,7 @@ export function FileUploadCard({ files, onChange, error }: FileUploadCardProps) 
 
       {/* Empty hint icon row when nothing uploaded */}
       {files.length === 0 && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-600">
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
           <ImageIcon size={13} /> No photos added yet.
         </p>
       )}

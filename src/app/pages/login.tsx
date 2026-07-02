@@ -113,7 +113,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => navigate(ROUTES.forgotPassword)}
-            className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+            className="text-sm text-primary transition-colors hover:text-primary"
           >
             Forgot password?
           </button>
@@ -124,10 +124,10 @@ export default function LoginPage() {
           Sign in
         </PrimaryButton>
 
-        <div className="relative my-1 flex items-center gap-3 text-xs text-slate-500">
-          <span className="h-px flex-1 bg-slate-700" />
+        <div className="relative my-1 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-secondary" />
           New to PropCare?
-          <span className="h-px flex-1 bg-slate-700" />
+          <span className="h-px flex-1 bg-secondary" />
         </div>
 
         <SecondaryButton type="button" onClick={() => navigate(ROUTES.roleSelection)}>

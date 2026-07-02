@@ -134,23 +134,23 @@ export const STATUS_STYLES: Record<
 > = {
   pending: {
     label: "Pending",
-    classes: "bg-orange-500/15 text-orange-300 border-orange-500/30",
-    dot: "bg-orange-400",
+    classes: "bg-background text-muted-foreground border-border",
+    dot: "bg-neutral-dot",
   },
   "in-progress": {
     label: "In Progress",
-    classes: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-    dot: "bg-blue-400",
+    classes: "bg-warning-soft text-warning border-warning/25",
+    dot: "bg-warning",
   },
   completed: {
     label: "Completed",
-    classes: "bg-green-500/15 text-green-300 border-green-500/30",
-    dot: "bg-green-400",
+    classes: "bg-success-soft text-success border-success/25",
+    dot: "bg-success",
   },
   rejected: {
     label: "Rejected",
-    classes: "bg-red-500/15 text-red-300 border-red-500/30",
-    dot: "bg-red-400",
+    classes: "bg-critical-soft text-critical border-critical/25",
+    dot: "bg-critical",
   },
 };
 
@@ -160,23 +160,23 @@ export const PRIORITY_STYLES: Record<
 > = {
   low: {
     label: "Low",
-    classes: "bg-slate-500/15 text-slate-300 border-slate-500/30",
-    dot: "bg-slate-400",
+    classes: "bg-background text-muted-foreground border-border",
+    dot: "bg-neutral-dot",
   },
   medium: {
     label: "Medium",
-    classes: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-    dot: "bg-blue-400",
+    classes: "bg-background text-muted-foreground border-border",
+    dot: "bg-neutral-dot",
   },
   high: {
     label: "High",
-    classes: "bg-orange-500/15 text-orange-300 border-orange-500/30",
-    dot: "bg-orange-400",
+    classes: "bg-warning-soft text-warning border-warning/25",
+    dot: "bg-warning",
   },
   critical: {
     label: "Critical",
-    classes: "bg-red-500/15 text-red-300 border-red-500/30",
-    dot: "bg-red-400",
+    classes: "bg-critical-soft text-critical border-critical/25",
+    dot: "bg-critical",
   },
 };
 

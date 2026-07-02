@@ -73,15 +73,15 @@ export default function OwnerReportsPage() {
         </div>
 
         {/* Per-property breakdown */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/40">
-          <div className="border-b border-slate-800 px-5 py-4">
-            <h2 className="text-slate-200">Requests by Property</h2>
+        <div className="rounded-2xl border border-border bg-card/40">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-foreground">Requests by Property</h2>
           </div>
           {propertyBreakdown.length === 0 ? (
             <EmptyState message="No properties found." />
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+              <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3">Property</th>
                   <th className="px-5 py-3 text-center">Total</th>
@@ -90,23 +90,23 @@ export default function OwnerReportsPage() {
                   <th className="px-5 py-3 text-center">Rejected</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-border">
                 {propertyBreakdown.map((row) => (
-                  <tr key={row.id} className="bg-slate-900/20">
-                    <td className="px-5 py-3 text-slate-200">{row.name}</td>
-                    <td className="px-5 py-3 text-center text-slate-300">{row.total}</td>
+                  <tr key={row.id} className="bg-background/20">
+                    <td className="px-5 py-3 text-foreground">{row.name}</td>
+                    <td className="px-5 py-3 text-center text-secondary-foreground">{row.total}</td>
                     <td className="px-5 py-3 text-center">
-                      <span className={row.open > 0 ? "text-orange-300" : "text-slate-500"}>
+                      <span className={row.open > 0 ? "text-orange-800" : "text-muted-foreground"}>
                         {row.open}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-center">
-                      <span className={row.completed > 0 ? "text-green-300" : "text-slate-500"}>
+                      <span className={row.completed > 0 ? "text-green-800" : "text-muted-foreground"}>
                         {row.completed}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-center">
-                      <span className={row.rejected > 0 ? "text-red-300" : "text-slate-500"}>
+                      <span className={row.rejected > 0 ? "text-red-800" : "text-muted-foreground"}>
                         {row.rejected}
                       </span>
                     </td>
@@ -118,15 +118,15 @@ export default function OwnerReportsPage() {
         </div>
 
         {/* Recent completed requests */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/40">
-          <div className="border-b border-slate-800 px-5 py-4">
-            <h2 className="text-slate-200">Recently Completed</h2>
+        <div className="rounded-2xl border border-border bg-card/40">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-foreground">Recently Completed</h2>
           </div>
           {recentCompleted.length === 0 ? (
             <EmptyState message="No completed requests yet." />
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+              <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3">ID</th>
                   <th className="px-5 py-3">Title</th>
@@ -135,13 +135,13 @@ export default function OwnerReportsPage() {
                   <th className="px-5 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-border">
                 {recentCompleted.map((r) => (
-                  <tr key={r.id} className="bg-slate-900/20">
-                    <td className="px-5 py-3 text-xs text-slate-500">{r.id}</td>
-                    <td className="px-5 py-3 text-slate-200">{r.title}</td>
-                    <td className="px-5 py-3 text-slate-400">{r.propertyName}</td>
-                    <td className="px-5 py-3 text-slate-400">{r.residentName}</td>
+                  <tr key={r.id} className="bg-background/20">
+                    <td className="px-5 py-3 text-xs text-muted-foreground">{r.id}</td>
+                    <td className="px-5 py-3 text-foreground">{r.title}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{r.propertyName}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{r.residentName}</td>
                     <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
                   </tr>
                 ))}

@@ -79,10 +79,10 @@ export default function OwnerDashboard() {
         </div>
 
         {/* Recent requests — simple table */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-800/40">
-          <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
-            <h2 className="text-slate-200">Recent Requests</h2>
-            <button onClick={() => navigate(OWNER_ROUTES.requests)} className="text-sm text-blue-400 hover:text-blue-300">
+        <div className="rounded-2xl border border-border bg-card/40">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="text-foreground">Recent Requests</h2>
+            <button onClick={() => navigate(OWNER_ROUTES.requests)} className="text-sm text-primary hover:text-primary/80">
               View all
             </button>
           </div>
@@ -90,7 +90,7 @@ export default function OwnerDashboard() {
           {/* Desktop table */}
           <div className="hidden md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-800/60 text-xs uppercase tracking-wide text-slate-400">
+              <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3">ID</th>
                   <th className="px-5 py-3">Title</th>
@@ -99,16 +99,16 @@ export default function OwnerDashboard() {
                   <th className="px-5 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-border">
                 {recent.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => navigate(`${OWNER_ROUTES.requestManage}/${r.id}`)}
-                    className="cursor-pointer transition-colors hover:bg-slate-800/50"
+                    className="cursor-pointer transition-colors hover:bg-accent"
                   >
-                    <td className="px-5 py-3 text-slate-400">{r.id}</td>
-                    <td className="px-5 py-3 text-slate-200">{r.title}</td>
-                    <td className="px-5 py-3 text-slate-400">{r.propertyName}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{r.id}</td>
+                    <td className="px-5 py-3 text-foreground">{r.title}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{r.propertyName}</td>
                     <td className="px-5 py-3"><PriorityBadge priority={r.priority} /></td>
                     <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
                   </tr>
@@ -118,20 +118,20 @@ export default function OwnerDashboard() {
           </div>
 
           {/* Mobile list */}
-          <div className="flex flex-col divide-y divide-slate-800 md:hidden">
+          <div className="flex flex-col divide-y divide-border md:hidden">
             {recent.map((r) => (
               <button
                 key={r.id}
                 onClick={() => navigate(`${OWNER_ROUTES.requestManage}/${r.id}`)}
-                className="flex flex-col gap-2 px-5 py-4 text-left hover:bg-slate-800/40"
+                className="flex flex-col gap-2 px-5 py-4 text-left hover:bg-accent"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-slate-200">{r.title}</p>
+                  <p className="text-sm text-foreground">{r.title}</p>
                   <StatusBadge status={r.status} />
                 </div>
                 <div className="flex items-center gap-3">
                   <PriorityBadge priority={r.priority} />
-                  <span className="text-xs text-slate-500">{r.propertyName}</span>
+                  <span className="text-xs text-muted-foreground">{r.propertyName}</span>
                 </div>
               </button>
             ))}

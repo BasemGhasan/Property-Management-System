@@ -22,9 +22,9 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   const style = STATUS_STYLES[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${style.classes}`}
+      className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-data text-[11px] uppercase tracking-wide ${style.classes}`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${style.dot}`} />
       {style.label}
     </span>
   );
@@ -41,9 +41,9 @@ export function PriorityBadge({ priority }: PriorityBadgeProps) {
   const style = PRIORITY_STYLES[priority];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${style.classes}`}
+      className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-data text-[11px] uppercase tracking-wide ${style.classes}`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${style.dot}`} />
       {style.label}
     </span>
   );

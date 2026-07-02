@@ -21,10 +21,10 @@ interface UserDetailsModalProps {
 function InfoRow({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
-      <Icon size={16} className="mt-0.5 shrink-0 text-slate-500" />
+      <Icon size={16} className="mt-0.5 shrink-0 text-muted-foreground" />
       <div>
-        <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-0.5 text-sm text-slate-200">{value}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="mt-0.5 text-sm text-foreground">{value}</p>
       </div>
     </div>
   );
@@ -39,17 +39,17 @@ export function UserDetailsModal({ user, open, onClose, onToggleStatus }: UserDe
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
 
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/60 focus:outline-none">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-popover shadow-lg focus:outline-none">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div>
-              <Dialog.Title className="text-slate-100">{user.fullName}</Dialog.Title>
-              <Dialog.Description className="mt-0.5 text-xs text-slate-500">
+              <Dialog.Title className="text-foreground">{user.fullName}</Dialog.Title>
+              <Dialog.Description className="mt-0.5 text-xs text-muted-foreground">
                 {user.id} · {user.role === "resident" ? "Resident" : "Property Owner"}
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
-              <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+              <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-input hover:text-foreground">
                 <X size={18} />
               </button>
             </Dialog.Close>
@@ -60,14 +60,14 @@ export function UserDetailsModal({ user, open, onClose, onToggleStatus }: UserDe
             {/* Status badge */}
             <span className={`self-start rounded-full border px-3 py-1 text-xs ${
               user.active
-                ? "border-green-500/30 bg-green-500/10 text-green-300"
-                : "border-red-500/30 bg-red-500/10 text-red-300"
+                ? "border-green-200 bg-green-100 text-green-800"
+                : "border-red-200 bg-red-100 text-red-800"
             }`}>
               {user.active ? "Active" : "Deactivated"}
             </span>
 
             {/* Info rows */}
-            <div className="flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-800/40 p-4">
+            <div className="flex flex-col gap-4 rounded-xl border border-border bg-card/40 p-4">
               <InfoRow icon={Mail}     label="Email"         value={user.email} />
               <InfoRow icon={Phone}    label="Phone"         value={user.phone} />
               <InfoRow icon={Home}     label="Property Info" value={user.propertyInfo} />

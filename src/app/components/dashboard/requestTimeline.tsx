@@ -26,7 +26,7 @@ export function RequestTimeline({ steps }: RequestTimelineProps) {
             {!isLast && (
               <span
                 className={`absolute left-[11px] top-6 h-full w-px ${
-                  done ? "bg-green-500/40" : "bg-slate-700"
+                  done ? "bg-green-500/40" : "bg-secondary"
                 }`}
               />
             )}
@@ -38,23 +38,23 @@ export function RequestTimeline({ steps }: RequestTimelineProps) {
                 done
                   ? "border-green-500 bg-green-500 text-white"
                   : current
-                  ? "border-blue-500 bg-blue-500/20 text-blue-300"
-                  : "border-slate-700 bg-slate-800 text-slate-600",
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-border bg-input text-muted-foreground",
               ].join(" ")}
             >
               {done ? (
                 <Check size={13} />
               ) : (
-                <span className={`h-2 w-2 rounded-full ${current ? "bg-blue-400" : "bg-slate-600"}`} />
+                <span className={`h-2 w-2 rounded-full ${current ? "bg-primary" : "bg-muted-foreground/40"}`} />
               )}
             </span>
 
             {/* Label */}
             <div className="-mt-0.5">
-              <p className={current ? "text-slate-100" : done ? "text-slate-300" : "text-slate-500"}>
+              <p className={current ? "text-foreground" : done ? "text-secondary-foreground" : "text-muted-foreground"}>
                 {step.label}
               </p>
-              {step.date && <p className="mt-0.5 text-xs text-slate-500">{step.date}</p>}
+              {step.date && <p className="mt-0.5 text-xs text-muted-foreground">{step.date}</p>}
             </div>
           </li>
         );

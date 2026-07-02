@@ -28,13 +28,13 @@ export function InputField({
 
   return (
     <div className="w-full">
-      <label htmlFor={inputId} className="mb-1.5 block text-sm text-slate-300">
+      <label htmlFor={inputId} className="mb-1.5 block text-sm text-secondary-foreground">
         {label}
       </label>
 
       <div className="relative">
         {icon && (
-          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
             {icon}
           </span>
         )}
@@ -43,12 +43,12 @@ export function InputField({
           id={inputId}
           {...rest}
           className={[
-            "w-full rounded-xl border bg-slate-900/60 py-3 text-slate-100 placeholder:text-slate-500",
+            "w-full rounded-xl border bg-background/60 py-3 text-foreground placeholder:text-muted-foreground",
             "transition-colors focus:outline-none focus:ring-2",
             icon ? "pl-11 pr-4" : "px-4",
             error
               ? "border-red-500/60 focus:ring-red-500/40"
-              : "border-slate-700 focus:border-blue-500 focus:ring-blue-500/40",
+              : "border-border focus:border-primary focus:ring-primary/40",
             className,
           ].join(" ")}
         />

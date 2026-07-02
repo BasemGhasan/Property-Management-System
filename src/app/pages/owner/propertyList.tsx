@@ -17,44 +17,44 @@ import type { Property } from "../../constants/owner";
 // PropertyCard — inline since it's specific to this page layout.
 function PropertyCard({ property, onView }: { property: Property; onView: () => void }) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card/40 p-5">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 text-blue-400">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
           <Building2 size={20} />
         </span>
         <div>
-          <p className="text-slate-100">{property.name}</p>
-          <p className="mt-0.5 text-xs text-slate-500">{property.address}</p>
+          <p className="text-foreground">{property.name}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{property.address}</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3 text-center">
+      <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-background/40 p-3 text-center">
         <div>
-          <p className="flex items-center justify-center gap-1 text-slate-200">
-            <Users size={13} className="text-slate-500" /> {property.residents.length}
+          <p className="flex items-center justify-center gap-1 text-foreground">
+            <Users size={13} className="text-muted-foreground" /> {property.residents.length}
           </p>
-          <p className="text-xs text-slate-500">Residents</p>
+          <p className="text-xs text-muted-foreground">Residents</p>
         </div>
         <div>
-          <p className="flex items-center justify-center gap-1 text-orange-300">
-            <Wrench size={13} className="text-slate-500" /> {property.stats.openRequests}
+          <p className="flex items-center justify-center gap-1 text-orange-800">
+            <Wrench size={13} className="text-muted-foreground" /> {property.stats.openRequests}
           </p>
-          <p className="text-xs text-slate-500">Open</p>
+          <p className="text-xs text-muted-foreground">Open</p>
         </div>
         <div>
-          <p className="flex items-center justify-center gap-1 text-red-300">
-            <AlertTriangle size={13} className="text-slate-500" /> {property.stats.criticalRequests}
+          <p className="flex items-center justify-center gap-1 text-red-800">
+            <AlertTriangle size={13} className="text-muted-foreground" /> {property.stats.criticalRequests}
           </p>
-          <p className="text-xs text-slate-500">Critical</p>
+          <p className="text-xs text-muted-foreground">Critical</p>
         </div>
       </div>
 
       {/* Action */}
       <button
         onClick={onView}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-300 transition-colors hover:border-blue-500/40 hover:text-blue-300"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm text-secondary-foreground transition-colors hover:border-primary/40 hover:text-primary"
       >
         View Details <ArrowRight size={15} />
       </button>
@@ -113,12 +113,12 @@ export default function PropertyListPage() {
         {/* Search + Add */}
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search properties..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
           <PrimaryButton type="button" fullWidth={false} onClick={() => setShowModal(true)}>
@@ -129,30 +129,30 @@ export default function PropertyListPage() {
         {/* Add Property Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-popover p-6">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-slate-100">Add Property</h2>
-                <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-slate-200"><X size={20} /></button>
+                <h2 className="text-foreground">Add Property</h2>
+                <button onClick={() => setShowModal(false)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
               </div>
               <form onSubmit={handleAdd} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Property Name *</label>
+                  <label className="text-sm text-muted-foreground">Property Name *</label>
                   <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Maple Court Residences"
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Address *</label>
+                  <label className="text-sm text-muted-foreground">Address *</label>
                   <input required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 12 Maple Street, Springfield"
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm text-slate-400">Number of Units</label>
+                  <label className="text-sm text-muted-foreground">Number of Units</label>
                   <input type="number" min={1} value={unitCount} onChange={(e) => setUnitCount(Number(e.target.value))}
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-slate-100 focus:border-blue-500 focus:outline-none" />
+                    className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="mt-2 flex gap-3">
                   <button type="button" onClick={() => setShowModal(false)}
-                    className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm text-slate-400 hover:text-slate-200">Cancel</button>
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
                   <PrimaryButton type="submit" loading={saving} fullWidth={false} className="flex-1">
                     Create Property
                   </PrimaryButton>
@@ -175,7 +175,7 @@ export default function PropertyListPage() {
               />
             ))}
             {filtered.length === 0 && (
-              <p className="col-span-full py-12 text-center text-slate-500">No properties found.</p>
+              <p className="col-span-full py-12 text-center text-muted-foreground">No properties found.</p>
             )}
           </div>
         )}

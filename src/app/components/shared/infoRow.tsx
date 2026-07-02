@@ -17,8 +17,8 @@ interface InfoRowProps {
 export function InfoRow({ label, children }: InfoRowProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs uppercase tracking-wide text-slate-500">{label}</span>
-      <span className="text-sm text-slate-200">{children}</span>
+      <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-sm text-foreground">{children}</span>
     </div>
   );
 }

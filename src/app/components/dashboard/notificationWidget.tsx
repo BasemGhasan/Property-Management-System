@@ -14,17 +14,17 @@ interface NotificationWidgetProps {
 
 // Map notification type → icon + accent colour.
 const TYPE_META: Record<ResidentNotification["type"], { icon: LucideIcon; color: string }> = {
-  reviewed: { icon: Eye, color: "text-blue-400 bg-blue-500/15" },
-  status: { icon: RefreshCw, color: "text-orange-400 bg-orange-500/15" },
-  completed: { icon: CheckCircle2, color: "text-green-400 bg-green-500/15" },
+  reviewed: { icon: Eye, color: "text-primary bg-primary/15" },
+  status: { icon: RefreshCw, color: "text-orange-700 bg-orange-100" },
+  completed: { icon: CheckCircle2, color: "text-green-700 bg-green-100" },
 };
 
 // Component
 export function NotificationWidget({ notifications }: NotificationWidgetProps) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-5">
-      <div className="mb-4 flex items-center gap-2 text-slate-200">
-        <Bell size={18} className="text-blue-400" />
+    <div className="rounded-2xl border border-border bg-card/40 p-5">
+      <div className="mb-4 flex items-center gap-2 text-foreground">
+        <Bell size={18} className="text-primary" />
         Recent Notifications
       </div>
 
@@ -38,15 +38,15 @@ export function NotificationWidget({ notifications }: NotificationWidgetProps) {
                 <Icon size={15} />
               </span>
               <div>
-                <p className="text-sm text-slate-300">{n.message}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{n.time}</p>
+                <p className="text-sm text-secondary-foreground">{n.message}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{n.time}</p>
               </div>
             </li>
           );
         })}
 
         {notifications.length === 0 && (
-          <li className="py-6 text-center text-sm text-slate-500">No notifications yet.</li>
+          <li className="py-6 text-center text-sm text-muted-foreground">No notifications yet.</li>
         )}
       </ul>
     </div>

@@ -70,14 +70,14 @@ export function CategoryFormModal({ open, category, onClose, onSave }: CategoryF
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
 
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/60 focus:outline-none">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-popover shadow-lg focus:outline-none">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-            <Dialog.Title className="text-slate-100">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <Dialog.Title className="text-foreground">
               {isEdit ? "Edit Category" : "Add Category"}
             </Dialog.Title>
             <Dialog.Close asChild>
-              <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+              <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-input hover:text-foreground">
                 <X size={18} />
               </button>
             </Dialog.Close>

@@ -13,12 +13,12 @@ interface StatusPillProps {
 // Component
 export function StatusPill({ active, labels = ["Active", "Inactive"] }: StatusPillProps) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${
+    <span className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-data text-[11px] uppercase tracking-wide ${
       active
-        ? "border-green-500/30 bg-green-500/10 text-green-300"
-        : "border-red-500/30 bg-red-500/10 text-red-300"
+        ? "border-success/25 bg-success-soft text-success"
+        : "border-critical/25 bg-critical-soft text-critical"
     }`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-green-400" : "bg-red-400"}`} />
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${active ? "bg-success" : "bg-critical"}`} />
       {active ? labels[0] : labels[1]}
     </span>
   );
