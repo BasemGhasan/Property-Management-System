@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { Toaster } from "sonner";
 import { ROUTES } from "./constants/auth";
 import { RESIDENT_ROUTES } from "./constants/resident";
 import { OWNER_ROUTES } from "./constants/owner";
@@ -40,6 +41,18 @@ import AdminProfilePage from "./pages/admin/adminProfile";
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster
+        theme="light"
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "var(--card)",
+            color: "var(--foreground)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius)",
+          },
+        }}
+      />
       <Routes>
         {/* ── Auth ─────────────────────────────────────────────────────── */}
         <Route path={ROUTES.login}            element={<LoginPage />} />

@@ -17,6 +17,3 @@ export const USER_ROLE_OPTIONS = [
   { value: "resident", label: "Resident"       },
   { value: "owner",    label: "Property Owner" },
 ] as const;
-
-/** Default table page size used across all paginated list pages. */
-export const PAGE_SIZE = 6 as const;

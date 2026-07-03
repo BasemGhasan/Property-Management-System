@@ -10,12 +10,13 @@ import { Search } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { SelectField } from "../../components/auth/selectField";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
-import { SecondaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getOwnerRequests, getProperties } from "../../services/ownerService";
 import { OWNER_ROUTES } from "../../constants/owner";
 import { ISSUE_CATEGORIES, PRIORITY_OPTIONS, categoryLabel } from "../../constants/resident";
-import { REQUEST_STATUS_OPTIONS, PAGE_SIZE } from "../../constants/filters";
+import { REQUEST_STATUS_OPTIONS } from "../../constants/filters";
 import type { OwnerRequest } from "../../constants/owner";
 
 // Component
@@ -28,21 +29,19 @@ export default function MaintenanceRequestsPage() {
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [category, setCategory] = useState("");
-  const [page, setPage] = useState(1);
   const [propertyOptions, setPropertyOptions] = useState<{ value: string; label: string }[]>([]);
+
+  const loadData = useCallback(() =>
+    Promise.all([getOwnerRequests(), getProperties()]).then(([reqs, props]) => {
+      setRequests(reqs);
+      setPropertyOptions(props.map((p) => ({ value: p.id, label: p.name })));
+    }), []);
 
   useEffect(() => {
     let active = true;
-    Promise.all([getOwnerRequests(), getProperties()]).then(([reqs, props]) => {
-      if (!active) return;
-      setRequests(reqs);
-      setPropertyOptions(props.map((p) => ({ value: p.id, label: p.name })));
-      setLoading(false);
-    });
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
-
-  const resetPage = useCallback(() => setPage(1), []);
+  }, [loadData]);
 
   const filtered = useMemo(() => {
     return requests.filter((r) => {
@@ -61,14 +60,10 @@ export default function MaintenanceRequestsPage() {
     });
   }, [requests, search, property, status, priority, category]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page]
-  );
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, resetPage, total } = usePagination(filtered);
 
   return (
-    <OwnerLayout title="Maintenance Requests">
+    <OwnerLayout title="Maintenance Requests" onRefresh={loadData}>
       <div className="flex flex-col gap-5">
         {/* Filters */}
         <div className="rounded-2xl border border-border bg-card/40 p-4">
@@ -153,14 +148,15 @@ export default function MaintenanceRequestsPage() {
             </div>
 
             {/* Pagination */}
-            {filtered.length > PAGE_SIZE && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">Page {page} of {totalPages} · {filtered.length} results</p>
-                <div className="flex gap-2">
-                  <SecondaryButton fullWidth={false} disabled={page === 1} onClick={() => setPage((p) => p - 1)}>Previous</SecondaryButton>
-                  <SecondaryButton fullWidth={false} disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next</SecondaryButton>
-                </div>
-              </div>
+            {filtered.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
             )}
           </>
         )}

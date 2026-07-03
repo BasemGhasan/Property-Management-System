@@ -5,6 +5,7 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import { toast } from "sonner";
 import { X } from "lucide-react";
 import { PrimaryButton } from "../auth/buttons";
 import type { Property } from "../../constants/owner";
@@ -28,16 +29,24 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
     if (property) {
       setName(property.name);
       setAddress(property.address);
-      setUnits(1);
+      setUnits(property.unitCount);
     }
   }, [property, open]);
+
+  const minUnits = property?.residents.length ?? 1;
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    await onSave({ name, address, unitCount: units });
-    setSaving(false);
-    onClose();
+    try {
+      await onSave({ name, address, unitCount: units });
+      toast.success("Property updated successfully.");
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update property.");
+    } finally {
+      setSaving(false);
+    }
   }, [name, address, units, onSave, onClose]);
 
   return (
@@ -77,11 +86,16 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
               <label className="text-sm text-muted-foreground">Number of Units</label>
               <input
                 type="number"
-                min={1}
+                min={minUnits}
                 value={units}
                 onChange={(e) => setUnits(Number(e.target.value))}
                 className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none"
               />
+              {minUnits > 1 && (
+                <p className="text-xs text-muted-foreground">
+                  Can't go below {minUnits} — {minUnits} resident{minUnits === 1 ? " is" : "s are"} already assigned.
+                </p>
+              )}
             </div>
             <div className="mt-2 flex gap-3">
               <button

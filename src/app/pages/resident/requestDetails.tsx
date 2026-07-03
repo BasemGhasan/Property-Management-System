@@ -3,7 +3,7 @@
 // ============================================================================
 
 // Imports
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ArrowLeft, CheckCircle2, ImageOff } from "lucide-react";
 import { DashboardLayout } from "../../layouts/dashboardLayout";
@@ -47,21 +47,19 @@ export default function RequestDetailsPage() {
   const [loading, setLoading] = useState(true);
 
   // Load the request by id from the route param.
+  const loadData = useCallback(() =>
+    getRequestById(id ?? "").then((data) => setRequest(data ?? null)), [id]);
+
   useEffect(() => {
     let active = true;
-    (async () => {
-      const data = await getRequestById(id ?? "");
-      if (!active) return;
-      setRequest(data ?? null);
-      setLoading(false);
-    })();
+    loadData().then(() => { if (active) setLoading(false); });
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [loadData]);
 
   return (
-    <DashboardLayout title="Request Details">
+    <DashboardLayout title="Request Details" onRefresh={loadData}>
       {/* Back link */}
       <SecondaryButton
         fullWidth={false}

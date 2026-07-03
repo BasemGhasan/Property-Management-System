@@ -22,14 +22,26 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         var query = db.Properties
             .Include(p => p.Owner)
             .Include(p => p.Requests)
+            .Include(p => p.Residents).ThenInclude(r => r.Resident)
             .AsQueryable();
 
         if (CurrentRole == "Owner")
-            query = query.Where(p => p.OwnerId == CurrentUserId);
+            query = query.Where(p => p.OwnerId == CurrentUserId && p.IsActive);
         else if (CurrentRole == "Resident")
-            query = query.Where(p => p.Residents.Any(r => r.ResidentId == CurrentUserId));
+            query = query.Where(p => p.Residents.Any(r => r.ResidentId == CurrentUserId) && p.IsActive);
 
-        var results = await query.OrderByDescending(p => p.CreatedAt).Select(p => ToDto(p)).ToListAsync();
+        var properties = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+
+        var results = properties.Select(p => ToDto(p) with
+        {
+            Residents = p.Residents.Select(r => new ResidentAssignmentDto(
+                r.Id, r.ResidentId, r.Resident.FullName, r.Resident.Email, r.UnitNumber, r.AssignedAt
+            )).ToList(),
+            MyUnitNumber = CurrentRole == "Resident"
+                ? p.Residents.FirstOrDefault(r => r.ResidentId == CurrentUserId)?.UnitNumber
+                : null
+        }).ToList();
+
         return Ok(results);
     }
 
@@ -43,6 +55,7 @@ public class PropertiesController(AppDbContext db) : ControllerBase
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (p == null) return NotFound();
+        if (!p.IsActive && CurrentRole != "Admin") return NotFound();
         if (!CanAccess(p)) return Forbid();
 
         var detail = ToDto(p) with
@@ -80,9 +93,14 @@ public class PropertiesController(AppDbContext db) : ControllerBase
     [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePropertyDto dto)
     {
-        var property = await db.Properties.FindAsync(id);
+        var property = await db.Properties
+            .Include(p => p.Residents)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (property == null) return NotFound();
         if (CurrentRole == "Owner" && property.OwnerId != CurrentUserId) return Forbid();
+
+        if (dto.UnitCount.HasValue && dto.UnitCount.Value < property.Residents.Count)
+            return BadRequest(new { message = $"Can't set unit count below {property.Residents.Count} — that many residents are already assigned." });
 
         if (dto.Name != null) property.Name = dto.Name;
         if (dto.Address != null) property.Address = dto.Address;
@@ -94,11 +112,12 @@ public class PropertiesController(AppDbContext db) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var property = await db.Properties.FindAsync(id);
         if (property == null) return NotFound();
+        if (CurrentRole == "Owner" && property.OwnerId != CurrentUserId) return Forbid();
 
         property.IsActive = false;
         await db.SaveChangesAsync();
@@ -109,22 +128,36 @@ public class PropertiesController(AppDbContext db) : ControllerBase
     [Authorize(Roles = "Owner,Admin")]
     public async Task<IActionResult> AssignResident(int id, [FromBody] AssignResidentDto dto)
     {
-        var property = await db.Properties.FindAsync(id);
+        var property = await db.Properties
+            .Include(p => p.Residents)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (property == null) return NotFound();
         if (CurrentRole == "Owner" && property.OwnerId != CurrentUserId) return Forbid();
 
         var resident = await db.Users.FirstOrDefaultAsync(u => u.Id == dto.ResidentId && u.Role == UserRole.Resident);
         if (resident == null) return BadRequest(new { message = "Resident not found." });
 
-        var existing = await db.PropertyResidents
-            .AnyAsync(pr => pr.PropertyId == id && pr.ResidentId == dto.ResidentId);
+        var existing = property.Residents.Any(pr => pr.ResidentId == dto.ResidentId);
         if (existing) return Conflict(new { message = "Resident already assigned to this property." });
+
+        if (property.Residents.Count >= property.UnitCount)
+            return BadRequest(new { message = $"This property has {property.UnitCount} unit(s) and all are already occupied." });
+
+        var unitNumber = string.IsNullOrWhiteSpace(dto.UnitNumber) ? null : dto.UnitNumber.Trim();
+        if (unitNumber != null)
+        {
+            if (!int.TryParse(unitNumber, out var parsedUnit) || parsedUnit < 1 || parsedUnit > property.UnitCount)
+                return BadRequest(new { message = $"Unit number must be between 1 and {property.UnitCount}." });
+
+            if (property.Residents.Any(pr => pr.UnitNumber == unitNumber))
+                return Conflict(new { message = $"Unit {unitNumber} is already occupied." });
+        }
 
         db.PropertyResidents.Add(new PropertyResident
         {
             PropertyId = id,
             ResidentId = dto.ResidentId,
-            UnitNumber = dto.UnitNumber
+            UnitNumber = unitNumber
         });
 
         await db.SaveChangesAsync();

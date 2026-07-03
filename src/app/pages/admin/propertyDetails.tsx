@@ -35,14 +35,16 @@ export default function AdminPropertyDetailsPage() {
   const [deleting, setDeleting]     = useState(false);
 
   const loadData = useCallback(() =>
-    Promise.all([getAdminPropertyById(id ?? ""), getPropertyById(id ?? "")])
-      .then(([ap, op]) => { setAdminProp(ap ?? null); setOwnerProp(op ?? null); }), [id]);
+    Promise.all([
+      getAdminPropertyById(id ?? ""),
+      getPropertyById(id ?? ""),
+      getAdminUsers().then((u) => setOwners(u.filter((x) => x.role === "owner"))),
+    ]).then(([ap, op]) => { setAdminProp(ap ?? null); setOwnerProp(op ?? null); }), [id]);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    Promise.all([loadData(), getAdminUsers().then((u) => setOwners(u.filter((x) => x.role === "owner")))])
-      .then(() => { if (active) setLoading(false); });
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [loadData]);
 
@@ -77,7 +79,7 @@ export default function AdminPropertyDetailsPage() {
   }, [id, navigate]);
 
   return (
-    <AdminLayout title="Property Details">
+    <AdminLayout title="Property Details" onRefresh={loadData}>
       <SecondaryButton fullWidth={false} onClick={() => navigate(ADMIN_ROUTES.properties)} className="mb-5">
         <ArrowLeft size={16} /> Back to Properties
       </SecondaryButton>

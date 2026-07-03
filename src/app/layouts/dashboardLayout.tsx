@@ -12,6 +12,7 @@ import { RESIDENT_NAV } from "../constants/resident";
 interface DashboardLayoutProps {
   title: string;
   actions?: ReactNode;
+  onRefresh?: () => Promise<unknown> | unknown;
   children: ReactNode;
 }
 

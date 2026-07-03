@@ -4,7 +4,7 @@
 // ============================================================================
 
 // Imports
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Layers, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { DashboardCard } from "../../components/dashboard/dashboardCard";
@@ -20,16 +20,17 @@ export default function OwnerReportsPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let active = true;
+  const loadData = useCallback(() =>
     Promise.all([getOwnerRequests(), getProperties()]).then(([r, p]) => {
-      if (!active) return;
       setRequests(r);
       setProperties(p);
-      setLoading(false);
-    });
+    }), []);
+
+  useEffect(() => {
+    let active = true;
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   // Overall counts
   const totals = useMemo(() => ({
@@ -62,7 +63,7 @@ export default function OwnerReportsPage() {
   if (loading) return <OwnerLayout title="Reports"><LoadingState /></OwnerLayout>;
 
   return (
-    <OwnerLayout title="Reports">
+    <OwnerLayout title="Reports" onRefresh={loadData}>
       <div className="flex flex-col gap-6">
         {/* Stat cards */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

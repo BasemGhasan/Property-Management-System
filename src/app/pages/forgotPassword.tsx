@@ -5,12 +5,12 @@
 // Imports
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Mail, ArrowLeft, Send } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
 import { InputField } from "../components/auth/inputField";
 import { PrimaryButton } from "../components/auth/buttons";
-import { SuccessMessage } from "../components/auth/messages";
 import { sendResetLink } from "../services/authService";
 import { isValidEmail, isRequired } from "../services/validators";
 import { ROUTES } from "../constants/auth";
@@ -35,6 +35,7 @@ export default function ForgotPasswordPage() {
       await sendResetLink(email);
       setLoading(false);
       setSent(true);
+      toast.success("Password reset link sent successfully.");
     },
     [email]
   );
@@ -47,10 +48,6 @@ export default function ForgotPasswordPage() {
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-        {sent && (
-          <SuccessMessage>Password reset link sent successfully.</SuccessMessage>
-        )}
-
         <InputField
           label="Email Address"
           name="email"

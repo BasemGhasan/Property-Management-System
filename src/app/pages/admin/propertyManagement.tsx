@@ -11,6 +11,8 @@ import { AdminLayout } from "../../layouts/adminLayout";
 import { LoadingState } from "../../components/shared/loadingState";
 import { StatusPill } from "../../components/shared/statusPill";
 import { PrimaryButton } from "../../components/auth/buttons";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getAdminProperties, togglePropertyStatus, getAdminUsers } from "../../services/adminService";
 import { api } from "../../lib/apiClient";
 import { ADMIN_ROUTES } from "../../constants/admin";
@@ -33,17 +35,18 @@ export default function PropertyManagementPage() {
   const refreshProperties = useCallback(() =>
     getAdminProperties().then(setProperties), []);
 
-  useEffect(() => {
-    let active = true;
+  const loadData = useCallback(() =>
     Promise.all([getAdminProperties(), getAdminUsers()])
       .then(([props, users]) => {
-        if (!active) return;
         setProperties(props);
         setOwners(users.filter((u) => u.role === "owner"));
-        setLoading(false);
-      });
+      }), []);
+
+  useEffect(() => {
+    let active = true;
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   const handleAdd = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,13 +73,15 @@ export default function PropertyManagementPage() {
     );
   }, [properties, search]);
 
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, resetPage, total } = usePagination(filtered);
+
   const handleToggle = useCallback(async (id: string) => {
     await togglePropertyStatus(id);
     setProperties((prev) => prev.map((p) => p.id === id ? { ...p, active: !p.active } : p));
   }, []);
 
   return (
-    <AdminLayout title="Property Management">
+    <AdminLayout title="Property Management" onRefresh={loadData}>
       <div className="flex flex-col gap-5">
         {/* Search + Add */}
         <div className="flex gap-3">
@@ -84,7 +89,7 @@ export default function PropertyManagementPage() {
             <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); resetPage(); }}
               placeholder="Search by property name, owner or ID..."
               className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
@@ -147,6 +152,7 @@ export default function PropertyManagementPage() {
         {loading ? (
           <LoadingState />
         ) : (
+          <>
           <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
@@ -163,7 +169,7 @@ export default function PropertyManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filtered.map((p) => (
+                  {pageItems.map((p) => (
                     <tr key={p.id} className="bg-background/20 transition-colors hover:bg-accent">
                       <td className="px-5 py-3 text-xs text-muted-foreground">{p.id}</td>
                       <td className="px-5 py-3 text-foreground">{p.name}</td>
@@ -201,7 +207,7 @@ export default function PropertyManagementPage() {
 
             {/* Mobile cards */}
             <div className="flex flex-col divide-y divide-border md:hidden">
-              {filtered.map((p) => (
+              {pageItems.map((p) => (
                 <div key={p.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
                     <p className="text-sm text-foreground">{p.name}</p>
@@ -222,6 +228,18 @@ export default function PropertyManagementPage() {
               <p className="p-12 text-center text-muted-foreground">No properties found.</p>
             )}
           </div>
+
+          {filtered.length > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
+          </>
         )}
       </div>
     </AdminLayout>

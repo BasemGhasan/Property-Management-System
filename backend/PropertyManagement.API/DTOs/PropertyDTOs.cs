@@ -30,6 +30,9 @@ public record PropertyDto(
 )
 {
     public List<ResidentAssignmentDto> Residents { get; init; } = [];
+
+    // Unit number for the requesting resident, when the caller is a Resident assigned to this property.
+    public string? MyUnitNumber { get; init; }
 };
 
 public record AssignResidentDto(

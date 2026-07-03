@@ -4,7 +4,7 @@
 // ============================================================================
 
 // Imports
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Building2, Users, Wrench, AlertTriangle, CheckCircle2, List,
@@ -26,16 +26,17 @@ export default function OwnerDashboard() {
   const [requests, setRequests] = useState<OwnerRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let active = true;
+  const loadData = useCallback(() =>
     Promise.all([getProperties(), getOwnerRequests()]).then(([p, r]) => {
-      if (!active) return;
       setProperties(p);
       setRequests(r);
-      setLoading(false);
-    });
+    }), []);
+
+  useEffect(() => {
+    let active = true;
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   const stats = useMemo(() => ({
     totalProperties: properties.length,
@@ -57,7 +58,7 @@ export default function OwnerDashboard() {
   }
 
   return (
-    <OwnerLayout title="Dashboard">
+    <OwnerLayout title="Dashboard" onRefresh={loadData}>
       <div className="flex flex-col gap-6">
         {/* Stat cards */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">

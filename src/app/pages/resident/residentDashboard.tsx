@@ -26,20 +26,20 @@ export default function ResidentDashboard() {
   const [notifications, setNotifications] = useState<ResidentNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadData = useCallback(async () => {
+    const [reqs, notes] = await Promise.all([getRequests(), getNotifications()]);
+    setRequests(reqs);
+    setNotifications(notes);
+  }, []);
+
   // Load data on mount.
   useEffect(() => {
     let active = true;
-    (async () => {
-      const [reqs, notes] = await Promise.all([getRequests(), getNotifications()]);
-      if (!active) return;
-      setRequests(reqs);
-      setNotifications(notes);
-      setLoading(false);
-    })();
+    loadData().then(() => { if (active) setLoading(false); });
     return () => {
       active = false;
     };
-  }, []);
+  }, [loadData]);
 
   // Derived counts for the stat cards.
   const stats = useMemo(() => {
@@ -63,7 +63,7 @@ export default function ResidentDashboard() {
   );
 
   return (
-    <DashboardLayout title="Dashboard">
+    <DashboardLayout title="Dashboard" onRefresh={loadData}>
       {loading ? (
         <LoadingState />
       ) : (
@@ -91,8 +91,8 @@ export default function ResidentDashboard() {
           {/* Two-column: recent requests + notifications */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Recent requests */}
-            <div className="lg:col-span-2">
-              <div className="mb-3 flex items-center justify-between">
+            <div className="rounded-2xl border border-border bg-card/40 lg:col-span-2">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <h2 className="text-foreground">Recent Requests</h2>
                 <button
                   onClick={() => navigate(RESIDENT_ROUTES.history)}
@@ -101,7 +101,7 @@ export default function ResidentDashboard() {
                   View all
                 </button>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
                 {recent.map((r) => (
                   <RequestCard key={r.id} request={r} onClick={() => openRequest(r.id)} />
                 ))}

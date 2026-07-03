@@ -11,6 +11,8 @@ import { SelectField } from "../../components/auth/selectField";
 import { UserDetailsModal } from "../../components/admin/userDetailsModal";
 import { LoadingState } from "../../components/shared/loadingState";
 import { StatusPill } from "../../components/shared/statusPill";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getAdminUsers, toggleUserStatus } from "../../services/adminService";
 import { USER_ROLE_OPTIONS } from "../../constants/filters";
 import type { AdminUser } from "../../constants/admin";
@@ -37,11 +39,13 @@ export default function UserManagementPage() {
   const [selected, setSelected]     = useState<AdminUser | null>(null);
   const [modalOpen, setModalOpen]   = useState(false);
 
+  const loadData = useCallback(() => getAdminUsers().then(setUsers), []);
+
   useEffect(() => {
     let active = true;
-    getAdminUsers().then((data) => { if (!active) return; setUsers(data); setLoading(false); });
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -54,6 +58,8 @@ export default function UserManagementPage() {
     });
   }, [users, search, roleFilter]);
 
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, resetPage, total } = usePagination(filtered);
+
   const openModal = useCallback((user: AdminUser) => { setSelected(user); setModalOpen(true); }, []);
 
   const handleToggle = useCallback(async (id: string) => {
@@ -62,7 +68,7 @@ export default function UserManagementPage() {
   }, []);
 
   return (
-    <AdminLayout title="User Management">
+    <AdminLayout title="User Management" onRefresh={loadData}>
       <div className="flex flex-col gap-5">
         {/* Filters */}
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card/40 p-4 sm:flex-row sm:items-end">
@@ -70,7 +76,7 @@ export default function UserManagementPage() {
             <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); resetPage(); }}
               placeholder="Search by name, email or ID..."
               className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
@@ -82,7 +88,7 @@ export default function UserManagementPage() {
               placeholder="All roles"
               options={USER_ROLE_OPTIONS as { value: string; label: string }[]}
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(e) => { setRoleFilter(e.target.value); resetPage(); }}
             />
           </div>
         </div>
@@ -91,6 +97,7 @@ export default function UserManagementPage() {
         {loading ? (
           <LoadingState />
         ) : (
+          <>
           <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
@@ -106,7 +113,7 @@ export default function UserManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filtered.map((u) => (
+                  {pageItems.map((u) => (
                     <tr key={u.id} className="bg-background/20 transition-colors hover:bg-accent">
                       <td className="px-5 py-3 text-muted-foreground text-xs">{u.id}</td>
                       <td className="px-5 py-3 text-foreground">{u.fullName}</td>
@@ -143,7 +150,7 @@ export default function UserManagementPage() {
 
             {/* Mobile cards */}
             <div className="flex flex-col divide-y divide-border md:hidden">
-              {filtered.map((u) => (
+              {pageItems.map((u) => (
                 <div key={u.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
                     <p className="text-sm text-foreground">{u.fullName}</p>
@@ -167,6 +174,18 @@ export default function UserManagementPage() {
               <p className="p-12 text-center text-muted-foreground">No users match your filters.</p>
             )}
           </div>
+
+          {filtered.length > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
+          </>
         )}
       </div>
 

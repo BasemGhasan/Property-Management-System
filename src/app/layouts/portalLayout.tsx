@@ -12,6 +12,8 @@ import { useLocation, useNavigate } from "react-router";
 import { Bell, LogOut, Menu, X, ChevronDown, type LucideIcon } from "lucide-react";
 import { ROUTES } from "../constants/auth";
 import { getStoredUser } from "../lib/auth";
+import { usePullToRefresh } from "../hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "../components/shared/pullToRefreshIndicator";
 
 // Interfaces
 export interface NavItem {
@@ -30,6 +32,8 @@ interface PortalLayoutProps {
   notificationDotColor: string;
   title: string;
   actions?: ReactNode;
+  /** Called when the user pulls down to refresh (touch devices). Omit to disable. */
+  onRefresh?: () => Promise<unknown> | unknown;
   children: ReactNode;
 }
 
@@ -120,11 +124,13 @@ export function PortalLayout({
   notificationDotColor,
   title,
   actions,
+  onRefresh,
   children,
 }: PortalLayoutProps) {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const { pullDistance, refreshing, threshold } = usePullToRefresh(onRefresh);
   const user = getStoredUser();
   const displayName = user?.fullName ?? defaultUserLabel;
   const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
@@ -178,6 +184,9 @@ export function PortalLayout({
 
         {/* Page content */}
         <main className="px-4 py-6 sm:px-6 lg:px-8">
+          {onRefresh && (
+            <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
+          )}
           {actions && <div className="mb-5 flex flex-wrap gap-3">{actions}</div>}
           {children}
         </main>

@@ -5,6 +5,7 @@
 // Imports
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { ArrowLeft, Building, UserPlus } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
@@ -12,7 +13,6 @@ import { InputField } from "../components/auth/inputField";
 import { CommonRegistrationFields } from "../components/auth/commonRegistrationFields";
 import { CheckboxField } from "../components/auth/checkboxField";
 import { PrimaryButton } from "../components/auth/buttons";
-import { ErrorMessage } from "../components/auth/messages";
 import { AuthSuccessScreen } from "../components/auth/authSuccessScreen";
 import { useRegistrationForm } from "../hooks/useRegistrationForm";
 import { register } from "../services/authService";
@@ -33,10 +33,8 @@ export default function ResidentRegistrationPage() {
 
   // Role-specific (optional) field
   const [propertyName, setPropertyName] = useState("");
-  const [termsError, setTermsError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   // Submit handler
   const handleSubmit = useCallback(
@@ -44,12 +42,11 @@ export default function ResidentRegistrationPage() {
       e.preventDefault();
       const validation = validateCommon();
       setErrors(validation);
-      setTermsError(acceptedTerms ? "" : "You must accept the terms.");
+      if (!acceptedTerms) toast.error("You must accept the terms.");
 
       if (Object.keys(validation).length > 0 || !acceptedTerms) return;
 
       setLoading(true);
-      setSubmitError("");
       const result = await register({
         role: "resident",
         fullName: fields.fullName,
@@ -62,7 +59,7 @@ export default function ResidentRegistrationPage() {
       if (result.success) {
         setSuccess(true);
       } else {
-        setSubmitError(result.message ?? "Registration failed. Please try again.");
+        toast.error(result.message ?? "Registration failed. Please try again.");
       }
     },
     [fields, propertyName, acceptedTerms, validateCommon, setErrors]
@@ -90,8 +87,6 @@ export default function ResidentRegistrationPage() {
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-        {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
-
         <CommonRegistrationFields fields={fields} errors={errors} setField={setField} />
 
         <InputField
@@ -103,14 +98,11 @@ export default function ResidentRegistrationPage() {
           onChange={(e) => setPropertyName(e.target.value)}
         />
 
-        <div className="flex flex-col gap-1.5">
-          <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
-            I agree to the{" "}
-            <span className="text-primary">Terms &amp; Conditions</span> and{" "}
-            <span className="text-primary">Privacy Policy</span>.
-          </CheckboxField>
-          {termsError && <ErrorMessage>{termsError}</ErrorMessage>}
-        </div>
+        <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
+          I agree to the{" "}
+          <span className="text-primary">Terms &amp; Conditions</span> and{" "}
+          <span className="text-primary">Privacy Policy</span>.
+        </CheckboxField>
 
         <PrimaryButton type="submit" loading={loading}>
           {!loading && <UserPlus size={18} />}

@@ -22,13 +22,13 @@ const TYPE_META: Record<ResidentNotification["type"], { icon: LucideIcon; color:
 // Component
 export function NotificationWidget({ notifications }: NotificationWidgetProps) {
   return (
-    <div className="rounded-2xl border border-border bg-card/40 p-5">
-      <div className="mb-4 flex items-center gap-2 text-foreground">
+    <div className="h-full rounded-2xl border border-border bg-card/40">
+      <div className="flex items-center gap-2 border-b border-border px-5 py-4 text-foreground">
         <Bell size={18} className="text-primary" />
         Recent Notifications
       </div>
 
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-3 p-5">
         {notifications.map((n) => {
           const meta = TYPE_META[n.type];
           const Icon = meta.icon;

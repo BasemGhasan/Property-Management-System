@@ -6,6 +6,7 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 import { ArrowLeft, Save } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
@@ -13,7 +14,6 @@ import { RequestTimeline } from "../../components/dashboard/requestTimeline";
 import { SelectField } from "../../components/auth/selectField";
 import { TextAreaField } from "../../components/auth/textAreaField";
 import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
-import { SuccessMessage, ErrorMessage } from "../../components/auth/messages";
 import { LoadingState } from "../../components/shared/loadingState";
 import { InfoRow } from "../../components/shared/infoRow";
 import { getOwnerRequestById, updateOwnerRequest } from "../../services/ownerService";
@@ -34,26 +34,25 @@ export default function RequestManagementPage() {
   const [priority, setPriority] = useState<RequestPriority>("medium");
   const [completionNotes, setCompletionNotes] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState(false);
 
-  useEffect(() => {
-    let active = true;
+  const loadData = useCallback(() =>
     getOwnerRequestById(id ?? "").then((req) => {
-      if (!active || !req) return;
+      if (!req) return;
       setRequest(req);
       setStatus(req.status);
       setPriority(req.priority);
       setCompletionNotes(req.completionNotes ?? "");
-      setLoading(false);
-    });
+    }), [id]);
+
+  useEffect(() => {
+    let active = true;
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [id]);
+  }, [loadData]);
 
   const handleSave = useCallback(async () => {
     if (!id) return;
     setSaving(true);
-    setSaveError(false);
     const ok = await updateOwnerRequest(id, { status, priority, completionNotes });
     if (ok) {
       const fresh = await getOwnerRequestById(id);
@@ -64,11 +63,10 @@ export default function RequestManagementPage() {
         setCompletionNotes(fresh.completionNotes ?? "");
       }
       setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      toast.success("Request updated successfully.");
     } else {
       setSaving(false);
-      setSaveError(true);
+      toast.error("Failed to update the request. Please try again.");
     }
   }, [id, status, priority, completionNotes]);
 
@@ -89,7 +87,7 @@ export default function RequestManagementPage() {
   }
 
   return (
-    <OwnerLayout title="Request Management">
+    <OwnerLayout title="Request Management" onRefresh={loadData}>
       <SecondaryButton fullWidth={false} onClick={() => navigate(OWNER_ROUTES.requests)} className="mb-5">
         <ArrowLeft size={16} /> Back to Requests
       </SecondaryButton>
@@ -97,9 +95,6 @@ export default function RequestManagementPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left — details + controls */}
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {saved && <SuccessMessage>Request updated successfully.</SuccessMessage>}
-          {saveError && <ErrorMessage>Failed to update the request. Please try again.</ErrorMessage>}
-
           {/* Header */}
           <div className="rounded-2xl border border-border bg-card/40 p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">

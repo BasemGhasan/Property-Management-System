@@ -6,12 +6,16 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, CheckCircle2, Wrench, AlertTriangle, Pencil } from "lucide-react";
+import { toast } from "sonner";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ArrowLeft, CheckCircle2, Wrench, AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
 import { SecondaryButton, PrimaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
 import { StatTile } from "../../components/shared/statTile";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { EditPropertyModal } from "../../components/owner/editPropertyModal";
 import { AssignResidentModal, type ResidentOption } from "../../components/owner/assignResidentModal";
 import { PropertyResidentsList } from "../../components/owner/propertyResidentsList";
@@ -30,7 +34,11 @@ export default function PropertyDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [residents, setResidents] = useState<ResidentOption[]>([]);
+
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, total } = usePagination(requests);
 
   const loadData = useCallback(() =>
     Promise.all([getPropertyById(id ?? ""), getOwnerRequests()]).then(([p, r]) => {
@@ -59,6 +67,7 @@ export default function PropertyDetailsPage() {
   const handleAssign = useCallback(async (data: { residentId: string; unit: string }) => {
     await api.post(`/api/properties/${id}/residents`, { residentId: Number(data.residentId), unitNumber: data.unit || null });
     await loadData();
+    toast.success("Resident assigned successfully.");
   }, [id, loadData]);
 
   const handleRemoveResident = useCallback(async (residentId: string) => {
@@ -66,8 +75,20 @@ export default function PropertyDetailsPage() {
     await loadData();
   }, [id, loadData]);
 
+  const handleDelete = useCallback(async () => {
+    setDeleting(true);
+    try {
+      await api.delete(`/api/properties/${id}`);
+      toast.success("Property deleted.");
+      navigate(OWNER_ROUTES.properties);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete property.");
+      setDeleting(false);
+    }
+  }, [id, navigate]);
+
   return (
-    <OwnerLayout title="Property Details">
+    <OwnerLayout title="Property Details" onRefresh={loadData}>
       <SecondaryButton fullWidth={false} onClick={() => navigate(OWNER_ROUTES.properties)} className="mb-5">
         <ArrowLeft size={16} /> Back to Properties
       </SecondaryButton>
@@ -79,7 +100,14 @@ export default function PropertyDetailsPage() {
       ) : (
         <div className="flex flex-col gap-6">
           <EditPropertyModal open={showEdit} property={property} onClose={() => setShowEdit(false)} onSave={handleSaveEdit} />
-          <AssignResidentModal open={showAssign} residents={residents} onClose={() => setShowAssign(false)} onAssign={handleAssign} />
+          <AssignResidentModal
+            open={showAssign}
+            residents={residents}
+            unitCount={property.unitCount}
+            occupiedUnits={property.residents.map((r) => r.unit).filter(Boolean)}
+            onClose={() => setShowAssign(false)}
+            onAssign={handleAssign}
+          />
 
           {/* Property header */}
           <div className="rounded-2xl border border-border bg-card/40 p-5">
@@ -88,11 +116,50 @@ export default function PropertyDetailsPage() {
                 <h2 className="text-foreground">{property.name}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{property.address}</p>
               </div>
-              <button onClick={() => setShowEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary">
-                <Pencil size={13} /> Edit
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary">
+                  <Pencil size={13} /> Edit
+                </button>
+                <button onClick={() => setShowConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-critical/40 hover:text-critical">
+                  <Trash2 size={13} /> Delete
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Delete confirmation */}
+          <Dialog.Root open={showConfirmDelete} onOpenChange={(o) => !o && setShowConfirmDelete(false)}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+              <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-popover p-6 shadow-lg focus:outline-none">
+                <Dialog.Title className="mb-2 text-foreground">Delete Property?</Dialog.Title>
+                <Dialog.Description className="mb-6 text-sm text-muted-foreground">
+                  This removes <span className="text-foreground">{property.name}</span> from your properties
+                  {property.residents.length > 0
+                    ? ` and its ${property.residents.length} assigned resident${property.residents.length === 1 ? "" : "s"} will lose access to it. `
+                    : ". "}
+                  This can't be undone from the UI.
+                </Dialog.Description>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="flex-1 rounded-xl bg-critical py-2.5 text-sm text-white hover:bg-critical/90 disabled:opacity-60"
+                  >
+                    {deleting ? "Deleting…" : "Delete"}
+                  </button>
+                </div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
 
           {/* Stats */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -101,7 +168,7 @@ export default function PropertyDetailsPage() {
             <StatTile label="Critical" value={property.stats.criticalRequests} color="text-critical" />
           </div>
 
-          <PropertyResidentsList residents={property.residents} onAssign={openAssign} onRemove={handleRemoveResident} />
+          <PropertyResidentsList residents={property.residents} unitCount={property.unitCount} onAssign={openAssign} onRemove={handleRemoveResident} />
 
           {/* Recent requests */}
           <div className="rounded-2xl border border-border bg-card/40">
@@ -122,7 +189,7 @@ export default function PropertyDetailsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {requests.map((r) => (
+                  {pageItems.map((r) => (
                     <tr
                       key={r.id}
                       onClick={() => navigate(`${OWNER_ROUTES.requestManage}/${r.id}`)}
@@ -139,6 +206,17 @@ export default function PropertyDetailsPage() {
               </table>
             )}
           </div>
+
+          {requests.length > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
         </div>
       )}
     </OwnerLayout>

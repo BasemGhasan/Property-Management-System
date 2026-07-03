@@ -10,23 +10,33 @@ import type { Resident } from "../../constants/owner";
 // Interfaces
 interface PropertyResidentsListProps {
   residents: Resident[];
+  unitCount: number;
   onAssign: () => void;
   onRemove: (residentId: string) => void;
 }
 
 // Component
-export function PropertyResidentsList({ residents, onAssign, onRemove }: PropertyResidentsListProps) {
+export function PropertyResidentsList({ residents, unitCount, onAssign, onRemove }: PropertyResidentsListProps) {
+  const atCapacity = residents.length >= unitCount;
+
   return (
     <div className="rounded-2xl border border-border bg-card/40 p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-foreground">Residents ({residents.length})</h3>
+        <h3 className="text-foreground">Residents ({residents.length}/{unitCount})</h3>
         <button
           onClick={onAssign}
-          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary"
+          disabled={atCapacity}
+          title={atCapacity ? "All units are occupied" : undefined}
+          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border disabled:hover:text-muted-foreground"
         >
           <UserPlus size={13} /> Assign Resident
         </button>
       </div>
+      {atCapacity && (
+        <p className="mb-3 text-xs text-muted-foreground">
+          All {unitCount} unit{unitCount === 1 ? "" : "s"} are occupied. Remove a resident or increase the unit count to assign more.
+        </p>
+      )}
 
       <div className="flex flex-col divide-y divide-border">
         {residents.length === 0 && (

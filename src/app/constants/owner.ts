@@ -39,6 +39,8 @@ export interface Property {
   id: string;
   name: string;
   address: string;
+  /** Total number of units the property has. Residents can't exceed this. */
+  unitCount: number;
   residents: Resident[];
   stats: PropertyStats;
 }

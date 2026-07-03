@@ -12,6 +12,7 @@ import { OWNER_NAV } from "../constants/owner";
 interface OwnerLayoutProps {
   title: string;
   actions?: ReactNode;
+  onRefresh?: () => Promise<unknown> | unknown;
   children: ReactNode;
 }
 

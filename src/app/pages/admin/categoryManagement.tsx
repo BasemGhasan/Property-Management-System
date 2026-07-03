@@ -11,6 +11,8 @@ import { PrimaryButton } from "../../components/auth/buttons";
 import { PriorityBadge } from "../../components/dashboard/badges";
 import { CategoryFormModal } from "../../components/admin/categoryFormModal";
 import { LoadingState } from "../../components/shared/loadingState";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getCategories, saveCategory, updateCategory } from "../../services/adminService";
 import type { IssueCategory } from "../../constants/admin";
 import type { RequestPriority } from "../../constants/resident";
@@ -22,11 +24,13 @@ export default function CategoryManagementPage() {
   const [modalOpen, setModalOpen]   = useState(false);
   const [editing, setEditing]       = useState<IssueCategory | null>(null);
 
+  const loadData = useCallback(() => getCategories().then(setCategories), []);
+
   useEffect(() => {
     let active = true;
-    getCategories().then((data) => { if (!active) return; setCategories(data); setLoading(false); });
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   const openAdd  = useCallback(() => { setEditing(null);  setModalOpen(true); }, []);
   const openEdit = useCallback((cat: IssueCategory) => { setEditing(cat); setModalOpen(true); }, []);
@@ -49,9 +53,12 @@ export default function CategoryManagementPage() {
   const active   = useMemo(() => categories.filter((c) => c.active).length,   [categories]);
   const inactive = useMemo(() => categories.filter((c) => !c.active).length, [categories]);
 
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, total } = usePagination(categories);
+
   return (
     <AdminLayout
       title="Issue Categories"
+      onRefresh={loadData}
       actions={
         <PrimaryButton fullWidth={false} onClick={openAdd}>
           <Plus size={18} /> Add Category
@@ -72,6 +79,7 @@ export default function CategoryManagementPage() {
         {loading ? (
           <LoadingState />
         ) : (
+          <>
           <div className="overflow-hidden rounded-2xl border border-border">
             {/* Desktop */}
             <div className="hidden md:block">
@@ -86,7 +94,7 @@ export default function CategoryManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {categories.map((cat) => (
+                  {pageItems.map((cat) => (
                     <tr key={cat.id} className="bg-background/20 transition-colors hover:bg-accent">
                       <td className="px-5 py-3 text-foreground">{cat.name}</td>
                       <td className="px-5 py-3 font-mono text-xs text-muted-foreground">{cat.slug}</td>
@@ -132,7 +140,7 @@ export default function CategoryManagementPage() {
 
             {/* Mobile cards */}
             <div className="flex flex-col divide-y divide-border md:hidden">
-              {categories.map((cat) => (
+              {pageItems.map((cat) => (
                 <div key={cat.id} className="flex items-start justify-between gap-3 px-4 py-4">
                   <div>
                     <p className="text-sm text-foreground">{cat.name}</p>
@@ -151,6 +159,18 @@ export default function CategoryManagementPage() {
               ))}
             </div>
           </div>
+
+          {categories.length > 0 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
+          </>
         )}
       </div>
 

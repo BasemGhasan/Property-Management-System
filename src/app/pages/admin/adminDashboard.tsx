@@ -4,7 +4,7 @@
 // ============================================================================
 
 // Imports
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Users, Home, Building2, Wrench, Tag, UserCheck } from "lucide-react";
 import { AdminLayout } from "../../layouts/adminLayout";
@@ -27,16 +27,17 @@ export default function AdminDashboard() {
   const [activity, setActivity] = useState<AdminActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let active = true;
+  const loadData = useCallback(() =>
     Promise.all([getSystemStats(), getAdminActivity()]).then(([s, a]) => {
-      if (!active) return;
       setStats(s);
       setActivity(a);
-      setLoading(false);
-    });
+    }), []);
+
+  useEffect(() => {
+    let active = true;
+    loadData().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -47,7 +48,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout title="Dashboard">
+    <AdminLayout title="Dashboard" onRefresh={loadData}>
       <div className="flex flex-col gap-6">
         {/* Stat cards */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">

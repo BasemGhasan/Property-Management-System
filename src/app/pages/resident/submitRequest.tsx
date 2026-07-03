@@ -5,13 +5,13 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Send, X, CheckCircle2 } from "lucide-react";
 import { DashboardLayout } from "../../layouts/dashboardLayout";
 import { InputField } from "../../components/auth/inputField";
 import { SelectField } from "../../components/auth/selectField";
 import { TextAreaField } from "../../components/auth/textAreaField";
 import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
-import { SuccessMessage, ErrorMessage } from "../../components/auth/messages";
 import { FileUploadCard, type UploadedFile } from "../../components/dashboard/fileUploadCard";
 import { api } from "../../lib/apiClient";
 import { RESIDENT_ROUTES, PRIORITY_OPTIONS, type RequestPriority } from "../../constants/resident";
@@ -47,7 +47,6 @@ export default function SubmitRequestPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -76,7 +75,6 @@ export default function SubmitRequestPage() {
     if (Object.keys(validation).length > 0) return;
 
     setLoading(true);
-    setSubmitError("");
 
     try {
       // Upload photos to S3 first
@@ -96,10 +94,11 @@ export default function SubmitRequestPage() {
       });
 
       setSuccess(true);
+      toast.success("Maintenance request submitted successfully.");
       setTimeout(() => navigate(RESIDENT_ROUTES.dashboard), 1600);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to submit request.";
-      setSubmitError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -113,11 +112,6 @@ export default function SubmitRequestPage() {
           className="flex flex-col gap-5 rounded-2xl border border-border bg-card/40 p-5 sm:p-7"
           noValidate
         >
-          {success && (
-            <SuccessMessage>Maintenance request submitted successfully.</SuccessMessage>
-          )}
-          {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
-
           {/* Property + Category */}
           <div className="grid gap-5 sm:grid-cols-2">
             <SelectField

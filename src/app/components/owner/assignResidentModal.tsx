@@ -5,8 +5,10 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import { toast } from "sonner";
 import { X } from "lucide-react";
 import { PrimaryButton } from "../auth/buttons";
+import { ValidationMessage } from "../auth/messages";
 
 // Interfaces
 export interface ResidentOption {
@@ -18,31 +20,56 @@ export interface ResidentOption {
 interface AssignResidentModalProps {
   open: boolean;
   residents: ResidentOption[];
+  /** Total units on the property; the unit field is constrained to 1..unitCount. */
+  unitCount: number;
+  /** Unit numbers already assigned to another resident on this property. */
+  occupiedUnits: string[];
   onClose: () => void;
   onAssign: (data: { residentId: string; unit: string }) => Promise<void>;
 }
 
 // Component
-export function AssignResidentModal({ open, residents, onClose, onAssign }: AssignResidentModalProps) {
+export function AssignResidentModal({ open, residents, unitCount, occupiedUnits, onClose, onAssign }: AssignResidentModalProps) {
   const [residentId, setResidentId] = useState("");
   const [unit, setUnit] = useState("");
+  const [unitError, setUnitError] = useState("");
   const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     if (open) {
       setResidentId("");
       setUnit("");
+      setUnitError("");
     }
   }, [open]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!residentId) return;
+
+    if (unit) {
+      const parsed = Number(unit);
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > unitCount) {
+        setUnitError(`Enter a unit between 1 and ${unitCount}.`);
+        return;
+      }
+      if (occupiedUnits.includes(unit)) {
+        setUnitError(`Unit ${unit} is already occupied.`);
+        return;
+      }
+    }
+    setUnitError("");
+
     setAssigning(true);
-    await onAssign({ residentId, unit });
-    setAssigning(false);
-    onClose();
-  }, [residentId, unit, onAssign, onClose]);
+    try {
+      await onAssign({ residentId, unit });
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to assign resident.");
+    } finally {
+      setAssigning(false);
+    }
+  }, [residentId, unit, unitCount, occupiedUnits, onAssign, onClose]);
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
@@ -74,13 +101,19 @@ export function AssignResidentModal({ open, residents, onClose, onAssign }: Assi
               </select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-muted-foreground">Unit Number (optional)</label>
+              <label className="text-sm text-muted-foreground">
+                Unit Number (optional) — 1 to {unitCount}
+              </label>
               <input
+                type="number"
+                min={1}
+                max={unitCount}
                 value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                placeholder="e.g. 12B"
+                onChange={(e) => { setUnit(e.target.value); setUnitError(""); }}
+                placeholder={`e.g. 1`}
                 className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
+              <ValidationMessage message={unitError} />
             </div>
             <div className="mt-2 flex gap-3">
               <button

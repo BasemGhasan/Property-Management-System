@@ -12,6 +12,7 @@ import { ADMIN_NAV } from "../constants/admin";
 interface AdminLayoutProps {
   title: string;
   actions?: ReactNode;
+  onRefresh?: () => Promise<unknown> | unknown;
   children: ReactNode;
 }
 

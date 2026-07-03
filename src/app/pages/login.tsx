@@ -5,6 +5,7 @@
 // Imports
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Mail, LogIn } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
@@ -12,7 +13,6 @@ import { InputField } from "../components/auth/inputField";
 import { PasswordField } from "../components/auth/passwordField";
 import { CheckboxField } from "../components/auth/checkboxField";
 import { PrimaryButton, SecondaryButton } from "../components/auth/buttons";
-import { ErrorMessage } from "../components/auth/messages";
 import { ROUTES } from "../constants/auth";
 import { login } from "../services/authService";
 import { dashboardRouteForRole } from "../lib/auth";
@@ -33,7 +33,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<LoginErrors>({});
-  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Derived: form is fillable
@@ -55,7 +54,6 @@ export default function LoginPage() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      setFormError("");
 
       const validation = validate();
       setErrors(validation);
@@ -66,10 +64,9 @@ export default function LoginPage() {
       setLoading(false);
 
       if (result.success && result.role) {
-        setFormError("");
         navigate(dashboardRouteForRole(result.role));
       } else {
-        setFormError(result.message);
+        toast.error(result.message);
       }
     },
     [email, password, rememberMe, validate, navigate]
@@ -81,8 +78,6 @@ export default function LoginPage() {
       <PageHeader title="Welcome back" subtitle="Sign in to your PropCare account" />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-        {formError && <ErrorMessage>{formError}</ErrorMessage>}
-
         <InputField
           label="Email"
           name="email"

@@ -9,8 +9,10 @@ import { Search, PlusCircle } from "lucide-react";
 import { DashboardLayout } from "../../layouts/dashboardLayout";
 import { RequestTable } from "../../components/dashboard/requestTable";
 import { SelectField } from "../../components/auth/selectField";
-import { PrimaryButton, SecondaryButton } from "../../components/auth/buttons";
+import { PrimaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
+import { Pagination } from "../../components/shared/pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getRequests } from "../../services/requestService";
 import {
   RESIDENT_ROUTES,
@@ -20,8 +22,6 @@ import {
 } from "../../constants/resident";
 
 // Constants
-const PAGE_SIZE = 4;
-
 const STATUS_FILTERS = [
   { value: "pending", label: "Pending" },
   { value: "in-progress", label: "In Progress" },
@@ -40,21 +40,17 @@ export default function RequestHistoryPage() {
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [category, setCategory] = useState("");
-  const [page, setPage] = useState(1);
 
   // Load data
+  const loadData = useCallback(() => getRequests().then(setRequests), []);
+
   useEffect(() => {
     let active = true;
-    (async () => {
-      const data = await getRequests();
-      if (!active) return;
-      setRequests(data);
-      setLoading(false);
-    })();
+    loadData().then(() => { if (active) setLoading(false); });
     return () => {
       active = false;
     };
-  }, []);
+  }, [loadData]);
 
   // Apply search + filters (memoised).
   const filtered = useMemo(() => {
@@ -71,19 +67,15 @@ export default function RequestHistoryPage() {
   }, [requests, search, status, priority, category]);
 
   // Pagination slice.
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page]
-  );
+  const { page, setPage, pageSize, setPageSize, totalPages, pageItems, resetPage, total } = usePagination(filtered);
 
   // Reset to page 1 whenever filters change.
   const onFilterChange = useCallback(
     (setter: (v: string) => void) => (value: string) => {
       setter(value);
-      setPage(1);
+      resetPage();
     },
-    []
+    [resetPage]
   );
 
   const openRequest = useCallback(
@@ -94,6 +86,7 @@ export default function RequestHistoryPage() {
   return (
     <DashboardLayout
       title="Request History"
+      onRefresh={loadData}
       actions={
         <PrimaryButton fullWidth={false} onClick={() => navigate(RESIDENT_ROUTES.submit)}>
           <PlusCircle size={18} />
@@ -111,7 +104,7 @@ export default function RequestHistoryPage() {
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setPage(1);
+                resetPage();
               }}
               placeholder="Search by title or request ID..."
               className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
@@ -155,28 +148,15 @@ export default function RequestHistoryPage() {
             <RequestTable requests={pageItems} onRowClick={openRequest} />
 
             {/* Pagination */}
-            {filtered.length > PAGE_SIZE && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Page {page} of {totalPages} · {filtered.length} results
-                </p>
-                <div className="flex gap-2">
-                  <SecondaryButton
-                    fullWidth={false}
-                    disabled={page === 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </SecondaryButton>
-                  <SecondaryButton
-                    fullWidth={false}
-                    disabled={page === totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  >
-                    Next
-                  </SecondaryButton>
-                </div>
-              </div>
+            {filtered.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
             )}
           </>
         )}

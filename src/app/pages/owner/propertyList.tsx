@@ -90,13 +90,9 @@ export default function PropertyListPage() {
 
   useEffect(() => {
     let active = true;
-    getProperties().then((data) => {
-      if (!active) return;
-      setProperties(data);
-      setLoading(false);
-    });
+    refreshProperties().then(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, []);  // eslint-disable-line
+  }, [refreshProperties]);
 
   const filtered = useMemo(
     () => properties.filter(
@@ -108,7 +104,7 @@ export default function PropertyListPage() {
   );
 
   return (
-    <OwnerLayout title="Properties">
+    <OwnerLayout title="Properties" onRefresh={refreshProperties}>
       <div className="flex flex-col gap-5">
         {/* Search + Add */}
         <div className="flex gap-3">

@@ -6,6 +6,7 @@
 // Imports
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { ArrowLeft, UserPlus, Plus, Trash2, Building2 } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
@@ -13,7 +14,7 @@ import { InputField } from "../components/auth/inputField";
 import { CommonRegistrationFields } from "../components/auth/commonRegistrationFields";
 import { CheckboxField } from "../components/auth/checkboxField";
 import { PrimaryButton, SecondaryButton } from "../components/auth/buttons";
-import { ErrorMessage, ValidationMessage } from "../components/auth/messages";
+import { ValidationMessage } from "../components/auth/messages";
 import { AuthSuccessScreen } from "../components/auth/authSuccessScreen";
 import { useRegistrationForm } from "../hooks/useRegistrationForm";
 import { register } from "../services/authService";
@@ -36,10 +37,8 @@ export default function PropertyOwnerRegistrationPage() {
   // Dynamic property list — starts with a single empty entry.
   const [propertyNames, setPropertyNames] = useState<string[]>([""]);
   const [propertyError, setPropertyError] = useState("");
-  const [termsError, setTermsError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   // Derived count of properties owned.
   const propertyCount = useMemo(
@@ -69,13 +68,12 @@ export default function PropertyOwnerRegistrationPage() {
 
       const hasProperty = propertyNames.some((p) => isRequired(p));
       setPropertyError(hasProperty ? "" : "Add at least one property.");
-      setTermsError(acceptedTerms ? "" : "You must accept the terms.");
+      if (!acceptedTerms) toast.error("You must accept the terms.");
 
       if (Object.keys(validation).length > 0 || !hasProperty || !acceptedTerms)
         return;
 
       setLoading(true);
-      setSubmitError("");
       const result = await register({
         role: "owner",
         fullName: fields.fullName,
@@ -88,7 +86,7 @@ export default function PropertyOwnerRegistrationPage() {
       if (result.success) {
         setSuccess(true);
       } else {
-        setSubmitError(result.message ?? "Registration failed. Please try again.");
+        toast.error(result.message ?? "Registration failed. Please try again.");
       }
     },
     [fields, propertyNames, acceptedTerms, validateCommon, setErrors]
@@ -116,8 +114,6 @@ export default function PropertyOwnerRegistrationPage() {
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-        {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
-
         <CommonRegistrationFields fields={fields} errors={errors} setField={setField} />
 
         {/* Property information section */}
@@ -171,14 +167,11 @@ export default function PropertyOwnerRegistrationPage() {
           </SecondaryButton>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
-            I agree to the{" "}
-            <span className="text-primary">Terms &amp; Conditions</span> and{" "}
-            <span className="text-primary">Privacy Policy</span>.
-          </CheckboxField>
-          {termsError && <ErrorMessage>{termsError}</ErrorMessage>}
-        </div>
+        <CheckboxField id="terms" checked={acceptedTerms} onChange={setAcceptedTerms}>
+          I agree to the{" "}
+          <span className="text-primary">Terms &amp; Conditions</span> and{" "}
+          <span className="text-primary">Privacy Policy</span>.
+        </CheckboxField>
 
         <PrimaryButton type="submit" loading={loading}>
           {!loading && <UserPlus size={18} />}

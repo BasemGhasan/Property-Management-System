@@ -67,6 +67,7 @@ function toProperty(p: ApiProperty): Property {
     id: String(p.id),
     name: p.name,
     address: p.address,
+    unitCount: p.unitCount,
     residents: (p.residents ?? []).map((r) => ({
       id: String(r.residentId),
       name: r.residentName,

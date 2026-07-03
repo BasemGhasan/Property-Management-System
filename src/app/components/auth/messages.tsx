@@ -1,19 +1,17 @@
 // ============================================================================
-// Message components — ValidationMessage, ErrorMessage, SuccessMessage.
-// Shared inline feedback elements used across all auth pages.
+// ValidationMessage — tiny field-level error shown beneath inputs.
+// Form-level errors/successes use toast notifications (sonner) instead.
 // ============================================================================
 
 // Imports
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
-import type { ReactNode } from "react";
+import { AlertCircle } from "lucide-react";
 
-// ----------------------------------------------------------------------------
-// ValidationMessage — tiny field-level error shown beneath inputs.
-// ----------------------------------------------------------------------------
+// Interfaces
 interface ValidationMessageProps {
   message?: string;
 }
 
+// Component
 export function ValidationMessage({ message }: ValidationMessageProps) {
   if (!message) return null;
   return (
@@ -21,33 +19,5 @@ export function ValidationMessage({ message }: ValidationMessageProps) {
       <AlertCircle size={14} />
       {message}
     </p>
-  );
-}
-
-// ----------------------------------------------------------------------------
-// ErrorMessage — banner for form-level / server errors.
-// ----------------------------------------------------------------------------
-interface BannerProps {
-  children: ReactNode;
-}
-
-export function ErrorMessage({ children }: BannerProps) {
-  return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-sm text-red-800">
-      <XCircle size={18} className="mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  );
-}
-
-// ----------------------------------------------------------------------------
-// SuccessMessage — banner for confirmations.
-// ----------------------------------------------------------------------------
-export function SuccessMessage({ children }: BannerProps) {
-  return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-green-200 bg-green-100 px-4 py-3 text-sm text-green-800">
-      <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
   );
 }
