@@ -178,32 +178,57 @@ export default function PropertyDetailsPage() {
             {requests.length === 0 ? (
               <p className="px-5 py-8 text-sm text-muted-foreground">No requests for this property.</p>
             ) : (
-              <table className="w-full text-left text-sm">
-                <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th className="px-5 py-3">ID</th>
-                    <th className="px-5 py-3">Title</th>
-                    <th className="px-5 py-3">Category</th>
-                    <th className="px-5 py-3">Priority</th>
-                    <th className="px-5 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
+              <>
+                {/* Desktop table */}
+                <div className="hidden md:block">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="px-5 py-3">ID</th>
+                        <th className="px-5 py-3">Title</th>
+                        <th className="px-5 py-3">Category</th>
+                        <th className="px-5 py-3">Priority</th>
+                        <th className="px-5 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {pageItems.map((r) => (
+                        <tr
+                          key={r.id}
+                          onClick={() => navigate(`${OWNER_ROUTES.requestManage}/${r.id}`)}
+                          className="cursor-pointer transition-colors hover:bg-accent"
+                        >
+                          <td className="px-5 py-3 text-muted-foreground">{r.id}</td>
+                          <td className="px-5 py-3 text-foreground">{r.title}</td>
+                          <td className="px-5 py-3 text-muted-foreground">{categoryLabel(r.category)}</td>
+                          <td className="px-5 py-3"><PriorityBadge priority={r.priority} /></td>
+                          <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="flex flex-col divide-y divide-border md:hidden">
                   {pageItems.map((r) => (
-                    <tr
+                    <button
                       key={r.id}
                       onClick={() => navigate(`${OWNER_ROUTES.requestManage}/${r.id}`)}
-                      className="cursor-pointer transition-colors hover:bg-accent"
+                      className="flex flex-col gap-2 px-5 py-4 text-left hover:bg-accent"
                     >
-                      <td className="px-5 py-3 text-muted-foreground">{r.id}</td>
-                      <td className="px-5 py-3 text-foreground">{r.title}</td>
-                      <td className="px-5 py-3 text-muted-foreground">{categoryLabel(r.category)}</td>
-                      <td className="px-5 py-3"><PriorityBadge priority={r.priority} /></td>
-                      <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
-                    </tr>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm text-foreground">{r.title}</p>
+                        <StatusBadge status={r.status} />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <PriorityBadge priority={r.priority} />
+                        <span className="text-xs text-muted-foreground">{categoryLabel(r.category)}</span>
+                      </div>
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </>
             )}
           </div>
 

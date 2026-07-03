@@ -81,40 +81,72 @@ export default function OwnerReportsPage() {
           {propertyBreakdown.length === 0 ? (
             <EmptyState message="No properties found." />
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3">Property</th>
-                  <th className="px-5 py-3 text-center">Total</th>
-                  <th className="px-5 py-3 text-center">Open</th>
-                  <th className="px-5 py-3 text-center">Completed</th>
-                  <th className="px-5 py-3 text-center">Rejected</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
+                    <tr>
+                      <th className="px-5 py-3">Property</th>
+                      <th className="px-5 py-3 text-center">Total</th>
+                      <th className="px-5 py-3 text-center">Open</th>
+                      <th className="px-5 py-3 text-center">Completed</th>
+                      <th className="px-5 py-3 text-center">Rejected</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {propertyBreakdown.map((row) => (
+                      <tr key={row.id} className="bg-background/20">
+                        <td className="px-5 py-3 text-foreground">{row.name}</td>
+                        <td className="px-5 py-3 text-center text-secondary-foreground">{row.total}</td>
+                        <td className="px-5 py-3 text-center">
+                          <span className={row.open > 0 ? "text-orange-800" : "text-muted-foreground"}>
+                            {row.open}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span className={row.completed > 0 ? "text-green-800" : "text-muted-foreground"}>
+                            {row.completed}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span className={row.rejected > 0 ? "text-red-800" : "text-muted-foreground"}>
+                            {row.rejected}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="flex flex-col divide-y divide-border md:hidden">
                 {propertyBreakdown.map((row) => (
-                  <tr key={row.id} className="bg-background/20">
-                    <td className="px-5 py-3 text-foreground">{row.name}</td>
-                    <td className="px-5 py-3 text-center text-secondary-foreground">{row.total}</td>
-                    <td className="px-5 py-3 text-center">
-                      <span className={row.open > 0 ? "text-orange-800" : "text-muted-foreground"}>
-                        {row.open}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span className={row.completed > 0 ? "text-green-800" : "text-muted-foreground"}>
-                        {row.completed}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span className={row.rejected > 0 ? "text-red-800" : "text-muted-foreground"}>
-                        {row.rejected}
-                      </span>
-                    </td>
-                  </tr>
+                  <div key={row.id} className="flex flex-col gap-3 px-5 py-4">
+                    <p className="text-sm text-foreground">{row.name}</p>
+                    <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-muted-foreground">Total</span>
+                        <span className="text-secondary-foreground">{row.total}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-muted-foreground">Open</span>
+                        <span className={row.open > 0 ? "text-orange-800" : "text-muted-foreground"}>{row.open}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-muted-foreground">Done</span>
+                        <span className={row.completed > 0 ? "text-green-800" : "text-muted-foreground"}>{row.completed}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-muted-foreground">Rejected</span>
+                        <span className={row.rejected > 0 ? "text-red-800" : "text-muted-foreground"}>{row.rejected}</span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -126,28 +158,46 @@ export default function OwnerReportsPage() {
           {recentCompleted.length === 0 ? (
             <EmptyState message="No completed requests yet." />
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3">ID</th>
-                  <th className="px-5 py-3">Title</th>
-                  <th className="px-5 py-3">Property</th>
-                  <th className="px-5 py-3">Resident</th>
-                  <th className="px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
+                    <tr>
+                      <th className="px-5 py-3">ID</th>
+                      <th className="px-5 py-3">Title</th>
+                      <th className="px-5 py-3">Property</th>
+                      <th className="px-5 py-3">Resident</th>
+                      <th className="px-5 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {recentCompleted.map((r) => (
+                      <tr key={r.id} className="bg-background/20">
+                        <td className="px-5 py-3 text-xs text-muted-foreground">{r.id}</td>
+                        <td className="px-5 py-3 text-foreground">{r.title}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{r.propertyName}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{r.residentName}</td>
+                        <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="flex flex-col divide-y divide-border md:hidden">
                 {recentCompleted.map((r) => (
-                  <tr key={r.id} className="bg-background/20">
-                    <td className="px-5 py-3 text-xs text-muted-foreground">{r.id}</td>
-                    <td className="px-5 py-3 text-foreground">{r.title}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{r.propertyName}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{r.residentName}</td>
-                    <td className="px-5 py-3"><StatusBadge status={r.status} /></td>
-                  </tr>
+                  <div key={r.id} className="flex flex-col gap-2 px-5 py-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm text-foreground">{r.title}</p>
+                      <StatusBadge status={r.status} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{r.residentName} · {r.propertyName}</p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
       </div>
