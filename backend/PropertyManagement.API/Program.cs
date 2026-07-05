@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PropertyManagement.API.Data;
 
+// Load .env file variables into environment
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ────────────────────────────────────────────────────────────────
@@ -54,6 +57,9 @@ builder.Services.AddControllers()
         o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
+
+// ── Services ─────────────────────────────────────────────────────────────────
+builder.Services.AddHttpClient<PropertyManagement.API.Services.GeminiAssistantService>();
 
 var app = builder.Build();
 
