@@ -108,7 +108,7 @@ function PlaceCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 hover:bg-white/5 transition-colors border-b border-[#1a1a2e] flex gap-3 items-start cursor-pointer"
+      className="w-full text-left px-3 py-2.5 hover:bg-accent transition-colors border-b border-border flex gap-3 items-start cursor-pointer"
     >
       {/* Marker number badge */}
       <div
@@ -120,7 +120,7 @@ function PlaceCard({
 
       <div className="flex-1 min-w-0">
         {/* Name */}
-        <div className="text-[13px] font-semibold text-white truncate leading-tight">
+        <div className="text-[13px] font-semibold text-foreground truncate leading-tight">
           {place.name}
         </div>
 
@@ -132,7 +132,7 @@ function PlaceCard({
             </span>
             <RatingStars rating={place.rating} />
             {place.userRatingsTotal !== undefined && (
-              <span className="text-[11px] text-gray-500">
+              <span className="text-[11px] text-muted-foreground">
                 ({place.userRatingsTotal.toLocaleString()})
               </span>
             )}
@@ -141,13 +141,13 @@ function PlaceCard({
 
         {/* Type */}
         {typeLabel && (
-          <div className="text-[11px] text-gray-400 mt-0.5 truncate">
+          <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
             {typeLabel}
           </div>
         )}
 
         {/* Address */}
-        <div className="text-[11px] text-gray-500 mt-0.5 truncate flex items-center gap-1">
+        <div className="text-[11px] text-muted-foreground mt-0.5 truncate flex items-center gap-1">
           <MapPin size={9} className="flex-shrink-0" />
           {place.address}
         </div>
@@ -222,7 +222,7 @@ function ZoneSection({
           );
         })
       ) : (
-        <div className="px-3 py-3 text-[11px] text-gray-500 italic">
+        <div className="px-3 py-3 text-[11px] text-muted-foreground italic">
           No competitors found — market gap!
         </div>
       )}
@@ -252,7 +252,7 @@ export default function ResultsPanel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="sm:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="sm:hidden absolute inset-0 bg-black/50 backdrop-blur-sm z-40"
           />
 
           <motion.div
@@ -260,19 +260,19 @@ export default function ResultsPanel({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full z-50 w-[85vw] sm:w-80 bg-[#0a0a0f] border-l border-[#2a2a3a] flex flex-col"
+            className="absolute right-0 top-0 h-full z-20 w-[85vw] sm:w-80 bg-card border-l border-border flex flex-col shadow-xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white">Results</span>
-                <span className="text-[11px] text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded">
+                <span className="text-sm font-semibold text-foreground">Results</span>
+                <span className="text-[11px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                   {results.length}
                 </span>
               </div>
               <button
                 onClick={onClose}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 <X size={16} />
               </button>
@@ -292,12 +292,12 @@ export default function ResultsPanel({
                   ))}
                   {ungrouped.length > 0 && (
                     <div className="mb-1">
-                      <div className="sticky top-0 z-10 px-3 py-2 bg-[#12121a] border-b border-[#2a2a3a] flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-gray-500" />
-                        <span className="text-[11px] font-semibold text-gray-400">
+                      <div className="sticky top-0 z-10 px-3 py-2 bg-background border-b border-border flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-muted-foreground" />
+                        <span className="text-[11px] font-semibold text-muted-foreground">
                           Other Areas
                         </span>
-                        <span className="text-[10px] text-gray-500 ml-auto">
+                        <span className="text-[10px] text-muted-foreground ml-auto">
                           {ungrouped.length}
                         </span>
                       </div>

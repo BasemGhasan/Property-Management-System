@@ -50,17 +50,17 @@ export default function SearchBar({ onSearch, onClear, isSearching, recentSearch
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-3 border-b border-[#2a2a3a]"
+        className="p-3 border-b border-border bg-card"
       >
         <div
-          className={`flex items-center gap-2 bg-[#12121a] rounded-xl border px-3 py-2 transition-colors ${
-            isFocused ? 'border-cyan-500/50' : 'border-[#2a2a3a]'
+          className={`flex items-center gap-2 bg-background rounded-xl border px-3 py-2 transition-colors ${
+            isFocused ? 'border-primary/50' : 'border-border'
           }`}
         >
           {isSearching ? (
-            <Loader2 size={18} className="text-cyan-400 animate-spin flex-shrink-0" />
+            <Loader2 size={18} className="text-primary animate-spin flex-shrink-0" />
           ) : (
-            <Search size={18} className="text-gray-500 flex-shrink-0" />
+            <Search size={18} className="text-muted-foreground flex-shrink-0" />
           )}
           <input
             ref={inputRef}
@@ -71,12 +71,12 @@ export default function SearchBar({ onSearch, onClear, isSearching, recentSearch
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 150)}
             placeholder="Search places..."
-            className="flex-1 bg-transparent text-base sm:text-sm text-gray-200 placeholder-gray-500 outline-none"
+            className="flex-1 bg-transparent text-base sm:text-sm text-foreground placeholder-muted-foreground outline-none"
           />
           {query && (
             <button
               onClick={handleClear}
-              className="text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <X size={16} />
             </button>
@@ -91,18 +91,18 @@ export default function SearchBar({ onSearch, onClear, isSearching, recentSearch
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className="absolute left-3 right-3 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-lg z-10 overflow-hidden"
+            className="absolute left-3 right-3 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-10 overflow-hidden"
           >
-            <p className="text-[10px] text-gray-500 px-3 py-2 border-b border-[#2a2a3a]">
+            <p className="text-[10px] text-muted-foreground px-3 py-2 border-b border-border">
               Recent Searches
             </p>
             {recentSearches.slice(0, 5).map((search, index) => (
               <button
                 key={index}
                 onClick={() => handleRecentClick(search)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#1a1a25] transition-colors text-left"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors text-left"
               >
-                <MapPin size={14} className="text-gray-500" />
+                <MapPin size={14} className="text-muted-foreground" />
                 {search}
               </button>
             ))}

@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { Menu, PanelRightOpen, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router";
+import React, { useState, useCallback } from "react";
+import { PanelRightOpen, PanelLeftOpen } from "lucide-react";
+import { DashboardLayout } from "@/app/layouts/dashboardLayout";
 import Map from "@/features/assistant/components/map/Map";
 import ResultsPanel from "@/features/assistant/components/map/ResultsPanel";
 import ChatSidebar from "@/features/assistant/components/chat/ChatSidebar";
@@ -10,9 +10,8 @@ import { useMarketAnalysis } from "@/features/assistant/hooks/useMarketAnalysis"
 import { ChatContext, ChatMessage, AnalysisCardData } from "@/shared/types/chat";
 
 export default function AssistantPage() {
-    const navigate = useNavigate();
     const [map, setMap] = useState<google.maps.Map | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(() => typeof window !== "undefined" && window.innerWidth >= 640);
+    const [isChatOpen, setIsChatOpen] = useState(true);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [aiZones, setAiZones] = useState<AnalysisCardData | null>(null);
     const [isResultsPanelOpen, setIsResultsPanelOpen] = useState(false);
@@ -148,81 +147,81 @@ export default function AssistantPage() {
     );
 
     const handleStreetViewChange = useCallback((inStreetView: boolean) => {
-        if (inStreetView) setIsSidebarOpen(false);
+        if (inStreetView) setIsChatOpen(false);
     }, []);
 
     const handleNewChat = () => setMessages([]);
 
     return (
-        <main className="relative h-screen w-screen overflow-hidden bg-[#0a0a0f]">
-            {/* Go Back / Sidebar Toggle Button */}
-            {!isSidebarOpen && (
-                <div className="absolute top-4 left-4 z-[100] flex gap-2">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="w-10 h-10 bg-[#12121a]/90 backdrop-blur-sm border border-[#2a2a3a] rounded-lg flex items-center justify-center hover:bg-[#1a1a25] transition-all"
-                    >
-                        <ArrowLeft size={20} className="text-white" />
-                    </button>
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="w-10 h-10 bg-[#12121a]/90 backdrop-blur-sm border border-[#2a2a3a] rounded-lg flex items-center justify-center hover:bg-[#1a1a25] hover:border-cyan-500/30 transition-all duration-300 ease-out"
-                    >
-                        <Menu size={20} className="text-white" />
-                    </button>
-                </div>
-            )}
+        <DashboardLayout title="AI Assistant">
+            {/* Content area: chat panel + map, filling the viewport below the header */}
+            <div className="relative flex" style={{ height: "calc(100vh - 64px)", margin: "-1.5rem -1rem", marginTop: "-1.5rem" }}>
 
-            <ChatSidebar
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-                messages={messages}
-                isLoading={isLoading}
-                isAnalyzing={isAnalyzing}
-                onSendMessage={handleSendMessage}
-                onSearch={handleSearch}
-                onClearSearch={handleClearMap}
-                isSearching={isSearching}
-                recentSearches={recentSearches}
-                onClearMap={handleClearMap}
-                onNewChat={handleNewChat}
-                hasMarkers={searchResults.length > 0}
-                hasDirections={directionsResult !== null}
-            />
+                {/* Chat Panel — inline flex child */}
+                {isChatOpen && (
+                    <div className="relative flex-shrink-0 w-[360px] border-r border-border bg-card flex flex-col overflow-hidden">
+                        <ChatSidebar
+                            isOpen={isChatOpen}
+                            onClose={() => setIsChatOpen(false)}
+                            messages={messages}
+                            isLoading={isLoading}
+                            isAnalyzing={isAnalyzing}
+                            onSendMessage={handleSendMessage}
+                            onSearch={handleSearch}
+                            onClearSearch={handleClearMap}
+                            isSearching={isSearching}
+                            recentSearches={recentSearches}
+                            onClearMap={handleClearMap}
+                            onNewChat={handleNewChat}
+                            hasMarkers={searchResults.length > 0}
+                            hasDirections={directionsResult !== null}
+                        />
+                    </div>
+                )}
 
-            {!isResultsPanelOpen && searchResults.length > 0 && (
-                <button
-                    onClick={() => setIsResultsPanelOpen(true)}
-                    className="absolute top-35 right-2.5 z-[100] w-10 h-10 bg-[#12121a]/90 backdrop-blur-sm border border-[#2a2a3a] rounded-lg flex items-center justify-center hover:bg-[#1a1a25] hover:border-cyan-500/30 transition-all duration-300 ease-out"
-                >
-                    <PanelRightOpen size={20} className="text-white" />
-                </button>
-            )}
+                {/* Map area */}
+                <div className="relative flex-1 bg-[#1c2420] overflow-hidden">
+                    {/* Toggle chat button */}
+                    <div className="absolute top-3 left-3 z-[10] flex gap-2">
+                        <button
+                            onClick={() => setIsChatOpen(!isChatOpen)}
+                            className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm transition-colors hover:bg-accent"
+                        >
+                            {isChatOpen ? <PanelLeftOpen size={16} /> : <PanelRightOpen size={16} />}
+                            {isChatOpen ? "Hide Chat" : "Show Chat"}
+                        </button>
+                    </div>
 
-            <ResultsPanel
-                results={searchResults}
-                aiZones={aiZones}
-                isVisible={isResultsPanelOpen}
-                onClose={() => setIsResultsPanelOpen(false)}
-                onPlaceClick={handlePlaceClick}
-            />
+                    {/* Results panel toggle */}
+                    {!isResultsPanelOpen && searchResults.length > 0 && (
+                        <button
+                            onClick={() => setIsResultsPanelOpen(true)}
+                            className="absolute top-3 right-3 z-[10] flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm transition-colors hover:bg-accent"
+                        >
+                            <PanelRightOpen size={16} />
+                            Results
+                        </button>
+                    )}
 
-            <div className="w-full h-full">
-                <Map
-                    onMapReady={handleMapReady}
-                    searchResults={searchResults}
-                    directionsResult={directionsResult}
-                    selectedRouteIndex={selectedRouteIndex}
-                    onStreetViewChange={handleStreetViewChange}
-                    zoneClusters={zoneClusters}
-                    aiZones={aiZones}
-                />
+                    <ResultsPanel
+                        results={searchResults}
+                        aiZones={aiZones}
+                        isVisible={isResultsPanelOpen}
+                        onClose={() => setIsResultsPanelOpen(false)}
+                        onPlaceClick={handlePlaceClick}
+                    />
 
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#0a0a0f]/50 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0a0a0f]/50 to-transparent" />
+                    <Map
+                        onMapReady={handleMapReady}
+                        searchResults={searchResults}
+                        directionsResult={directionsResult}
+                        selectedRouteIndex={selectedRouteIndex}
+                        onStreetViewChange={handleStreetViewChange}
+                        zoneClusters={zoneClusters}
+                        aiZones={aiZones}
+                    />
                 </div>
             </div>
-        </main>
+        </DashboardLayout>
     );
 }

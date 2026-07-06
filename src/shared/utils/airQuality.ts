@@ -13,7 +13,7 @@ export interface AirQualityData {
   businessImpact: string;
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 /**
  * Fetch current air quality for a location using Google Air Quality API.

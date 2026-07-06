@@ -19,7 +19,7 @@ export interface AdvancedRouteResult {
   analysis: string;
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 /**
  * Get advanced route information using the Routes API (REST).

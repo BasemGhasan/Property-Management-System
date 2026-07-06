@@ -28,7 +28,7 @@ function renderMarkdown(text: string) {
         const headingMatch = line.match(/^\*\*(.+?)\*\*:?$/);
         if (headingMatch) {
             elements.push(
-                <p key={key++} className="font-semibold text-white mt-2 mb-1">
+                <p key={key++} className="font-semibold text-foreground mt-2 mb-1">
                     {headingMatch[1]}
                 </p>
             );
@@ -40,7 +40,7 @@ function renderMarkdown(text: string) {
         if (bulletMatch) {
             elements.push(
                 <div key={key++} className="flex gap-2 ml-1 my-0.5">
-                    <span className="text-cyan-400 mt-0.5 flex-shrink-0">
+                    <span className="text-primary mt-0.5 flex-shrink-0">
                         •
                     </span>
                     <span>{renderInline(bulletMatch[1])}</span>
@@ -54,7 +54,7 @@ function renderMarkdown(text: string) {
         if (numberedMatch) {
             elements.push(
                 <div key={key++} className="flex gap-2 ml-1 my-0.5">
-                    <span className="text-cyan-400 flex-shrink-0">
+                    <span className="text-primary flex-shrink-0">
                         {numberedMatch[1]}.
                     </span>
                     <span>{renderInline(numberedMatch[2])}</span>
@@ -109,7 +109,7 @@ function renderInline(text: string): React.ReactNode {
 
         if (first.type === "bold") {
             parts.push(
-                <strong key={key++} className="font-semibold text-white">
+                <strong key={key++} className="font-semibold text-foreground">
                     {first.match[1]}
                 </strong>
             );
@@ -117,7 +117,7 @@ function renderInline(text: string): React.ReactNode {
             parts.push(
                 <code
                     key={key++}
-                    className="px-1.5 py-0.5 rounded bg-[#2a2a3a] text-cyan-300 text-xs font-mono"
+                    className="px-1.5 py-0.5 rounded bg-accent text-foreground text-xs font-mono"
                 >
                     {first.match[1]}
                 </code>
@@ -149,8 +149,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                 aria-hidden="true"
                 className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                     isUser
-                        ? "bg-cyan-500/20 text-cyan-400"
-                        : "bg-purple-500/20 text-purple-400"
+                        ? "bg-primary/20 text-primary"
+                        : "bg-secondary text-secondary-foreground"
                 }`}
             >
                 {isUser ? <User size={16} /> : <Bot size={16} />}
@@ -163,8 +163,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                     <div
                         className={`rounded-2xl px-4 py-2 ${
                             isUser
-                                ? "bg-cyan-500/20 text-cyan-50 rounded-tr-sm"
-                                : "bg-[#1a1a25] text-gray-200 rounded-tl-sm border border-purple-500/20"
+                                ? "bg-primary text-primary-foreground rounded-tr-sm"
+                                : "bg-card text-foreground rounded-tl-sm border border-border"
                         }`}
                     >
                         <div className="text-sm break-words">
@@ -180,7 +180,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                             dateTime={new Date(message.timestamp).toISOString()}
                             aria-hidden="true"
                             className={`block text-[11px] mt-1 ${
-                                isUser ? "text-cyan-400/50" : "text-gray-500"
+                                isUser ? "text-primary-foreground/70" : "text-muted-foreground"
                             }`}
                         >
                             {formatTime(message.timestamp)}
