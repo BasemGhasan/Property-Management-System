@@ -20,6 +20,8 @@ import RequestHistoryPage from "./pages/resident/requestHistory";
 import RequestDetailsPage from "./pages/resident/requestDetails";
 import ResidentProfilePage from "./pages/resident/residentProfile";
 
+import AssistantPage from "@/pages/assistant/AssistantPage";
+
 // ── Batch 3 — Property Owner Module ─────────────────────────────────────────
 import OwnerDashboard from "./pages/owner/ownerDashboard";
 import PropertyListPage from "./pages/owner/propertyList";
@@ -68,6 +70,7 @@ export default function App() {
         <Route path={RESIDENT_ROUTES.history}                element={<RequestHistoryPage />} />
         <Route path={`${RESIDENT_ROUTES.details}/:id`}       element={<RequestDetailsPage />} />
         <Route path={RESIDENT_ROUTES.profile}                element={<ResidentProfilePage />} />
+        <Route path={RESIDENT_ROUTES.assistant}              element={<AssistantPage />} />
 
         {/* ── Owner ────────────────────────────────────────────────────── */}
         <Route path={OWNER_ROUTES.dashboard}                 element={<OwnerDashboard />} />
@@ -77,6 +80,7 @@ export default function App() {
         <Route path={`${OWNER_ROUTES.requestManage}/:id`}    element={<RequestManagementPage />} />
         <Route path={OWNER_ROUTES.reports}                   element={<OwnerReportsPage />} />
         <Route path={OWNER_ROUTES.profile}                   element={<OwnerProfilePage />} />
+        <Route path={OWNER_ROUTES.assistant}                 element={<AssistantPage />} />
 
         {/* ── Admin ────────────────────────────────────────────────────── */}
         <Route path={ADMIN_ROUTES.dashboard}                 element={<AdminDashboard />} />

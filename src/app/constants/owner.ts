@@ -10,6 +10,7 @@ import {
   Wrench,
   BarChart2,
   User,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import type { RequestStatus, RequestPriority } from "./resident";
@@ -78,6 +79,7 @@ export const OWNER_ROUTES = {
   requestManage: "/owner/requests", // append /:id
   reports: "/owner/reports",
   profile: "/owner/profile",
+  assistant: "/owner/assistant",
 } as const;
 
 export interface NavItem {
@@ -91,5 +93,6 @@ export const OWNER_NAV: NavItem[] = [
   { label: "Properties",           to: OWNER_ROUTES.properties, icon: Building2 },
   { label: "Maintenance Requests", to: OWNER_ROUTES.requests,   icon: Wrench },
   { label: "Reports",              to: OWNER_ROUTES.reports,    icon: BarChart2 },
+  { label: "AI Assistant",         to: OWNER_ROUTES.assistant,  icon: Sparkles },
   { label: "Profile",              to: OWNER_ROUTES.profile,    icon: User },
 ];

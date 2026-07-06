@@ -16,6 +16,7 @@ import {
   Wifi,
   Shield,
   MoreHorizontal,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 
@@ -79,6 +80,7 @@ export const RESIDENT_ROUTES = {
   history: "/resident/history",
   details: "/resident/request", // append `/:id`
   profile: "/resident/profile",
+  assistant: "/resident/assistant",
 } as const;
 
 /** Sidebar navigation items for the resident shell. */
@@ -92,6 +94,7 @@ export const RESIDENT_NAV: NavItem[] = [
   { label: "Dashboard", to: RESIDENT_ROUTES.dashboard, icon: LayoutDashboard },
   { label: "Submit Request", to: RESIDENT_ROUTES.submit, icon: PlusCircle },
   { label: "Request History", to: RESIDENT_ROUTES.history, icon: History },
+  { label: "AI Assistant", to: RESIDENT_ROUTES.assistant, icon: Sparkles },
   { label: "Profile", to: RESIDENT_ROUTES.profile, icon: User },
 ];
 
