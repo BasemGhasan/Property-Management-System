@@ -6,7 +6,7 @@
 // Imports
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Mail, Phone, Users, Wrench, CheckCircle2, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Users, Wrench, CheckCircle2, Pencil, Trash2, X, Bed, Bath } from "lucide-react";
 import { AdminLayout } from "../../layouts/adminLayout";
 import { SecondaryButton, PrimaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
@@ -156,10 +156,10 @@ export default function AdminPropertyDetailsPage() {
         <div className="flex flex-col gap-6 max-w-3xl">
           {/* Property info */}
           <div className="rounded-2xl border border-border bg-card/40 p-5">
-            <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-foreground">{adminProp.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{adminProp.address}</p>
+                <h2 className="text-foreground text-2xl font-semibold mb-1">{adminProp.name}</h2>
+                <p className="text-sm text-muted-foreground">{adminProp.address}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`rounded-full border px-3 py-1 text-xs ${
@@ -177,7 +177,47 @@ export default function AdminPropertyDetailsPage() {
                 </button>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-border">
+              <div className="flex flex-col bg-primary/5 rounded-xl p-4 border border-primary/20">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Property Rent</span>
+                <span className="text-2xl font-bold text-primary">${adminProp.totalMonthlyRent?.toLocaleString() ?? 0}</span>
+                <span className="text-xs text-muted-foreground mt-1">Sum of {adminProp.units?.length || 0} units</span>
+              </div>
+              <div className="flex flex-col md:col-span-2 justify-center">
+                <div className="flex flex-col gap-3">
+                  {adminProp.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {adminProp.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Units */}
+          {adminProp.units && adminProp.units.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card/40">
+              <div className="border-b border-border px-5 py-4">
+                <h3 className="text-foreground">Property Units</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
+                {adminProp.units.map(unit => (
+                  <div key={unit.id} className="rounded-xl border border-border bg-background p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-foreground">{unit.unitIdentifier}</span>
+                      <span className="text-primary font-semibold">${unit.monthlyRent?.toLocaleString() ?? 0}</span>
+                    </div>
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5"><Bed size={14} /> {unit.bedrooms}</span>
+                      <span className="flex items-center gap-1.5"><Bath size={14} /> {unit.bathrooms}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">

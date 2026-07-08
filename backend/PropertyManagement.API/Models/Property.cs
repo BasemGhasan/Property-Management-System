@@ -23,10 +23,14 @@ public class Property
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [MaxLength(1000)]
+    public string Description { get; set; } = string.Empty;
+
     // Navigation
     [ForeignKey(nameof(OwnerId))]
     public User Owner { get; set; } = null!;
 
+    public ICollection<PropertyUnit> Units { get; set; } = [];
     public ICollection<PropertyResident> Residents { get; set; } = [];
     public ICollection<MaintenanceRequest> Requests { get; set; } = [];
 }
