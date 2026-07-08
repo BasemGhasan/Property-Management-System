@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Amazon;
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +38,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IAmazonS3>(_ =>
+{
+    var region = builder.Configuration["AWS:Region"]
+        ?? builder.Configuration["S3:Region"]
+        ?? "ap-southeast-2";
+    var accessKey = builder.Configuration["AWS:AccessKey"];
+    var secretKey = builder.Configuration["AWS:SecretKey"];
+    var endpoint = RegionEndpoint.GetBySystemName(region);
+
+    return !string.IsNullOrWhiteSpace(accessKey) && !string.IsNullOrWhiteSpace(secretKey)
+        ? new AmazonS3Client(accessKey, secretKey, endpoint)
+        : new AmazonS3Client(endpoint);
+});
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
