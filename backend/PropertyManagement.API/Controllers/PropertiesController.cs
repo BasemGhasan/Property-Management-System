@@ -83,7 +83,7 @@ public class PropertiesController(AppDbContext db) : ControllerBase
             Name = dto.Name,
             Address = dto.Address,
             Description = dto.Description,
-            Amenities = dto.Amenities ?? []
+            UnitCount = dto.UnitCount
         };
 
         if (dto.Units != null)
@@ -120,7 +120,7 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         if (dto.Address != null) property.Address = dto.Address;
         if (dto.OwnerId.HasValue && CurrentRole == "Admin") property.OwnerId = dto.OwnerId.Value;
         if (dto.Description != null) property.Description = dto.Description;
-        if (dto.Amenities != null) property.Amenities = dto.Amenities;
+        if (dto.UnitCount.HasValue) property.UnitCount = dto.UnitCount.Value;
 
         if (dto.Units != null)
         {
@@ -217,13 +217,12 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         p.Owner?.FullName ?? string.Empty,
         p.Name,
         p.Address,
-        p.Units?.Count ?? 0,
+        p.UnitCount,
         p.IsActive,
         p.CreatedAt,
         p.Requests?.Count ?? 0,
         p.Requests?.Count(r => r.Status == RequestStatus.Pending || r.Status == RequestStatus.InProgress) ?? 0,
         p.Description,
-        p.Amenities,
         p.Units?.Select(u => new PropertyUnitDto(u.Id, u.UnitIdentifier, u.Bedrooms, u.Bathrooms, u.MonthlyRent)).ToList() ?? [],
         p.Units?.Sum(u => u.MonthlyRent) ?? 0
     );

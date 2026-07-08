@@ -51,7 +51,6 @@ export interface Property {
   /** Total number of units the property has. Residents can't exceed this. */
   unitCount: number;
   description: string;
-  amenities: string[];
   units: PropertyUnit[];
   totalMonthlyRent: number;
   residents: Resident[];

@@ -26,8 +26,6 @@ public class Property
     [MaxLength(1000)]
     public string Description { get; set; } = string.Empty;
 
-    public List<string> Amenities { get; set; } = [];
-
     // Navigation
     [ForeignKey(nameof(OwnerId))]
     public User Owner { get; set; } = null!;

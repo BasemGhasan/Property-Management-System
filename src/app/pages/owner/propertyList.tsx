@@ -75,11 +75,8 @@ export default function PropertyListPage() {
   const [address, setAddress] = useState("");
   const [unitCount, setUnitCount] = useState(1);
   const [description, setDescription] = useState("");
-  const [amenities, setAmenities] = useState<string[]>([]);
   const [units, setUnits] = useState<any[]>([{ unitIdentifier: "Unit 1", bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
   const [saving, setSaving] = useState(false);
-
-  const COMMON_AMENITIES = ["Gym", "Pool", "24/7 Security", "Parking", "Balcony", "Elevator"];
 
   const refreshProperties = useCallback(() =>
     getProperties().then(setProperties), []);
@@ -114,23 +111,22 @@ export default function PropertyListPage() {
 
     setSaving(true);
     try {
-      await api.post("/api/properties", { name, address, unitCount, description, amenities, units });
+      await api.post("/api/properties", { name, address, unitCount, description, units });
       await refreshProperties();
       setShowModal(false);
-      setName(""); setAddress(""); setUnitCount(1); setDescription(""); setAmenities([]);
+      setName(""); setAddress(""); setUnitCount(1); setDescription("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create property.");
     } finally {
       setSaving(false);
     }
-  }, [name, address, unitCount, description, amenities, units, refreshProperties]);
+  }, [name, address, unitCount, description, units, refreshProperties]);
 
   const updateUnit = (index: number, field: string, value: any) => {
     const newUnits = [...units];
     newUnits[index] = { ...newUnits[index], [field]: value };
     setUnits(newUnits);
   };
-  const toggleAmenity = (amenity: string) => setAmenities(prev => prev.includes(amenity) ? prev.filter(a => a !== amenity) : [...prev, amenity]);
   const totalRent = useMemo(() => units.reduce((sum, u) => sum + (Number(u.monthlyRent) || 0), 0), [units]);
 
   useEffect(() => {
@@ -214,25 +210,6 @@ export default function PropertyListPage() {
                           rows={3}
                           className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none resize-none"
                         />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm text-muted-foreground">Amenities</label>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {COMMON_AMENITIES.map((amenity) => (
-                            <button
-                              key={amenity}
-                              type="button"
-                              onClick={() => toggleAmenity(amenity)}
-                              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                                amenities.includes(amenity)
-                                  ? "border-primary bg-primary/10 text-primary"
-                                  : "border-border bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                              }`}
-                            >
-                              {amenity}
-                            </button>
-                          ))}
-                        </div>
                       </div>
                     </Tabs.Content>
 

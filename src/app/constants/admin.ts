@@ -46,7 +46,6 @@ export interface AdminProperty {
   active: boolean;
   totalRequests: number;
   description: string;
-  amenities: string[];
   units: PropertyUnit[];
   totalMonthlyRent: number;
 }

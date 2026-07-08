@@ -21,12 +21,9 @@ interface EditPropertyModalProps {
     address: string;
     unitCount: number;
     description: string;
-    amenities: string[];
     units: Partial<PropertyUnit>[];
   }) => Promise<void>;
 }
-
-const COMMON_AMENITIES = ["Gym", "Pool", "24/7 Security", "Parking", "Balcony", "Elevator"];
 
 // Component
 export function EditPropertyModal({ open, property, onClose, onSave }: EditPropertyModalProps) {
@@ -34,7 +31,6 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
   const [address, setAddress] = useState("");
   const [unitCount, setUnitCount] = useState(1);
   const [description, setDescription] = useState("");
-  const [amenities, setAmenities] = useState<string[]>([]);
   const [units, setUnits] = useState<Partial<PropertyUnit>[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -44,7 +40,6 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
       setAddress(property.address);
       setUnitCount(property.unitCount ?? 1);
       setDescription(property.description ?? "");
-      setAmenities(property.amenities ?? []);
       setUnits(property.units ?? []);
     } else {
       setUnitCount(1);
@@ -80,7 +75,7 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
     }
     setSaving(true);
     try {
-      await onSave({ name, address, unitCount, description, amenities, units });
+      await onSave({ name, address, unitCount, description, units });
       toast.success("Property updated successfully.");
       onClose();
     } catch (err) {
@@ -88,18 +83,12 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
     } finally {
       setSaving(false);
     }
-  }, [name, address, unitCount, description, amenities, units, onSave, onClose]);
+  }, [name, address, unitCount, description, units, onSave, onClose]);
 
   const updateUnit = (index: number, field: keyof PropertyUnit, value: any) => {
     const newUnits = [...units];
     newUnits[index] = { ...newUnits[index], [field]: value };
     setUnits(newUnits);
-  };
-
-  const toggleAmenity = (amenity: string) => {
-    setAmenities((prev) =>
-      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
-    );
   };
 
   const totalRent = useMemo(() => units.reduce((sum, u) => sum + (Number(u.monthlyRent) || 0), 0), [units]);
@@ -166,25 +155,6 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                       rows={3}
                       className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none resize-none"
                     />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm text-muted-foreground">Amenities</label>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {COMMON_AMENITIES.map((amenity) => (
-                        <button
-                          key={amenity}
-                          type="button"
-                          onClick={() => toggleAmenity(amenity)}
-                          className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                            amenities.includes(amenity)
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-border bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                          }`}
-                        >
-                          {amenity}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </Tabs.Content>
 

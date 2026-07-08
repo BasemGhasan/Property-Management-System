@@ -186,15 +186,6 @@ export default function AdminPropertyDetailsPage() {
               </div>
               <div className="flex flex-col md:col-span-2 justify-center">
                 <div className="flex flex-col gap-3">
-                  {adminProp.amenities && adminProp.amenities.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {adminProp.amenities.map(a => (
-                        <span key={a} className="rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-xs">
-                          {a}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                   {adminProp.description && (
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {adminProp.description}

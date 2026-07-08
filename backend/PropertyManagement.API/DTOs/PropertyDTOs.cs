@@ -23,7 +23,6 @@ public record CreatePropertyDto(
     [Required, Range(1, int.MaxValue)] int UnitCount = 1,
     int? OwnerId = null,
     [MaxLength(1000)] string Description = "",
-    List<string>? Amenities = null,
     List<CreatePropertyUnitDto>? Units = null
 ) : IValidatableObject
 {
@@ -45,7 +44,6 @@ public record UpdatePropertyDto(
     [Range(1, int.MaxValue)] int? UnitCount,
     int? OwnerId,
     [MaxLength(1000)] string? Description,
-    List<string>? Amenities,
     List<CreatePropertyUnitDto>? Units = null
 ) : IValidatableObject
 {
@@ -73,7 +71,6 @@ public record PropertyDto(
     int TotalRequests,
     int OpenRequests,
     string Description,
-    List<string> Amenities,
     List<PropertyUnitDto> Units,
     decimal TotalMonthlyRent
 )
