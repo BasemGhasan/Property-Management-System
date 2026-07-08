@@ -30,7 +30,7 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         else if (CurrentRole == "Resident")
             query = query.Where(p => p.Residents.Any(r => r.ResidentId == CurrentUserId) && p.IsActive);
 
-        var properties = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+        var properties = await query.Include(p => p.Units).OrderByDescending(p => p.CreatedAt).ToListAsync();
 
         var results = properties.Select(p => ToDto(p) with
         {
@@ -51,6 +51,7 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         var p = await db.Properties
             .Include(p => p.Owner)
             .Include(p => p.Requests)
+            .Include(p => p.Units)
             .Include(p => p.Residents).ThenInclude(r => r.Resident)
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -81,8 +82,23 @@ public class PropertiesController(AppDbContext db) : ControllerBase
             OwnerId = ownerId,
             Name = dto.Name,
             Address = dto.Address,
-            UnitCount = dto.UnitCount
+            Description = dto.Description,
+            Amenities = dto.Amenities ?? []
         };
+
+        if (dto.Units != null)
+        {
+            foreach (var u in dto.Units)
+            {
+                property.Units.Add(new PropertyUnit
+                {
+                    UnitIdentifier = u.UnitIdentifier,
+                    Bedrooms = u.Bedrooms,
+                    Bathrooms = u.Bathrooms,
+                    MonthlyRent = u.MonthlyRent
+                });
+            }
+        }
 
         db.Properties.Add(property);
         await db.SaveChangesAsync();
@@ -95,17 +111,16 @@ public class PropertiesController(AppDbContext db) : ControllerBase
     {
         var property = await db.Properties
             .Include(p => p.Residents)
+            .Include(p => p.Units)
             .FirstOrDefaultAsync(p => p.Id == id);
         if (property == null) return NotFound();
         if (CurrentRole == "Owner" && property.OwnerId != CurrentUserId) return Forbid();
 
-        if (dto.UnitCount.HasValue && dto.UnitCount.Value < property.Residents.Count)
-            return BadRequest(new { message = $"Can't set unit count below {property.Residents.Count} — that many residents are already assigned." });
-
         if (dto.Name != null) property.Name = dto.Name;
         if (dto.Address != null) property.Address = dto.Address;
-        if (dto.UnitCount.HasValue) property.UnitCount = dto.UnitCount.Value;
         if (dto.OwnerId.HasValue && CurrentRole == "Admin") property.OwnerId = dto.OwnerId.Value;
+        if (dto.Description != null) property.Description = dto.Description;
+        if (dto.Amenities != null) property.Amenities = dto.Amenities;
 
         await db.SaveChangesAsync();
         return NoContent();
@@ -140,15 +155,9 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         var existing = property.Residents.Any(pr => pr.ResidentId == dto.ResidentId);
         if (existing) return Conflict(new { message = "Resident already assigned to this property." });
 
-        if (property.Residents.Count >= property.UnitCount)
-            return BadRequest(new { message = $"This property has {property.UnitCount} unit(s) and all are already occupied." });
-
         var unitNumber = string.IsNullOrWhiteSpace(dto.UnitNumber) ? null : dto.UnitNumber.Trim();
         if (unitNumber != null)
         {
-            if (!int.TryParse(unitNumber, out var parsedUnit) || parsedUnit < 1 || parsedUnit > property.UnitCount)
-                return BadRequest(new { message = $"Unit number must be between 1 and {property.UnitCount}." });
-
             if (property.Residents.Any(pr => pr.UnitNumber == unitNumber))
                 return Conflict(new { message = $"Unit {unitNumber} is already occupied." });
         }
@@ -192,10 +201,14 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         p.Owner?.FullName ?? string.Empty,
         p.Name,
         p.Address,
-        p.UnitCount,
+        p.Units?.Count ?? 0,
         p.IsActive,
         p.CreatedAt,
         p.Requests?.Count ?? 0,
-        p.Requests?.Count(r => r.Status == RequestStatus.Pending || r.Status == RequestStatus.InProgress) ?? 0
+        p.Requests?.Count(r => r.Status == RequestStatus.Pending || r.Status == RequestStatus.InProgress) ?? 0,
+        p.Description,
+        p.Amenities,
+        p.Units?.Select(u => new PropertyUnitDto(u.Id, u.UnitIdentifier, u.Bedrooms, u.Bathrooms, u.MonthlyRent)).ToList() ?? [],
+        p.Units?.Sum(u => u.MonthlyRent) ?? 0
     );
 }

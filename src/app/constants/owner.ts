@@ -36,12 +36,24 @@ export interface PropertyStats {
 }
 
 /** A property owned by the current user. */
+export interface PropertyUnit {
+  id: string;
+  unitIdentifier: string;
+  bedrooms: number;
+  bathrooms: number;
+  monthlyRent: number;
+}
+
 export interface Property {
   id: string;
   name: string;
   address: string;
   /** Total number of units the property has. Residents can't exceed this. */
   unitCount: number;
+  description: string;
+  amenities: string[];
+  units: PropertyUnit[];
+  totalMonthlyRent: number;
   residents: Resident[];
   stats: PropertyStats;
 }

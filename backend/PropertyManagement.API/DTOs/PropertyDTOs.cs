@@ -2,18 +2,36 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PropertyManagement.API.DTOs;
 
+public record CreatePropertyUnitDto(
+    [Required, MaxLength(50)] string UnitIdentifier,
+    [Range(0, 50)] int Bedrooms = 0,
+    [Range(0, 50)] int Bathrooms = 0,
+    [Range(0, double.MaxValue, ErrorMessage = "Rent must be greater than or equal to 0.")] decimal MonthlyRent = 0
+);
+
+public record PropertyUnitDto(
+    int Id,
+    string UnitIdentifier,
+    int Bedrooms,
+    int Bathrooms,
+    decimal MonthlyRent
+);
+
 public record CreatePropertyDto(
     [Required, MaxLength(150)] string Name,
     [Required, MaxLength(300)] string Address,
-    int UnitCount = 1,
-    int? OwnerId = null
+    int? OwnerId = null,
+    [MaxLength(1000)] string Description = "",
+    List<string>? Amenities = null,
+    List<CreatePropertyUnitDto>? Units = null
 );
 
 public record UpdatePropertyDto(
     [MaxLength(150)] string? Name,
     [MaxLength(300)] string? Address,
-    int? UnitCount,
-    int? OwnerId
+    int? OwnerId,
+    [MaxLength(1000)] string? Description,
+    List<string>? Amenities
 );
 
 public record PropertyDto(
@@ -26,7 +44,11 @@ public record PropertyDto(
     bool IsActive,
     DateTime CreatedAt,
     int TotalRequests,
-    int OpenRequests
+    int OpenRequests,
+    string Description,
+    List<string> Amenities,
+    List<PropertyUnitDto> Units,
+    decimal TotalMonthlyRent
 )
 {
     public List<ResidentAssignmentDto> Residents { get; init; } = [];
