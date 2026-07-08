@@ -19,6 +19,7 @@ interface EditPropertyModalProps {
   onSave: (data: {
     name: string;
     address: string;
+    unitCount: number;
     description: string;
     amenities: string[];
     units: Partial<PropertyUnit>[];
@@ -31,6 +32,7 @@ const COMMON_AMENITIES = ["Gym", "Pool", "24/7 Security", "Parking", "Balcony", 
 export function EditPropertyModal({ open, property, onClose, onSave }: EditPropertyModalProps) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [unitCount, setUnitCount] = useState(1);
   const [description, setDescription] = useState("");
   const [amenities, setAmenities] = useState<string[]>([]);
   const [units, setUnits] = useState<Partial<PropertyUnit>[]>([]);
@@ -40,25 +42,45 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
     if (property) {
       setName(property.name);
       setAddress(property.address);
+      setUnitCount(property.unitCount ?? 1);
       setDescription(property.description ?? "");
       setAmenities(property.amenities ?? []);
       setUnits(property.units ?? []);
     } else {
+      setUnitCount(1);
       setUnits([{ unitIdentifier: "Unit 1", bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
     }
   }, [property, open]);
 
   const minUnits = property?.residents.length ?? 1;
 
+  useEffect(() => {
+    setUnits((prevUnits) => {
+      if (unitCount === prevUnits.length) return prevUnits;
+      if (unitCount > prevUnits.length) {
+        const diff = unitCount - prevUnits.length;
+        const newUnits = Array.from({ length: diff }, (_, i) => ({
+          unitIdentifier: `Unit ${prevUnits.length + i + 1}`,
+          bedrooms: 1,
+          bathrooms: 1,
+          monthlyRent: 0,
+        }));
+        return [...prevUnits, ...newUnits];
+      }
+      return prevUnits.slice(0, unitCount);
+    });
+  }, [unitCount]);
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (units.length === 0) {
-      toast.error("You must add at least one unit.");
+    const invalidUnits = units.filter(u => !u.unitIdentifier || !u.monthlyRent || u.monthlyRent <= 0);
+    if (invalidUnits.length > 0) {
+      toast.error("Please fill out all required details (Rent > 0, valid Identifier) for every unit.");
       return;
     }
     setSaving(true);
     try {
-      await onSave({ name, address, description, amenities, units });
+      await onSave({ name, address, unitCount, description, amenities, units });
       toast.success("Property updated successfully.");
       onClose();
     } catch (err) {
@@ -66,15 +88,7 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
     } finally {
       setSaving(false);
     }
-  }, [name, address, description, amenities, units, onSave, onClose]);
-
-  const addUnit = () => {
-    setUnits([...units, { unitIdentifier: `Unit ${units.length + 1}`, bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
-  };
-
-  const removeUnit = (index: number) => {
-    setUnits(units.filter((_, i) => i !== index));
-  };
+  }, [name, address, unitCount, description, amenities, units, onSave, onClose]);
 
   const updateUnit = (index: number, field: keyof PropertyUnit, value: any) => {
     const newUnits = [...units];
@@ -136,6 +150,14 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
+                    <label className="text-sm text-muted-foreground">Total Units *</label>
+                    <input type="number" min={minUnits} required value={unitCount} onChange={(e) => setUnitCount(Number(e.target.value))}
+                      className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {minUnits > 1 ? `Can't go below ${minUnits} — residents are assigned.` : "This defines the exact number of unit configurations required."}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
                     <label className="text-sm text-muted-foreground">Description</label>
                     <textarea
                       value={description}
@@ -169,9 +191,6 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                 <Tabs.Content value="units" className="flex flex-col gap-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-sm font-medium text-foreground">Configured Units ({units.length})</h3>
-                    <button type="button" onClick={addUnit} className="text-xs flex items-center gap-1 text-primary hover:text-primary/80">
-                      <Plus size={14} /> Add a Unit
-                    </button>
                   </div>
 
                   <div className="flex flex-col gap-3">
@@ -179,7 +198,7 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                       <div key={idx} className="flex gap-3 items-start bg-card/50 p-3 rounded-xl border border-border relative group">
                         <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Identifier</label>
+                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Identifier *</label>
                             <input
                               required
                               value={unit.unitIdentifier || ""}
@@ -189,43 +208,40 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Beds</label>
+                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Beds *</label>
                             <input
                               type="number"
                               min={0}
+                              required
                               value={unit.bedrooms ?? 0}
                               onChange={(e) => updateUnit(idx, "bedrooms", Number(e.target.value))}
                               className="w-full rounded-lg border border-border bg-input px-3 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Baths</label>
+                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Baths *</label>
                             <input
                               type="number"
                               min={0}
+                              required
                               value={unit.bathrooms ?? 0}
                               onChange={(e) => updateUnit(idx, "bathrooms", Number(e.target.value))}
                               className="w-full rounded-lg border border-border bg-input px-3 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Rent ($)</label>
+                            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Rent ($) *</label>
                             <input
                               type="number"
-                              min={0}
+                              min={0.01}
                               step={0.01}
                               required
-                              value={unit.monthlyRent ?? 0}
+                              value={unit.monthlyRent || ""}
                               onChange={(e) => updateUnit(idx, "monthlyRent", Number(e.target.value))}
                               className="w-full rounded-lg border border-border bg-input px-3 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none"
                             />
                           </div>
                         </div>
-                        {units.length > 1 && (
-                          <button type="button" onClick={() => removeUnit(idx)} className="mt-5 text-muted-foreground hover:text-critical p-1">
-                            <Trash2 size={16} />
-                          </button>
-                        )}
                       </div>
                     ))}
                   </div>

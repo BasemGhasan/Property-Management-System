@@ -122,6 +122,22 @@ public class PropertiesController(AppDbContext db) : ControllerBase
         if (dto.Description != null) property.Description = dto.Description;
         if (dto.Amenities != null) property.Amenities = dto.Amenities;
 
+        if (dto.Units != null)
+        {
+            db.PropertyUnits.RemoveRange(property.Units);
+            property.Units.Clear();
+            foreach (var u in dto.Units)
+            {
+                property.Units.Add(new PropertyUnit
+                {
+                    UnitIdentifier = u.UnitIdentifier,
+                    Bedrooms = u.Bedrooms,
+                    Bathrooms = u.Bathrooms,
+                    MonthlyRent = u.MonthlyRent
+                });
+            }
+        }
+
         await db.SaveChangesAsync();
         return NoContent();
     }

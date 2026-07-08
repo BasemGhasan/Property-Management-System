@@ -4,9 +4,9 @@ namespace PropertyManagement.API.DTOs;
 
 public record CreatePropertyUnitDto(
     [Required, MaxLength(50)] string UnitIdentifier,
-    [Range(0, 50)] int Bedrooms = 0,
-    [Range(0, 50)] int Bathrooms = 0,
-    [Range(0, double.MaxValue, ErrorMessage = "Rent must be greater than or equal to 0.")] decimal MonthlyRent = 0
+    [Required, Range(0, 50)] int Bedrooms = 0,
+    [Required, Range(0, 50)] int Bathrooms = 0,
+    [Required, Range(0.01, double.MaxValue, ErrorMessage = "Rent must be greater than 0.")] decimal MonthlyRent = 0
 );
 
 public record PropertyUnitDto(
@@ -20,19 +20,46 @@ public record PropertyUnitDto(
 public record CreatePropertyDto(
     [Required, MaxLength(150)] string Name,
     [Required, MaxLength(300)] string Address,
+    [Required, Range(1, int.MaxValue)] int UnitCount = 1,
     int? OwnerId = null,
     [MaxLength(1000)] string Description = "",
     List<string>? Amenities = null,
     List<CreatePropertyUnitDto>? Units = null
-);
+) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Units == null || Units.Count != UnitCount)
+        {
+            yield return new ValidationResult(
+                $"The number of configured units ({Units?.Count ?? 0}) must exactly match the UnitCount ({UnitCount}).",
+                [nameof(Units)]
+            );
+        }
+    }
+}
 
 public record UpdatePropertyDto(
     [MaxLength(150)] string? Name,
     [MaxLength(300)] string? Address,
+    [Range(1, int.MaxValue)] int? UnitCount,
     int? OwnerId,
     [MaxLength(1000)] string? Description,
-    List<string>? Amenities
-);
+    List<string>? Amenities,
+    List<CreatePropertyUnitDto>? Units = null
+) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Units != null && UnitCount.HasValue && Units.Count != UnitCount.Value)
+        {
+            yield return new ValidationResult(
+                $"The number of configured units ({Units.Count}) must exactly match the updated UnitCount ({UnitCount.Value}).",
+                [nameof(Units)]
+            );
+        }
+    }
+}
 
 public record PropertyDto(
     int Id,
