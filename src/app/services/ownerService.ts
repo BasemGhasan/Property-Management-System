@@ -15,6 +15,15 @@ interface ApiProperty {
   createdAt: string;
   totalRequests: number;
   openRequests: number;
+  description: string;
+  units: {
+    id: number;
+    unitIdentifier: string;
+    bedrooms: number;
+    bathrooms: number;
+    monthlyRent: number;
+  }[];
+  totalMonthlyRent: number;
   residents: {
     id: number;
     residentId: number;
@@ -63,11 +72,26 @@ function mapPriority(p: string): RequestPriority {
 }
 
 function toProperty(p: ApiProperty): Property {
+  if (p.units === undefined || p.totalMonthlyRent === undefined) {
+    console.warn(
+      `[ownerService] Property ${p.id} response is missing unit/rent fields (units ${p.units === undefined ? "missing" : "present"}, totalMonthlyRent ${p.totalMonthlyRent === undefined ? "missing" : "present"}). ` +
+      "The API likely doesn't have the unit-rent feature deployed — rent will show as $0. Check that the backend is running the latest build."
+    );
+  }
   return {
     id: String(p.id),
     name: p.name,
     address: p.address,
     unitCount: p.unitCount,
+    description: p.description ?? "",
+    units: (p.units ?? []).map(u => ({
+      id: String(u.id),
+      unitIdentifier: u.unitIdentifier,
+      bedrooms: u.bedrooms,
+      bathrooms: u.bathrooms,
+      monthlyRent: u.monthlyRent,
+    })),
+    totalMonthlyRent: p.totalMonthlyRent ?? 0,
     residents: (p.residents ?? []).map((r) => ({
       id: String(r.residentId),
       name: r.residentName,

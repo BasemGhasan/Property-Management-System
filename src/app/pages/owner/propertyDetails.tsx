@@ -8,10 +8,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowLeft, CheckCircle2, Wrench, AlertTriangle, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Bed, Bath } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
-import { SecondaryButton, PrimaryButton } from "../../components/auth/buttons";
+import { SecondaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
 import { StatTile } from "../../components/shared/statTile";
 import { Pagination } from "../../components/shared/pagination";
@@ -23,7 +23,7 @@ import { getPropertyById, getOwnerRequests } from "../../services/ownerService";
 import { api } from "../../lib/apiClient";
 import { OWNER_ROUTES } from "../../constants/owner";
 import { categoryLabel } from "../../constants/resident";
-import type { Property, OwnerRequest } from "../../constants/owner";
+import type { Property, OwnerRequest, PropertyUnit } from "../../constants/owner";
 
 // Component
 export default function PropertyDetailsPage() {
@@ -53,7 +53,13 @@ export default function PropertyDetailsPage() {
     return () => { active = false; };
   }, [loadData]);
 
-  const handleSaveEdit = useCallback(async (data: { name: string; address: string; unitCount: number }) => {
+  const handleSaveEdit = useCallback(async (data: {
+    name: string;
+    address: string;
+    unitCount: number;
+    description: string;
+    units: Partial<PropertyUnit>[];
+  }) => {
     await api.put(`/api/properties/${id}`, data);
     await loadData();
   }, [id, loadData]);
@@ -99,7 +105,7 @@ export default function PropertyDetailsPage() {
         <p className="py-12 text-center text-muted-foreground">Property not found.</p>
       ) : (
         <div className="flex flex-col gap-6">
-          <EditPropertyModal open={showEdit} property={property} onClose={() => setShowEdit(false)} onSave={handleSaveEdit} />
+          <EditPropertyModal open={showEdit} property={property} minUnits={property.residents.length} onClose={() => setShowEdit(false)} onSave={handleSaveEdit} />
           <AssignResidentModal
             open={showAssign}
             residents={residents}
@@ -111,10 +117,10 @@ export default function PropertyDetailsPage() {
 
           {/* Property header */}
           <div className="rounded-2xl border border-border bg-card/40 p-5">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-foreground">{property.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{property.address}</p>
+                <h2 className="text-foreground text-2xl font-semibold mb-1">{property.name}</h2>
+                <p className="text-sm text-muted-foreground">{property.address}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => setShowEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary">
@@ -125,7 +131,47 @@ export default function PropertyDetailsPage() {
                 </button>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-border">
+              <div className="flex flex-col bg-primary/5 rounded-xl p-4 border border-primary/20">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Property Rent</span>
+                <span className="text-2xl font-bold text-primary">${property.totalMonthlyRent?.toLocaleString() ?? 0}</span>
+                <span className="text-xs text-muted-foreground mt-1">Sum of {property.units?.length || 0} units</span>
+              </div>
+              <div className="flex flex-col md:col-span-2 justify-center">
+                <div className="flex flex-col gap-3">
+                  {property.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {property.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Units */}
+          {property.units && property.units.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card/40">
+              <div className="border-b border-border px-5 py-4">
+                <h3 className="text-foreground">Property Units</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
+                {property.units.map(unit => (
+                  <div key={unit.id} className="rounded-xl border border-border bg-background p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-foreground">{unit.unitIdentifier}</span>
+                      <span className="text-primary font-semibold">${unit.monthlyRent?.toLocaleString() ?? 0}</span>
+                    </div>
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5"><Bed size={14} /> {unit.bedrooms}</span>
+                      <span className="flex items-center gap-1.5"><Bath size={14} /> {unit.bathrooms}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Delete confirmation */}
           <Dialog.Root open={showConfirmDelete} onOpenChange={(o) => !o && setShowConfirmDelete(false)}>

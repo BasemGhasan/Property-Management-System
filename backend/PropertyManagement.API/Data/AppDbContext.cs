@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Property> Properties => Set<Property>();
+    public DbSet<PropertyUnit> PropertyUnits => Set<PropertyUnit>();
     public DbSet<PropertyResident> PropertyResidents => Set<PropertyResident>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<MaintenanceRequest> MaintenanceRequests => Set<MaintenanceRequest>();
