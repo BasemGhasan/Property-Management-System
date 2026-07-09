@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Building2,
   Wrench,
+  ReceiptText,
   BarChart2,
   User,
   Sparkles,
@@ -77,6 +78,7 @@ export const OWNER_ROUTES = {
   propertyDetails: "/owner/properties", // append /:id
   requests: "/owner/requests",
   requestManage: "/owner/requests", // append /:id
+  claims: "/owner/claims",
   reports: "/owner/reports",
   profile: "/owner/profile",
   assistant: "/owner/assistant",
@@ -92,6 +94,7 @@ export const OWNER_NAV: NavItem[] = [
   { label: "Dashboard",            to: OWNER_ROUTES.dashboard,  icon: LayoutDashboard },
   { label: "Properties",           to: OWNER_ROUTES.properties, icon: Building2 },
   { label: "Maintenance Requests", to: OWNER_ROUTES.requests,   icon: Wrench },
+  { label: "Claim Requests",       to: OWNER_ROUTES.claims,     icon: ReceiptText },
   { label: "Reports",              to: OWNER_ROUTES.reports,    icon: BarChart2 },
   { label: "AI Assistant",         to: OWNER_ROUTES.assistant,  icon: Sparkles },
   { label: "Profile",              to: OWNER_ROUTES.profile,    icon: User },

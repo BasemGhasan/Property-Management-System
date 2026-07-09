@@ -124,6 +124,81 @@ namespace PropertyManagement.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceClaim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("BankAccountHolderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("BankAccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MaintenanceType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("PropertyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReceiptFileName")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("ReceiptUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceDate")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.HasIndex("ResidentId");
+
+                    b.ToTable("MaintenanceClaims");
+                });
+
             modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -380,6 +455,25 @@ namespace PropertyManagement.API.Migrations
                     b.Navigation("Resident");
                 });
 
+            modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceClaim", b =>
+                {
+                    b.HasOne("PropertyManagement.API.Models.Property", "Property")
+                        .WithMany("Claims")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PropertyManagement.API.Models.User", "Resident")
+                        .WithMany("SubmittedClaims")
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+
+                    b.Navigation("Resident");
+                });
+
             modelBuilder.Entity("PropertyManagement.API.Models.Property", b =>
                 {
                     b.HasOne("PropertyManagement.API.Models.User", "Owner")
@@ -433,6 +527,8 @@ namespace PropertyManagement.API.Migrations
 
             modelBuilder.Entity("PropertyManagement.API.Models.Property", b =>
                 {
+                    b.Navigation("Claims");
+
                     b.Navigation("Requests");
 
                     b.Navigation("Residents");
@@ -443,6 +539,8 @@ namespace PropertyManagement.API.Migrations
                     b.Navigation("OwnedProperties");
 
                     b.Navigation("ResidentProperties");
+
+                    b.Navigation("SubmittedClaims");
 
                     b.Navigation("SubmittedRequests");
                 });

@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   PlusCircle,
   History,
+  ReceiptText,
   User,
   Droplets,
   Zap,
@@ -77,6 +78,7 @@ export interface ResidentNotification {
 export const RESIDENT_ROUTES = {
   dashboard: "/resident/dashboard",
   submit: "/resident/submit",
+  claim: "/resident/claim",
   history: "/resident/history",
   details: "/resident/request", // append `/:id`
   profile: "/resident/profile",
@@ -93,6 +95,7 @@ export interface NavItem {
 export const RESIDENT_NAV: NavItem[] = [
   { label: "Dashboard", to: RESIDENT_ROUTES.dashboard, icon: LayoutDashboard },
   { label: "Submit Request", to: RESIDENT_ROUTES.submit, icon: PlusCircle },
+  { label: "Maintenance Claim", to: RESIDENT_ROUTES.claim, icon: ReceiptText },
   { label: "Request History", to: RESIDENT_ROUTES.history, icon: History },
   { label: "AI Assistant", to: RESIDENT_ROUTES.assistant, icon: Sparkles },
   { label: "Profile", to: RESIDENT_ROUTES.profile, icon: User },

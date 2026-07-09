@@ -16,6 +16,7 @@ import ResetPasswordPage from "./pages/resetPassword";
 // ── Batch 2 — Resident Module ────────────────────────────────────────────────
 import ResidentDashboard from "./pages/resident/residentDashboard";
 import SubmitRequestPage from "./pages/resident/submitRequest";
+import MaintenanceClaimPage from "./pages/resident/maintenanceClaim";
 import RequestHistoryPage from "./pages/resident/requestHistory";
 import RequestDetailsPage from "./pages/resident/requestDetails";
 import ResidentProfilePage from "./pages/resident/residentProfile";
@@ -28,6 +29,7 @@ import PropertyListPage from "./pages/owner/propertyList";
 import OwnerPropertyDetailsPage from "./pages/owner/propertyDetails";
 import MaintenanceRequestsPage from "./pages/owner/maintenanceRequests";
 import RequestManagementPage from "./pages/owner/requestManagement";
+import ClaimRequestsPage from "./pages/owner/claimRequests";
 import OwnerReportsPage from "./pages/owner/ownerReports";
 import OwnerProfilePage from "./pages/owner/ownerProfile";
 
@@ -67,6 +69,7 @@ export default function App() {
         {/* ── Resident ─────────────────────────────────────────────────── */}
         <Route path={RESIDENT_ROUTES.dashboard}              element={<ResidentDashboard />} />
         <Route path={RESIDENT_ROUTES.submit}                 element={<SubmitRequestPage />} />
+        <Route path={RESIDENT_ROUTES.claim}                  element={<MaintenanceClaimPage />} />
         <Route path={RESIDENT_ROUTES.history}                element={<RequestHistoryPage />} />
         <Route path={`${RESIDENT_ROUTES.details}/:id`}       element={<RequestDetailsPage />} />
         <Route path={RESIDENT_ROUTES.profile}                element={<ResidentProfilePage />} />
@@ -78,6 +81,7 @@ export default function App() {
         <Route path={`${OWNER_ROUTES.propertyDetails}/:id`}  element={<OwnerPropertyDetailsPage />} />
         <Route path={OWNER_ROUTES.requests}                  element={<MaintenanceRequestsPage />} />
         <Route path={`${OWNER_ROUTES.requestManage}/:id`}    element={<RequestManagementPage />} />
+        <Route path={OWNER_ROUTES.claims}                    element={<ClaimRequestsPage />} />
         <Route path={OWNER_ROUTES.reports}                   element={<OwnerReportsPage />} />
         <Route path={OWNER_ROUTES.profile}                   element={<OwnerProfilePage />} />
         <Route path={OWNER_ROUTES.assistant}                 element={<AssistantPage />} />

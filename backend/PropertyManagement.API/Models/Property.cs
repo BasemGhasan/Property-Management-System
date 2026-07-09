@@ -29,4 +29,5 @@ public class Property
 
     public ICollection<PropertyResident> Residents { get; set; } = [];
     public ICollection<MaintenanceRequest> Requests { get; set; } = [];
+    public ICollection<MaintenanceClaim> Claims { get; set; } = [];
 }

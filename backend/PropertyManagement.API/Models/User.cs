@@ -47,4 +47,5 @@ public class User
     public ICollection<Property> OwnedProperties { get; set; } = [];
     public ICollection<PropertyResident> ResidentProperties { get; set; } = [];
     public ICollection<MaintenanceRequest> SubmittedRequests { get; set; } = [];
+    public ICollection<MaintenanceClaim> SubmittedClaims { get; set; } = [];
 }

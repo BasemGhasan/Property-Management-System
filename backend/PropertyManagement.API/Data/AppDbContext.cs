@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<MaintenanceRequest> MaintenanceRequests => Set<MaintenanceRequest>();
     public DbSet<RequestEvidence> RequestEvidence => Set<RequestEvidence>();
+    public DbSet<MaintenanceClaim> MaintenanceClaims => Set<MaintenanceClaim>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
