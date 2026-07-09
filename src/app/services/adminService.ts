@@ -24,6 +24,15 @@ interface ApiProperty {
   createdAt: string;
   totalRequests: number;
   openRequests: number;
+  description: string;
+  units: {
+    id: number;
+    unitIdentifier: string;
+    bedrooms: number;
+    bathrooms: number;
+    monthlyRent: number;
+  }[];
+  totalMonthlyRent: number;
   residents: { residentId: number; residentName: string }[];
 }
 
@@ -60,6 +69,15 @@ function toAdminProperty(p: ApiProperty): AdminProperty {
     residentCount: p.residents?.length ?? 0,
     active: p.isActive,
     totalRequests: p.totalRequests,
+    description: p.description ?? "",
+    units: (p.units ?? []).map(u => ({
+      id: String(u.id),
+      unitIdentifier: u.unitIdentifier,
+      bedrooms: u.bedrooms,
+      bathrooms: u.bathrooms,
+      monthlyRent: u.monthlyRent,
+    })),
+    totalMonthlyRent: p.totalMonthlyRent ?? 0,
   };
 }
 

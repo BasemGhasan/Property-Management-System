@@ -15,6 +15,15 @@ interface ApiProperty {
   createdAt: string;
   totalRequests: number;
   openRequests: number;
+  description: string;
+  units: {
+    id: number;
+    unitIdentifier: string;
+    bedrooms: number;
+    bathrooms: number;
+    monthlyRent: number;
+  }[];
+  totalMonthlyRent: number;
   residents: {
     id: number;
     residentId: number;
@@ -68,6 +77,15 @@ function toProperty(p: ApiProperty): Property {
     name: p.name,
     address: p.address,
     unitCount: p.unitCount,
+    description: p.description ?? "",
+    units: (p.units ?? []).map(u => ({
+      id: String(u.id),
+      unitIdentifier: u.unitIdentifier,
+      bedrooms: u.bedrooms,
+      bathrooms: u.bathrooms,
+      monthlyRent: u.monthlyRent,
+    })),
+    totalMonthlyRent: p.totalMonthlyRent ?? 0,
     residents: (p.residents ?? []).map((r) => ({
       id: String(r.residentId),
       name: r.residentName,
