@@ -34,6 +34,8 @@ export interface AdminUser {
 }
 
 /** A property record as seen by the admin. */
+import { PropertyUnit } from "./owner";
+
 export interface AdminProperty {
   id: string;
   name: string;
@@ -43,6 +45,9 @@ export interface AdminProperty {
   residentCount: number;
   active: boolean;
   totalRequests: number;
+  description: string;
+  units: PropertyUnit[];
+  totalMonthlyRent: number;
 }
 
 /** An issue category managed by the admin. */

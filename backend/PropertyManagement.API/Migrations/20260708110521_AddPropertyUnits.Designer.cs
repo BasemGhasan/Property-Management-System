@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PropertyManagement.API.Data;
 
@@ -11,9 +12,11 @@ using PropertyManagement.API.Data;
 namespace PropertyManagement.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708110521_AddPropertyUnits")]
+    partial class AddPropertyUnits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,81 +127,6 @@ namespace PropertyManagement.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceClaim", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("BankAccountHolderName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("BankAccountNumber")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.Property<string>("BankName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Comments")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("MaintenanceType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int>("PropertyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ReceiptFileName")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("ReceiptUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<int>("ResidentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServiceDate")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PropertyId");
-
-                    b.HasIndex("ResidentId");
-
-                    b.ToTable("MaintenanceClaims");
-                });
-
             modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -264,6 +192,10 @@ namespace PropertyManagement.API.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
+
+                    b.PrimitiveCollection<string>("Amenities")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -403,19 +335,6 @@ namespace PropertyManagement.API.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<bool>("EmailNotificationsEnabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("EmailVerificationCodeHash")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime?>("EmailVerificationExpiresAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("EmailVerified")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -431,13 +350,6 @@ namespace PropertyManagement.API.Migrations
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime?>("ResetTokenExpiresAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ResetTokenHash")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -455,8 +367,6 @@ namespace PropertyManagement.API.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@propms.com",
-                            EmailNotificationsEnabled = true,
-                            EmailVerified = true,
                             FullName = "System Admin",
                             IsActive = true,
                             PasswordHash = "$2a$11$s6uCwI5Gx28bhWEHpMPAA.iY8wim3w8BzbzhecLK.FFjcn8CWk6HW",
@@ -486,25 +396,6 @@ namespace PropertyManagement.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-
-                    b.Navigation("Property");
-
-                    b.Navigation("Resident");
-                });
-
-            modelBuilder.Entity("PropertyManagement.API.Models.MaintenanceClaim", b =>
-                {
-                    b.HasOne("PropertyManagement.API.Models.Property", "Property")
-                        .WithMany("Claims")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PropertyManagement.API.Models.User", "Resident")
-                        .WithMany("SubmittedClaims")
-                        .HasForeignKey("ResidentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Property");
 
@@ -575,8 +466,6 @@ namespace PropertyManagement.API.Migrations
 
             modelBuilder.Entity("PropertyManagement.API.Models.Property", b =>
                 {
-                    b.Navigation("Claims");
-
                     b.Navigation("Requests");
 
                     b.Navigation("Residents");
@@ -589,8 +478,6 @@ namespace PropertyManagement.API.Migrations
                     b.Navigation("OwnedProperties");
 
                     b.Navigation("ResidentProperties");
-
-                    b.Navigation("SubmittedClaims");
 
                     b.Navigation("SubmittedRequests");
                 });
