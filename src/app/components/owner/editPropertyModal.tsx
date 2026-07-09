@@ -7,16 +7,27 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toast } from "sonner";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import { PrimaryButton } from "../auth/buttons";
-import type { Property, PropertyUnit } from "../../constants/owner";
+import type { PropertyUnit } from "../../constants/owner";
 
 // Interfaces
+/** Minimal shape needed to populate the edit form — satisfied by both owner Property and admin AdminProperty. */
+export interface EditablePropertySummary {
+  name: string;
+  address: string;
+  unitCount?: number;
+  description: string;
+  units: PropertyUnit[];
+}
+
 interface EditPropertyModalProps {
-  open: boolean;
-  property: Property | null;
-  onClose: () => void;
-  onSave: (data: {
+  readonly open: boolean;
+  readonly property: EditablePropertySummary | null;
+  /** Units can't be reduced below this (e.g. number of assigned residents). Defaults to 1. */
+  readonly minUnits?: number;
+  readonly onClose: () => void;
+  readonly onSave: (data: {
     name: string;
     address: string;
     unitCount: number;
@@ -26,7 +37,7 @@ interface EditPropertyModalProps {
 }
 
 // Component
-export function EditPropertyModal({ open, property, onClose, onSave }: EditPropertyModalProps) {
+export function EditPropertyModal({ open, property, minUnits: minUnitsProp = 1, onClose, onSave }: EditPropertyModalProps) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [unitCount, setUnitCount] = useState(1);
@@ -34,39 +45,56 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
   const [units, setUnits] = useState<Partial<PropertyUnit>[]>([]);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (property) {
-      setName(property.name);
-      setAddress(property.address);
-      setUnitCount(property.unitCount ?? 1);
-      setDescription(property.description ?? "");
-      setUnits(property.units ?? []);
-    } else {
-      setUnitCount(1);
-      setUnits([{ unitIdentifier: "Unit 1", bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
-    }
-  }, [property, open]);
+  const buildUnits = useCallback((count: number, sourceUnits: Partial<PropertyUnit>[] = []) => {
+    const normalizedCount = Math.max(1, count);
 
-  const minUnits = property?.residents.length ?? 1;
-
-  useEffect(() => {
-    setUnits((prevUnits) => {
-      if (unitCount === prevUnits.length) return prevUnits;
-      if (unitCount > prevUnits.length) {
-        const diff = unitCount - prevUnits.length;
-        const newUnits = Array.from({ length: diff }, (_, i) => ({
-          unitIdentifier: `Unit ${prevUnits.length + i + 1}`,
-          bedrooms: 1,
-          bathrooms: 1,
-          monthlyRent: 0,
-        }));
-        return [...prevUnits, ...newUnits];
+    return Array.from({ length: normalizedCount }, (_, index) => {
+      const existingUnit = sourceUnits[index];
+      if (existingUnit) {
+        return {
+          unitIdentifier: existingUnit.unitIdentifier ?? `Unit ${index + 1}`,
+          bedrooms: existingUnit.bedrooms ?? 1,
+          bathrooms: existingUnit.bathrooms ?? 1,
+          monthlyRent: existingUnit.monthlyRent ?? 0,
+        };
       }
-      return prevUnits.slice(0, unitCount);
-    });
-  }, [unitCount]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+      return {
+        unitIdentifier: `Unit ${index + 1}`,
+        bedrooms: 1,
+        bathrooms: 1,
+        monthlyRent: 0,
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!open || !property) {
+      setName("");
+      setAddress("");
+      setUnitCount(1);
+      setDescription("");
+      setUnits(buildUnits(1));
+      return;
+    }
+
+    const nextUnitCount = Math.max(property.unitCount ?? property.units?.length ?? 1, minUnitsProp);
+    setName(property.name);
+    setAddress(property.address);
+    setUnitCount(nextUnitCount);
+    setDescription(property.description ?? "");
+    setUnits(buildUnits(nextUnitCount, property.units ?? []));
+  }, [buildUnits, open, property, minUnitsProp]);
+
+  const minUnits = minUnitsProp;
+
+  const handleUnitCountChange = useCallback((nextCount: number) => {
+    const normalizedCount = Math.max(minUnits, nextCount || 1);
+    setUnitCount(normalizedCount);
+    setUnits((prevUnits) => buildUnits(normalizedCount, prevUnits));
+  }, [buildUnits, minUnits]);
+
+  const handleSubmit = useCallback(async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const invalidUnits = units.filter(u => !u.unitIdentifier || !u.monthlyRent || u.monthlyRent <= 0);
     if (invalidUnits.length > 0) {
@@ -140,8 +168,14 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm text-muted-foreground">Total Units *</label>
-                    <input type="number" min={minUnits} required value={unitCount} onChange={(e) => setUnitCount(Number(e.target.value))}
-                      className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
+                    <input
+                      type="number"
+                      min={minUnits}
+                      required
+                      value={unitCount}
+                      onChange={(e) => handleUnitCountChange(Number(e.target.value))}
+                      className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none"
+                    />
                     <p className="text-xs text-muted-foreground mt-1">
                       {minUnits > 1 ? `Can't go below ${minUnits} — residents are assigned.` : "This defines the exact number of unit configurations required."}
                     </p>
@@ -162,10 +196,10 @@ export function EditPropertyModal({ open, property, onClose, onSave }: EditPrope
                   <div className="flex justify-between items-center">
                     <h3 className="text-sm font-medium text-foreground">Configured Units ({units.length})</h3>
                   </div>
-                  
+
                   <div className="flex flex-col gap-3">
                     {units.map((unit, idx) => (
-                      <div key={idx} className="flex gap-3 items-start bg-card/50 p-3 rounded-xl border border-border relative group">
+                      <div key={`${unit.unitIdentifier ?? "unit"}-${idx}`} className="flex gap-3 items-start bg-card/50 p-3 rounded-xl border border-border relative group">
                         <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Identifier *</label>

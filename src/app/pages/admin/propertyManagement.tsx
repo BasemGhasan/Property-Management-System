@@ -6,7 +6,7 @@
 // Imports
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { Search, Eye, ToggleLeft, ToggleRight, Plus, X, Trash2 } from "lucide-react";
+import { Search, Eye, ToggleLeft, ToggleRight, Plus, X } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toast } from "sonner";
 import { AdminLayout } from "../../layouts/adminLayout";
@@ -24,17 +24,56 @@ import type { AdminProperty, AdminUser } from "../../constants/admin";
 export default function PropertyManagementPage() {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<AdminProperty[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [search, setSearch]         = useState("");
-  const [showModal, setShowModal]   = useState(false);
-  const [owners, setOwners]         = useState<AdminUser[]>([]);
-  const [name, setName]             = useState("");
-  const [address, setAddress]       = useState("");
-  const [unitCount, setUnitCount]   = useState(1);
-  const [ownerId, setOwnerId]       = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [owners, setOwners] = useState<AdminUser[]>([]);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [unitCount, setUnitCount] = useState(1);
+  const [ownerId, setOwnerId] = useState<string>("");
   const [description, setDescription] = useState("");
-  const [units, setUnits]           = useState<any[]>([{ unitIdentifier: "Unit 1", bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
-  const [saving, setSaving]         = useState(false);
+  const [units, setUnits] = useState<any[]>([{ unitIdentifier: "Unit 1", bedrooms: 1, bathrooms: 1, monthlyRent: 0 }]);
+  const [saving, setSaving] = useState(false);
+
+  const buildUnits = useCallback((count: number, sourceUnits: any[] = []) => {
+    const normalizedCount = Math.max(1, count);
+
+    return Array.from({ length: normalizedCount }, (_, index) => {
+      const existingUnit = sourceUnits[index];
+      if (existingUnit) {
+        return {
+          unitIdentifier: existingUnit.unitIdentifier ?? `Unit ${index + 1}`,
+          bedrooms: existingUnit.bedrooms ?? 1,
+          bathrooms: existingUnit.bathrooms ?? 1,
+          monthlyRent: existingUnit.monthlyRent ?? 0,
+        };
+      }
+
+      return {
+        unitIdentifier: `Unit ${index + 1}`,
+        bedrooms: 1,
+        bathrooms: 1,
+        monthlyRent: 0,
+      };
+    });
+  }, []);
+
+  const openModal = useCallback(() => {
+    setName("");
+    setAddress("");
+    setUnitCount(1);
+    setOwnerId("");
+    setDescription("");
+    setUnits(buildUnits(1));
+    setShowModal(true);
+  }, [buildUnits]);
+
+  const handleUnitCountChange = useCallback((nextCount: number) => {
+    const normalizedCount = Math.max(1, nextCount || 1);
+    setUnitCount(normalizedCount);
+    setUnits((prevUnits) => buildUnits(normalizedCount, prevUnits));
+  }, [buildUnits]);
 
   const refreshProperties = useCallback(() =>
     getAdminProperties().then(setProperties), []);
@@ -52,27 +91,10 @@ export default function PropertyManagementPage() {
     return () => { active = false; };
   }, [loadData]);
 
-  useEffect(() => {
-    setUnits((prevUnits) => {
-      if (unitCount === prevUnits.length) return prevUnits;
-      if (unitCount > prevUnits.length) {
-        const diff = unitCount - prevUnits.length;
-        const newUnits = Array.from({ length: diff }, (_, i) => ({
-          unitIdentifier: `Unit ${prevUnits.length + i + 1}`,
-          bedrooms: 1,
-          bathrooms: 1,
-          monthlyRent: 0,
-        }));
-        return [...prevUnits, ...newUnits];
-      }
-      return prevUnits.slice(0, unitCount);
-    });
-  }, [unitCount]);
-
-  const handleAdd = useCallback(async (e: React.FormEvent) => {
+  const handleAdd = useCallback(async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim() || !address.trim()) return;
-    
+
     const invalidUnits = units.filter(u => !u.unitIdentifier || !u.monthlyRent || u.monthlyRent <= 0);
     if (invalidUnits.length > 0) {
       toast.error("Please fill out all required details (Rent > 0, valid Identifier) for every unit.");
@@ -136,7 +158,7 @@ export default function PropertyManagementPage() {
               className="w-full rounded-xl border border-border bg-background/60 py-3 pl-11 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
-          <PrimaryButton type="button" fullWidth={false} onClick={() => setShowModal(true)}>
+          <PrimaryButton type="button" fullWidth={false} onClick={openModal}>
             <Plus size={17} /> Add Property
           </PrimaryButton>
         </div>
@@ -149,7 +171,7 @@ export default function PropertyManagementPage() {
                 <h2 className="text-foreground">Add Property</h2>
                 <button onClick={() => setShowModal(false)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><X size={20} /></button>
               </div>
-              
+
               <form onSubmit={handleAdd} className="flex flex-col flex-1 overflow-hidden">
                 <Tabs.Root defaultValue="basic" className="flex flex-col flex-1 overflow-hidden">
                   <Tabs.List className="px-6 pt-2 flex gap-4 border-b border-border shrink-0">
@@ -175,7 +197,7 @@ export default function PropertyManagementPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-sm text-muted-foreground">Total Units *</label>
-                        <input type="number" min={1} required value={unitCount} onChange={(e) => setUnitCount(Number(e.target.value))}
+                        <input type="number" min={1} required value={unitCount} onChange={(e) => handleUnitCountChange(Number(e.target.value))}
                           className="rounded-xl border border-border bg-input px-4 py-2.5 text-foreground focus:border-primary focus:outline-none" />
                         <p className="text-xs text-muted-foreground mt-1">This defines the exact number of unit configurations required in the next tab.</p>
                       </div>
@@ -205,7 +227,7 @@ export default function PropertyManagementPage() {
                       <div className="flex justify-between items-center">
                         <h3 className="text-sm font-medium text-foreground">Configured Units ({units.length})</h3>
                       </div>
-                      
+
                       <div className="flex flex-col gap-3">
                         {units.map((unit, idx) => (
                           <div key={idx} className="flex gap-3 items-start bg-card/50 p-3 rounded-xl border border-border relative group">
@@ -285,92 +307,91 @@ export default function PropertyManagementPage() {
           <LoadingState />
         ) : (
           <>
-          <div className="overflow-hidden rounded-2xl border border-border">
-            {/* Desktop */}
-            <div className="hidden md:block">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th className="px-5 py-3">Property ID</th>
-                    <th className="px-5 py-3">Name</th>
-                    <th className="px-5 py-3">Owner</th>
-                    <th className="px-5 py-3">Residents</th>
-                    <th className="px-5 py-3">Requests</th>
-                    <th className="px-5 py-3">Status</th>
-                    <th className="px-5 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {pageItems.map((p) => (
-                    <tr key={p.id} className="bg-background/20 transition-colors hover:bg-accent">
-                      <td className="px-5 py-3 text-xs text-muted-foreground">{p.id}</td>
-                      <td className="px-5 py-3 text-foreground">{p.name}</td>
-                      <td className="px-5 py-3 text-muted-foreground">{p.ownerName}</td>
-                      <td className="px-5 py-3 text-muted-foreground">{p.residentCount}</td>
-                      <td className="px-5 py-3 text-muted-foreground">{p.totalRequests}</td>
-                      <td className="px-5 py-3"><StatusPill active={p.active} /></td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)}
-                            title="View details"
-                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleToggle(p.id)}
-                            title={p.active ? "Deactivate" : "Activate"}
-                            className={`rounded-lg p-1.5 transition-colors ${
-                              p.active
-                                ? "text-muted-foreground hover:bg-red-100 hover:text-red-700"
-                                : "text-muted-foreground hover:bg-green-100 hover:text-green-700"
-                            }`}
-                          >
-                            {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
-                          </button>
-                        </div>
-                      </td>
+            <div className="overflow-hidden rounded-2xl border border-border">
+              {/* Desktop */}
+              <div className="hidden md:block">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground">
+                    <tr>
+                      <th className="px-5 py-3">Property ID</th>
+                      <th className="px-5 py-3">Name</th>
+                      <th className="px-5 py-3">Owner</th>
+                      <th className="px-5 py-3">Residents</th>
+                      <th className="px-5 py-3">Requests</th>
+                      <th className="px-5 py-3">Status</th>
+                      <th className="px-5 py-3">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {pageItems.map((p) => (
+                      <tr key={p.id} className="bg-background/20 transition-colors hover:bg-accent">
+                        <td className="px-5 py-3 text-xs text-muted-foreground">{p.id}</td>
+                        <td className="px-5 py-3 text-foreground">{p.name}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{p.ownerName}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{p.residentCount}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{p.totalRequests}</td>
+                        <td className="px-5 py-3"><StatusPill active={p.active} /></td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)}
+                              title="View details"
+                              className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleToggle(p.id)}
+                              title={p.active ? "Deactivate" : "Activate"}
+                              className={`rounded-lg p-1.5 transition-colors ${p.active
+                                  ? "text-muted-foreground hover:bg-red-100 hover:text-red-700"
+                                  : "text-muted-foreground hover:bg-green-100 hover:text-green-700"
+                                }`}
+                            >
+                              {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="flex flex-col divide-y divide-border md:hidden">
+                {pageItems.map((p) => (
+                  <div key={p.id} className="flex items-start justify-between gap-3 px-4 py-4">
+                    <div>
+                      <p className="text-sm text-foreground">{p.name}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{p.ownerName} · {p.residentCount} residents</p>
+                      <div className="mt-2"><StatusPill active={p.active} /></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><Eye size={16} /></button>
+                      <button onClick={() => handleToggle(p.id)} className={`rounded-lg p-1.5 ${p.active ? "text-red-700" : "text-green-700"}`}>
+                        {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filtered.length === 0 && (
+                <p className="p-12 text-center text-muted-foreground">No properties found.</p>
+              )}
             </div>
 
-            {/* Mobile cards */}
-            <div className="flex flex-col divide-y divide-border md:hidden">
-              {pageItems.map((p) => (
-                <div key={p.id} className="flex items-start justify-between gap-3 px-4 py-4">
-                  <div>
-                    <p className="text-sm text-foreground">{p.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{p.ownerName} · {p.residentCount} residents</p>
-                    <div className="mt-2"><StatusPill active={p.active} /></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => navigate(`${ADMIN_ROUTES.properties}/${p.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground"><Eye size={16} /></button>
-                    <button onClick={() => handleToggle(p.id)} className={`rounded-lg p-1.5 ${p.active ? "text-red-700" : "text-green-700"}`}>
-                      {p.active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {filtered.length === 0 && (
-              <p className="p-12 text-center text-muted-foreground">No properties found.</p>
+            {filtered.length > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
             )}
-          </div>
-
-          {filtered.length > 0 && (
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          )}
           </>
         )}
       </div>

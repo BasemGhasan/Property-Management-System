@@ -8,10 +8,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowLeft, CheckCircle2, Wrench, AlertTriangle, Pencil, Trash2, Bed, Bath } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Bed, Bath } from "lucide-react";
 import { OwnerLayout } from "../../layouts/ownerLayout";
 import { StatusBadge, PriorityBadge } from "../../components/dashboard/badges";
-import { SecondaryButton, PrimaryButton } from "../../components/auth/buttons";
+import { SecondaryButton } from "../../components/auth/buttons";
 import { LoadingState } from "../../components/shared/loadingState";
 import { StatTile } from "../../components/shared/statTile";
 import { Pagination } from "../../components/shared/pagination";
@@ -23,7 +23,7 @@ import { getPropertyById, getOwnerRequests } from "../../services/ownerService";
 import { api } from "../../lib/apiClient";
 import { OWNER_ROUTES } from "../../constants/owner";
 import { categoryLabel } from "../../constants/resident";
-import type { Property, OwnerRequest } from "../../constants/owner";
+import type { Property, OwnerRequest, PropertyUnit } from "../../constants/owner";
 
 // Component
 export default function PropertyDetailsPage() {
@@ -53,7 +53,13 @@ export default function PropertyDetailsPage() {
     return () => { active = false; };
   }, [loadData]);
 
-  const handleSaveEdit = useCallback(async (data: { name: string; address: string; unitCount: number }) => {
+  const handleSaveEdit = useCallback(async (data: {
+    name: string;
+    address: string;
+    unitCount: number;
+    description: string;
+    units: Partial<PropertyUnit>[];
+  }) => {
     await api.put(`/api/properties/${id}`, data);
     await loadData();
   }, [id, loadData]);
@@ -99,7 +105,7 @@ export default function PropertyDetailsPage() {
         <p className="py-12 text-center text-muted-foreground">Property not found.</p>
       ) : (
         <div className="flex flex-col gap-6">
-          <EditPropertyModal open={showEdit} property={property} onClose={() => setShowEdit(false)} onSave={handleSaveEdit} />
+          <EditPropertyModal open={showEdit} property={property} minUnits={property.residents.length} onClose={() => setShowEdit(false)} onSave={handleSaveEdit} />
           <AssignResidentModal
             open={showAssign}
             residents={residents}
