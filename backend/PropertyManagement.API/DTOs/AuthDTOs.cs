@@ -39,5 +39,7 @@ public record UserDto(
     string Role,
     string? Phone,
     bool IsActive,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool EmailVerified,
+    bool EmailNotificationsEnabled
 );

@@ -4,7 +4,7 @@
 // ============================================================================
 
 // Imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { User, Mail, Phone, Save, KeyRound, Bell } from "lucide-react";
 import { AdminLayout } from "../../layouts/adminLayout";
@@ -25,23 +25,43 @@ export default function AdminProfilePage() {
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword]         = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmError, setConfirmError]       = useState("");
 
   const [emailNotif, setEmailNotif] = useState(true);
-  const [smsNotif, setSmsNotif]     = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api.get<{ emailNotificationsEnabled: boolean }>("/api/users/me").then((me) => {
+      if (active) setEmailNotif(me.emailNotificationsEnabled);
+    });
+    return () => { active = false; };
+  }, []);
 
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.put("/api/users/me", { fullName, phone });
+    await api.put("/api/users/me", { fullName, phone, emailNotificationsEnabled: emailNotif });
     toast.success("Profile updated successfully.");
-  }, [fullName, phone]);
+  }, [fullName, phone, emailNotif]);
 
-  const handleUpdatePassword = useCallback((e: React.FormEvent) => {
+  const handleUpdatePassword = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword) return;
-    setCurrentPassword("");
-    setNewPassword("");
-    toast.success("Password updated successfully.");
-  }, [currentPassword, newPassword]);
+    if (newPassword !== confirmPassword) {
+      setConfirmError("Passwords do not match.");
+      return;
+    }
+    setConfirmError("");
+    try {
+      await api.put("/api/users/me/password", { currentPassword, newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Password updated successfully.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update password.");
+    }
+  }, [currentPassword, newPassword, confirmPassword]);
 
   return (
     <AdminLayout title="Profile">
@@ -62,9 +82,6 @@ export default function AdminProfilePage() {
               <CheckboxField id="adminEmailNotif" checked={emailNotif} onChange={setEmailNotif}>
                 Email alerts for new user registrations and critical requests
               </CheckboxField>
-              <CheckboxField id="adminSmsNotif" checked={smsNotif} onChange={setSmsNotif}>
-                SMS alerts for system-critical events
-              </CheckboxField>
             </div>
           </FormSection>
 
@@ -75,9 +92,19 @@ export default function AdminProfilePage() {
 
         <form onSubmit={handleUpdatePassword}>
           <FormSection title="Security" icon={KeyRound} accentColor="text-violet-700">
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-5">
               <PasswordField label="Current Password" name="currentPassword" placeholder="Enter current password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-              <PasswordField label="New Password" name="newPassword" placeholder="Enter new password" showStrength value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <div className="grid gap-5 sm:grid-cols-2">
+                <PasswordField label="New Password" name="newPassword" placeholder="Enter new password" showStrength value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <PasswordField
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  error={confirmError}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setConfirmError(""); }}
+                />
+              </div>
             </div>
             <PrimaryButton type="submit" fullWidth={false} className="mt-5 sm:self-start">
               <KeyRound size={18} /> Update Password

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PropertyManagement.API.Data;
 
@@ -11,9 +12,11 @@ using PropertyManagement.API.Data;
 namespace PropertyManagement.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260709013430_AddPasswordResetToken")]
+    partial class AddPasswordResetToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,19 +294,6 @@ namespace PropertyManagement.API.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<bool>("EmailNotificationsEnabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("EmailVerificationCodeHash")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime?>("EmailVerificationExpiresAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("EmailVerified")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -343,8 +333,6 @@ namespace PropertyManagement.API.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@propms.com",
-                            EmailNotificationsEnabled = true,
-                            EmailVerified = true,
                             FullName = "System Admin",
                             IsActive = true,
                             PasswordHash = "$2a$11$s6uCwI5Gx28bhWEHpMPAA.iY8wim3w8BzbzhecLK.FFjcn8CWk6HW",

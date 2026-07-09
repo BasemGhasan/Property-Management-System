@@ -1,18 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using PropertyManagement.API.Data;
 using PropertyManagement.API.DTOs;
 using PropertyManagement.API.Models;
+using PropertyManagement.API.Services;
 
 namespace PropertyManagement.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UsersController(AppDbContext db) : ControllerBase
+public class UsersController(AppDbContext db, EmailService emailService) : ControllerBase
 {
+    private const int EmailVerificationExpiryMinutes = 10;
+
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet]
@@ -65,9 +71,59 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         if (dto.FullName != null) user.FullName = dto.FullName;
         if (dto.Phone != null) user.Phone = dto.Phone;
+        if (dto.EmailNotificationsEnabled.HasValue) user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled.Value;
 
         await db.SaveChangesAsync();
         return Ok(ToDto(user));
+    }
+
+    [HttpPut("me/verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto)
+    {
+        var user = await db.Users.FindAsync(CurrentUserId);
+        if (user == null) return NotFound();
+        if (user.EmailVerified) return Ok(ToDto(user));
+
+        if (user.EmailVerificationCodeHash != HashCode(dto.Code) || user.EmailVerificationExpiresAt < DateTime.UtcNow)
+            return BadRequest(new { message = "That code is invalid or has expired." });
+
+        user.EmailVerified = true;
+        user.EmailVerificationCodeHash = null;
+        user.EmailVerificationExpiresAt = null;
+        await db.SaveChangesAsync();
+
+        return Ok(ToDto(user));
+    }
+
+    [HttpPost("me/resend-verification")]
+    public async Task<IActionResult> ResendVerification()
+    {
+        var user = await db.Users.FindAsync(CurrentUserId);
+        if (user == null) return NotFound();
+        if (user.EmailVerified) return Ok(new { message = "Your email is already verified." });
+
+        var code = GenerateOtp();
+        user.EmailVerificationCodeHash = HashCode(code);
+        user.EmailVerificationExpiresAt = DateTime.UtcNow.AddMinutes(EmailVerificationExpiryMinutes);
+        await db.SaveChangesAsync();
+        await emailService.SendVerificationEmailAsync(user.FullName, user.Email, code, EmailVerificationExpiryMinutes);
+
+        return Ok(new { message = "A new verification code has been sent to your email." });
+    }
+
+    [HttpPut("me/password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var user = await db.Users.FindAsync(CurrentUserId);
+        if (user == null) return NotFound();
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+            return BadRequest(new { message = "Current password is incorrect." });
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await db.SaveChangesAsync();
+
+        return Ok(new { message = "Password updated successfully." });
     }
 
     [HttpPut("{id}/toggle-active")]
@@ -96,11 +152,26 @@ public class UsersController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    private static string GenerateOtp() => Random.Shared.Next(0, 1_000_000).ToString("D6");
+
+    private static string HashCode(string rawCode) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawCode)));
+
     private static UserDto ToDto(User u) =>
-        new(u.Id, u.FullName, u.Email, u.Role.ToString(), u.Phone, u.IsActive, u.CreatedAt);
+        new(u.Id, u.FullName, u.Email, u.Role.ToString(), u.Phone, u.IsActive, u.CreatedAt, u.EmailVerified, u.EmailNotificationsEnabled);
 }
 
 public record UpdateProfileDto(
     string? FullName,
-    string? Phone
+    string? Phone,
+    bool? EmailNotificationsEnabled
+);
+
+public record ChangePasswordDto(
+    [Required] string CurrentPassword,
+    [Required, MinLength(6)] string NewPassword
+);
+
+public record VerifyEmailDto(
+    [Required, StringLength(6, MinimumLength = 6)] string Code
 );

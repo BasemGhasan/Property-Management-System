@@ -1,5 +1,5 @@
 import { api } from "../lib/apiClient";
-import { saveAuth, clearAuth, type StoredUser } from "../lib/auth";
+import { saveAuth, clearAuth, updateStoredUser, type StoredUser } from "../lib/auth";
 import type { UserRole } from "../constants/auth";
 
 export interface LoginPayload {
@@ -84,9 +84,38 @@ export async function sendResetLink(email: string): Promise<AuthResult> {
   }
 }
 
-export async function resetPassword(_password: string): Promise<AuthResult> {
-  // Full reset flow requires the token from email — placeholder for now.
-  return { success: true, message: "Password successfully updated." };
+export async function resetPassword(token: string, newPassword: string): Promise<AuthResult> {
+  try {
+    const res = await api.post<{ success: boolean; message: string }>("/api/auth/reset-password", {
+      token,
+      newPassword,
+    });
+    return { success: res.success, message: res.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to reset password.";
+    return { success: false, message };
+  }
+}
+
+export async function verifyEmail(code: string): Promise<AuthResult> {
+  try {
+    const res = await api.put<{ emailVerified: boolean }>("/api/users/me/verify-email", { code });
+    updateStoredUser({ emailVerified: res.emailVerified });
+    return { success: true, message: "Email verified successfully." };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to verify email.";
+    return { success: false, message };
+  }
+}
+
+export async function resendVerificationEmail(): Promise<AuthResult> {
+  try {
+    const res = await api.post<{ message: string }>("/api/users/me/resend-verification", {});
+    return { success: true, message: res.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to resend verification code.";
+    return { success: false, message };
+  }
 }
 
 export function logout() {

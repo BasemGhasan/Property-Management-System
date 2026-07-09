@@ -4,11 +4,19 @@ export interface StoredUser {
   email: string;
   role: "Admin" | "Owner" | "Resident";
   phone?: string;
+  emailVerified: boolean;
 }
 
 export function saveAuth(token: string, user: StoredUser) {
   localStorage.setItem("token", token);
   localStorage.setItem("user", JSON.stringify(user));
+}
+
+/** Merge a partial update into the currently stored user (e.g. after verifying email). */
+export function updateStoredUser(patch: Partial<StoredUser>) {
+  const current = getStoredUser();
+  if (!current) return;
+  localStorage.setItem("user", JSON.stringify({ ...current, ...patch }));
 }
 
 export function clearAuth() {

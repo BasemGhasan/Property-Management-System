@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Amazon;
 using Amazon.S3;
+using Amazon.SimpleEmail;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -52,6 +53,22 @@ builder.Services.AddSingleton<IAmazonS3>(_ =>
         ? new AmazonS3Client(accessKey, secretKey, endpoint)
         : new AmazonS3Client(endpoint);
 });
+
+builder.Services.AddSingleton<IAmazonSimpleEmailService>(_ =>
+{
+    var region = builder.Configuration["AWS:Region"]
+        ?? builder.Configuration["S3:Region"]
+        ?? "ap-southeast-2";
+    var accessKey = builder.Configuration["AWS:AccessKey"];
+    var secretKey = builder.Configuration["AWS:SecretKey"];
+    var endpoint = RegionEndpoint.GetBySystemName(region);
+
+    return !string.IsNullOrWhiteSpace(accessKey) && !string.IsNullOrWhiteSpace(secretKey)
+        ? new AmazonSimpleEmailServiceClient(accessKey, secretKey, endpoint)
+        : new AmazonSimpleEmailServiceClient(endpoint);
+});
+
+builder.Services.AddScoped<PropertyManagement.API.Services.EmailService>();
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];

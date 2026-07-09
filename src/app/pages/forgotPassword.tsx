@@ -6,7 +6,7 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Mail, ArrowLeft, Send } from "lucide-react";
+import { Mail, ArrowLeft, Send, MailCheck } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
 import { InputField } from "../components/auth/inputField";
@@ -60,11 +60,11 @@ export default function ForgotPasswordPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {/* Demo helper: jump to reset page after the link is "sent". */}
         {sent ? (
-          <PrimaryButton type="button" onClick={() => navigate(ROUTES.resetPassword)}>
-            Open reset page
-          </PrimaryButton>
+          <p className="flex items-center gap-2 rounded-xl border border-border bg-background/40 px-4 py-3 text-sm text-muted-foreground">
+            <MailCheck size={18} className="shrink-0 text-primary" />
+            Check your inbox for a reset link. It expires in 5 minutes.
+          </p>
         ) : (
           <PrimaryButton type="submit" loading={loading}>
             {!loading && <Send size={18} />}

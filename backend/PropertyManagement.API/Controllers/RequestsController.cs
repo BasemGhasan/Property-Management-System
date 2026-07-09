@@ -5,13 +5,14 @@ using System.Security.Claims;
 using PropertyManagement.API.Data;
 using PropertyManagement.API.DTOs;
 using PropertyManagement.API.Models;
+using PropertyManagement.API.Services;
 
 namespace PropertyManagement.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class RequestsController(AppDbContext db) : ControllerBase
+public class RequestsController(AppDbContext db, EmailService emailService) : ControllerBase
 {
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private string CurrentRole => User.FindFirstValue(ClaimTypes.Role)!;
@@ -101,10 +102,17 @@ public class RequestsController(AppDbContext db) : ControllerBase
 
         var created = await db.MaintenanceRequests
             .Include(r => r.Resident)
-            .Include(r => r.Property)
+            .Include(r => r.Property).ThenInclude(p => p.Owner)
             .Include(r => r.Category)
             .Include(r => r.Evidence)
             .FirstAsync(r => r.Id == request.Id);
+
+        var owner = created.Property.Owner;
+        if (owner.Id != CurrentUserId && owner.EmailNotificationsEnabled)
+        {
+            await emailService.SendRequestCreatedEmailAsync(
+                owner.FullName, owner.Email, created.Resident.FullName, created.Property.Name, created.Title, created.Priority.ToString());
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = request.Id }, ToDto(created));
     }
@@ -115,6 +123,7 @@ public class RequestsController(AppDbContext db) : ControllerBase
     {
         var request = await db.MaintenanceRequests
             .Include(r => r.Property)
+            .Include(r => r.Resident)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (request == null) return NotFound();
@@ -127,6 +136,13 @@ public class RequestsController(AppDbContext db) : ControllerBase
         request.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+
+        if (request.ResidentId != CurrentUserId && request.Resident.EmailNotificationsEnabled)
+        {
+            await emailService.SendRequestStatusUpdatedEmailAsync(
+                request.Resident.FullName, request.Resident.Email, request.Title, request.Status.ToString(), request.OwnerNotes);
+        }
+
         return NoContent();
     }
 

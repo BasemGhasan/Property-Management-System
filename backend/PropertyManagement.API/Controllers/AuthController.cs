@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using PropertyManagement.API.Data;
 using PropertyManagement.API.DTOs;
 using PropertyManagement.API.Models;
+using PropertyManagement.API.Services;
 
 namespace PropertyManagement.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(AppDbContext db, IConfiguration config) : ControllerBase
+public class AuthController(AppDbContext db, IConfiguration config, EmailService emailService) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
@@ -61,18 +63,61 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             await db.SaveChangesAsync();
         }
 
+        var code = GenerateOtp();
+        user.EmailVerificationCodeHash = HashToken(code);
+        user.EmailVerificationExpiresAt = DateTime.UtcNow.AddMinutes(EmailVerificationExpiryMinutes);
+        await db.SaveChangesAsync();
+        await emailService.SendVerificationEmailAsync(user.FullName, user.Email, code, EmailVerificationExpiryMinutes);
+
         var token = GenerateToken(user);
         return Ok(new AuthResponse(true, $"{req.FullName}, your account has been created.", token, ToDto(user)));
     }
 
+    private const int ResetTokenExpiryMinutes = 5;
+    private const int EmailVerificationExpiryMinutes = 10;
+
+    private static string GenerateOtp() => Random.Shared.Next(0, 1_000_000).ToString("D6");
+
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
     {
-        // In production: generate a reset token, store it, email it via SES/SNS.
-        // For now just confirm the email exists without leaking whether it does.
-        await db.Users.AnyAsync(u => u.Email == req.Email);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == req.Email && u.IsActive);
+        if (user != null)
+        {
+            var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+            user.ResetTokenHash = HashToken(rawToken);
+            user.ResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(ResetTokenExpiryMinutes);
+            await db.SaveChangesAsync();
+
+            var frontendUrl = (config["FrontendUrl"] ?? "http://localhost:5173").TrimEnd('/');
+            var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(rawToken)}";
+            await emailService.SendPasswordResetEmailAsync(user.FullName, user.Email, resetLink, ResetTokenExpiryMinutes);
+        }
+
+        // Same response whether or not the account exists, so we don't leak which emails are registered.
         return Ok(new { success = true, message = $"If an account exists for {req.Email}, a reset link has been sent." });
     }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest req)
+    {
+        var tokenHash = HashToken(req.Token);
+        var user = await db.Users.FirstOrDefaultAsync(u =>
+            u.ResetTokenHash == tokenHash && u.ResetTokenExpiresAt > DateTime.UtcNow);
+
+        if (user == null)
+            return BadRequest(new AuthResponse(false, "This reset link is invalid or has expired."));
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+        user.ResetTokenHash = null;
+        user.ResetTokenExpiresAt = null;
+        await db.SaveChangesAsync();
+
+        return Ok(new AuthResponse(true, "Password updated. You can now sign in."));
+    }
+
+    private static string HashToken(string rawToken) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 
     private string GenerateToken(User user)
     {
@@ -99,5 +144,5 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
     }
 
     private static UserDto ToDto(User u) =>
-        new(u.Id, u.FullName, u.Email, u.Role.ToString(), u.Phone, u.IsActive, u.CreatedAt);
+        new(u.Id, u.FullName, u.Email, u.Role.ToString(), u.Phone, u.IsActive, u.CreatedAt, u.EmailVerified, u.EmailNotificationsEnabled);
 }

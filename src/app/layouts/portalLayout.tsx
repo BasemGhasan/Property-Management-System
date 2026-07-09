@@ -14,6 +14,7 @@ import { ROUTES } from "../constants/auth";
 import { getStoredUser } from "../lib/auth";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "../components/shared/pullToRefreshIndicator";
+import { EmailVerificationBanner } from "../components/shared/emailVerificationBanner";
 
 // Interfaces
 export interface NavItem {
@@ -187,6 +188,7 @@ export function PortalLayout({
           {onRefresh && (
             <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
           )}
+          <EmailVerificationBanner />
           {actions && <div className="mb-5 flex flex-wrap gap-3">{actions}</div>}
           {children}
         </main>

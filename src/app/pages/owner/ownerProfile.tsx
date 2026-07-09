@@ -32,29 +32,46 @@ export default function OwnerProfilePage() {
       setResidentCount(props.reduce((s, p) => s + p.residents.length, 0));
     }), []);
 
+  const [emailNotif, setEmailNotif] = useState(true);
+
   useEffect(() => {
+    let active = true;
     loadData();
+    api.get<{ emailNotificationsEnabled: boolean }>("/api/users/me").then((me) => {
+      if (active) setEmailNotif(me.emailNotificationsEnabled);
+    });
+    return () => { active = false; };
   }, [loadData]);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword]         = useState("");
-
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [smsNotif, setSmsNotif]     = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmError, setConfirmError]       = useState("");
 
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.put("/api/users/me", { fullName, phone });
+    await api.put("/api/users/me", { fullName, phone, emailNotificationsEnabled: emailNotif });
     toast.success("Profile updated successfully.");
-  }, [fullName, phone]);
+  }, [fullName, phone, emailNotif]);
 
-  const handleUpdatePassword = useCallback((e: React.FormEvent) => {
+  const handleUpdatePassword = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword) return;
-    setCurrentPassword("");
-    setNewPassword("");
-    toast.success("Password updated successfully.");
-  }, [currentPassword, newPassword]);
+    if (newPassword !== confirmPassword) {
+      setConfirmError("Passwords do not match.");
+      return;
+    }
+    setConfirmError("");
+    try {
+      await api.put("/api/users/me/password", { currentPassword, newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Password updated successfully.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update password.");
+    }
+  }, [currentPassword, newPassword, confirmPassword]);
 
   return (
     <OwnerLayout title="Profile" onRefresh={loadData}>
@@ -95,9 +112,6 @@ export default function OwnerProfilePage() {
               <CheckboxField id="ownerEmailNotif" checked={emailNotif} onChange={setEmailNotif}>
                 Email notifications for new and updated requests
               </CheckboxField>
-              <CheckboxField id="ownerSmsNotif" checked={smsNotif} onChange={setSmsNotif}>
-                SMS alerts for critical priority requests
-              </CheckboxField>
             </div>
           </FormSection>
 
@@ -108,9 +122,19 @@ export default function OwnerProfilePage() {
 
         <form onSubmit={handleUpdatePassword}>
           <FormSection title="Security" icon={KeyRound}>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-5">
               <PasswordField label="Current Password" name="currentPassword" placeholder="Enter current password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-              <PasswordField label="New Password" name="newPassword" placeholder="Enter new password" showStrength value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <div className="grid gap-5 sm:grid-cols-2">
+                <PasswordField label="New Password" name="newPassword" placeholder="Enter new password" showStrength value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <PasswordField
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  error={confirmError}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setConfirmError(""); }}
+                />
+              </div>
             </div>
             <PrimaryButton type="submit" fullWidth={false} className="mt-5 sm:self-start">
               <KeyRound size={18} /> Update Password

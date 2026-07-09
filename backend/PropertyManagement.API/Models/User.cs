@@ -29,6 +29,20 @@ public class User
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [MaxLength(100)]
+    public string? ResetTokenHash { get; set; }
+
+    public DateTime? ResetTokenExpiresAt { get; set; }
+
+    public bool EmailVerified { get; set; } = false;
+
+    [MaxLength(100)]
+    public string? EmailVerificationCodeHash { get; set; }
+
+    public DateTime? EmailVerificationExpiresAt { get; set; }
+
+    public bool EmailNotificationsEnabled { get; set; } = true;
+
     // Navigation
     public ICollection<Property> OwnedProperties { get; set; } = [];
     public ICollection<PropertyResident> ResidentProperties { get; set; } = [];

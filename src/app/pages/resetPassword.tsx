@@ -4,7 +4,8 @@
 
 // Imports
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
 import { KeyRound } from "lucide-react";
 import { AuthLayout } from "../layouts/authLayout";
 import { PageHeader } from "../components/auth/pageHeader";
@@ -24,6 +25,8 @@ interface ResetErrors {
 // Component
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<ResetErrors>({});
@@ -48,12 +51,21 @@ export default function ResetPasswordPage() {
       setErrors(validation);
       if (Object.keys(validation).length > 0) return;
 
+      if (!token) {
+        toast.error("This reset link is missing its token. Request a new one.");
+        return;
+      }
+
       setLoading(true);
-      await resetPassword(password);
+      const result = await resetPassword(token, password);
       setLoading(false);
-      setSuccess(true);
+      if (result.success) {
+        setSuccess(true);
+      } else {
+        toast.error(result.message ?? "Failed to reset password.");
+      }
     },
-    [password, validate]
+    [password, token, validate]
   );
 
   // Success state

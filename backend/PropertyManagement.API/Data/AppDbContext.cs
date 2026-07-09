@@ -49,6 +49,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             Role = UserRole.Admin,
             Phone = "0000000000",
             IsActive = true,
+            EmailVerified = true,
+            EmailNotificationsEnabled = true,
             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         });
     }
