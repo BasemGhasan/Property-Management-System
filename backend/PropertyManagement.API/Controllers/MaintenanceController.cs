@@ -33,13 +33,16 @@ public class MaintenanceController(
 
         var bucketName = config["AWS:BucketName"] ?? config["S3:BucketName"];
         var region = config["AWS:Region"] ?? config["S3:Region"] ?? "ap-southeast-2";
-        var geminiApiKey = config["Gemini:ApiKey"];
+        var geminiApiKey = FirstConfigured(
+            config["Gemini:ApiKey"],
+            config["GEMINI_API_KEY"],
+            config["GOOGLE_CLOUD_API_KEY"]);
 
         if (string.IsNullOrWhiteSpace(bucketName))
             return StatusCode(503, new { message = "S3 bucket configuration is missing." });
 
         if (string.IsNullOrWhiteSpace(geminiApiKey))
-            return StatusCode(503, new { message = "Gemini API configuration is missing." });
+            return StatusCode(503, new { message = "Gemini API configuration is missing. Set Gemini:ApiKey or GEMINI_API_KEY." });
 
         try
         {
@@ -147,7 +150,8 @@ public class MaintenanceController(
                 Temperature = 0
             });
 
-        var json = response.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+        var json = response.Text
+            ?? response.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
         if (string.IsNullOrWhiteSpace(json))
             throw new JsonException("Gemini response did not include JSON text.");
 
@@ -160,4 +164,7 @@ public class MaintenanceController(
         string MaintenanceType = "",
         string Date = "",
         decimal Amount = 0);
+
+    private static string? FirstConfigured(params string?[] values) =>
+        values.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 }
