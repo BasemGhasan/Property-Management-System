@@ -6,6 +6,7 @@ import { OWNER_ROUTES } from "./constants/owner";
 import { ADMIN_ROUTES } from "./constants/admin";
 
 // ── Batch 1 — Auth & Onboarding ─────────────────────────────────────────────
+import LandingPage from "./pages/landing";
 import LoginPage from "./pages/login";
 import RoleSelectionPage from "./pages/roleSelection";
 import ResidentRegistrationPage from "./pages/residentRegistration";
@@ -94,6 +95,9 @@ export default function App() {
         <Route path={ADMIN_ROUTES.categories}                element={<CategoryManagementPage />} />
         <Route path={ADMIN_ROUTES.requests}                  element={<RequestMonitoringPage />} />
         <Route path={ADMIN_ROUTES.profile}                   element={<AdminProfilePage />} />
+
+        {/* ── Public ─────────────────────────────────────────────────────── */}
+        <Route path="/" element={<LandingPage />} />
 
         {/* Fallback → login */}
         <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
