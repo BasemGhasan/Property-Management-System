@@ -104,7 +104,7 @@ export default function ResidentRegistrationPage() {
           <span className="text-primary">Privacy Policy</span>.
         </CheckboxField>
 
-        <PrimaryButton type="submit" loading={loading}>
+        <PrimaryButton type="submit" loading={loading} disabled={!acceptedTerms}>
           {!loading && <UserPlus size={18} />}
           Create Account
         </PrimaryButton>

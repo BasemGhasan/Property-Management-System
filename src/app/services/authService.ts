@@ -59,6 +59,7 @@ export async function register(payload: RegisterPayload): Promise<AuthResult> {
       email: payload.email,
       password: payload.password,
       phone: payload.phone ?? null,
+      ...payload.extra,
     });
 
     if (res.success && res.token && res.user) {

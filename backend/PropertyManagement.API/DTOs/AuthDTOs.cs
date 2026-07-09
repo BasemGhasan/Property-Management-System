@@ -14,7 +14,8 @@ public record RegisterRequest(
     [Required, MaxLength(100)] string FullName,
     [Required, EmailAddress] string Email,
     [Required, MinLength(6)] string Password,
-    [MaxLength(20)] string? Phone
+    [MaxLength(20)] string? Phone,
+    List<string>? Properties = null
 );
 
 public record ForgotPasswordRequest([Required, EmailAddress] string Email);

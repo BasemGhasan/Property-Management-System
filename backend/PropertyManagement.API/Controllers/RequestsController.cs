@@ -60,14 +60,16 @@ public class RequestsController(AppDbContext db) : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Resident")]
+    [Authorize(Roles = "Resident,Owner")]
     public async Task<IActionResult> Create([FromBody] CreateRequestDto dto)
     {
-        // Verify the resident belongs to the property
-        var assigned = await db.PropertyResidents
-            .AnyAsync(pr => pr.PropertyId == dto.PropertyId && pr.ResidentId == CurrentUserId);
+        // Verify the caller has a relationship to the property: residents must be
+        // assigned to it, owners must own it.
+        var allowed = CurrentRole == "Owner"
+            ? await db.Properties.AnyAsync(p => p.Id == dto.PropertyId && p.OwnerId == CurrentUserId)
+            : await db.PropertyResidents.AnyAsync(pr => pr.PropertyId == dto.PropertyId && pr.ResidentId == CurrentUserId);
 
-        if (!assigned)
+        if (!allowed)
             return Forbid();
 
         var request = new MaintenanceRequest

@@ -47,6 +47,20 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
+        if (req.Role == UserRole.Owner && req.Properties != null)
+        {
+            foreach (var name in req.Properties.Where(p => !string.IsNullOrWhiteSpace(p)))
+            {
+                db.Properties.Add(new Property
+                {
+                    OwnerId = user.Id,
+                    Name = name.Trim(),
+                    Address = string.Empty
+                });
+            }
+            await db.SaveChangesAsync();
+        }
+
         var token = GenerateToken(user);
         return Ok(new AuthResponse(true, $"{req.FullName}, your account has been created.", token, ToDto(user)));
     }
