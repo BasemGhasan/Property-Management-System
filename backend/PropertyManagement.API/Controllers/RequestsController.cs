@@ -108,10 +108,22 @@ public class RequestsController(AppDbContext db, EmailService emailService) : Co
             .FirstAsync(r => r.Id == request.Id);
 
         var owner = created.Property.Owner;
-        if (owner.Id != CurrentUserId && owner.EmailNotificationsEnabled)
+        if (owner.Id != CurrentUserId)
         {
-            await emailService.SendRequestCreatedEmailAsync(
-                owner.FullName, owner.Email, created.Resident.FullName, created.Property.Name, created.Title, created.Priority.ToString());
+            db.Notifications.Add(new Notification
+            {
+                UserId = owner.Id,
+                Type = NotificationType.Info,
+                Message = $"{created.Resident.FullName} submitted a new \"{created.Title}\" request for {created.Property.Name}.",
+                RequestId = created.Id
+            });
+            await db.SaveChangesAsync();
+
+            if (owner.EmailNotificationsEnabled)
+            {
+                await emailService.SendRequestCreatedEmailAsync(
+                    owner.FullName, owner.Email, created.Resident.FullName, created.Property.Name, created.Title, created.Priority.ToString());
+            }
         }
 
         return CreatedAtAction(nameof(GetById), new { id = request.Id }, ToDto(created));
@@ -134,6 +146,25 @@ public class RequestsController(AppDbContext db, EmailService emailService) : Co
         request.Status = dto.Status;
         request.OwnerNotes = dto.OwnerNotes;
         request.UpdatedAt = DateTime.UtcNow;
+
+        if (request.ResidentId != CurrentUserId)
+        {
+            var (type, message) = request.Status switch
+            {
+                RequestStatus.Resolved => (NotificationType.Completed, $"Your \"{request.Title}\" request has been marked completed."),
+                RequestStatus.InProgress => (NotificationType.Reviewed, $"Your \"{request.Title}\" request is now in progress."),
+                RequestStatus.Rejected => (NotificationType.StatusChanged, $"Your \"{request.Title}\" request was rejected."),
+                _ => (NotificationType.StatusChanged, $"Your \"{request.Title}\" request status changed to {request.Status}."),
+            };
+
+            db.Notifications.Add(new Notification
+            {
+                UserId = request.ResidentId,
+                Type = type,
+                Message = message,
+                RequestId = request.Id
+            });
+        }
 
         await db.SaveChangesAsync();
 

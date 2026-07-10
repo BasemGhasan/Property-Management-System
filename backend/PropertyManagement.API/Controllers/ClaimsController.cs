@@ -112,6 +112,20 @@ public class ClaimsController(AppDbContext db) : ControllerBase
         claim.UpdatedAt = DateTime.UtcNow;
         claim.ReviewedAt = DateTime.UtcNow;
 
+        if (claim.ResidentId != CurrentUserId)
+        {
+            var message = claim.Status == ClaimStatus.Approved
+                ? $"Your {claim.MaintenanceType} claim for RM{claim.Amount:0.00} was approved."
+                : $"Your {claim.MaintenanceType} claim for RM{claim.Amount:0.00} was rejected.";
+
+            db.Notifications.Add(new Notification
+            {
+                UserId = claim.ResidentId,
+                Type = claim.Status == ClaimStatus.Approved ? NotificationType.Completed : NotificationType.StatusChanged,
+                Message = message
+            });
+        }
+
         await db.SaveChangesAsync();
         return NoContent();
     }

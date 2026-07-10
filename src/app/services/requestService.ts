@@ -1,4 +1,5 @@
 import { api } from "../lib/apiClient";
+import { getNotifications as getAppNotifications, formatTimeAgo } from "./notificationService";
 import type {
   MaintenanceRequest,
   ResidentNotification,
@@ -119,9 +120,22 @@ export async function getRequestById(id: string): Promise<MaintenanceRequest | u
   }
 }
 
+function mapNotificationType(type: string): ResidentNotification["type"] {
+  switch (type) {
+    case "Reviewed":  return "reviewed";
+    case "Completed": return "completed";
+    default:          return "status";
+  }
+}
+
 export async function getNotifications(): Promise<ResidentNotification[]> {
-  // Notifications will be driven by SNS in Task #2 — return empty for now.
-  return [];
+  const notifications = await getAppNotifications();
+  return notifications.map((n) => ({
+    id: String(n.id),
+    type: mapNotificationType(n.type),
+    message: n.message,
+    time: formatTimeAgo(n.createdAt),
+  }));
 }
 
 export async function submitRequest(

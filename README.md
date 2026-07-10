@@ -150,7 +150,7 @@ TODO:
 
 1. **RDS** — Create MySQL db.t3.micro, note the endpoint. Add inbound rule for port `3306` from `0.0.0.0/0` in the security group.
 
-2. **S3 bucket for photo evidence** — Create a bucket (e.g. `propms-evidence`) in the same region. Under Permissions, uncheck "Block all public access" and add this bucket policy so uploaded photos are viewable:
+2. **S3 bucket for photo evidence and claim invoices** — Create a bucket (e.g. `propms-evidence`) in the same region. Under Permissions, uncheck "Block all public access" and add this bucket policy so uploaded photos and invoice images are viewable (`evidence/*` for request photos, `claims/*` for maintenance invoice scans):
    ```json
    {
      "Version": "2012-10-17",
@@ -158,18 +158,24 @@ TODO:
        "Effect": "Allow",
        "Principal": "*",
        "Action": "s3:GetObject",
-       "Resource": "arn:aws:s3:::propms-evidence/evidence/*"
+       "Resource": [
+         "arn:aws:s3:::propms-evidence/evidence/*",
+         "arn:aws:s3:::propms-evidence/claims/*"
+       ]
      }]
    }
    ```
-   Then attach an inline IAM policy to the EB instance role (`aws-elasticbeanstalk-ec2-role`) allowing `s3:PutObject` on that bucket:
+   Then attach an inline IAM policy to the EB instance role (`aws-elasticbeanstalk-ec2-role`) allowing `s3:PutObject` on both prefixes:
    ```json
    {
      "Version": "2012-10-17",
      "Statement": [{
        "Effect": "Allow",
        "Action": "s3:PutObject",
-       "Resource": "arn:aws:s3:::propms-evidence/evidence/*"
+       "Resource": [
+         "arn:aws:s3:::propms-evidence/evidence/*",
+         "arn:aws:s3:::propms-evidence/claims/*"
+       ]
      }]
    }
    ```

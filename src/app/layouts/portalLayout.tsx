@@ -9,12 +9,13 @@
 // Imports
 import { useState, useCallback, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Bell, LogOut, Menu, X, ChevronDown, type LucideIcon } from "lucide-react";
+import { LogOut, Menu, X, ChevronDown, type LucideIcon } from "lucide-react";
 import { ROUTES } from "../constants/auth";
 import { getStoredUser } from "../lib/auth";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "../components/shared/pullToRefreshIndicator";
 import { EmailVerificationBanner } from "../components/shared/emailVerificationBanner";
+import { NotificationBell } from "../components/shared/notificationBell";
 
 // Interfaces
 export interface NavItem {
@@ -168,10 +169,7 @@ export function PortalLayout({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button aria-label="Notifications" className="relative rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground">
-              <Bell size={19} />
-              <span className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ${notificationDotColor}`} />
-            </button>
+            <NotificationBell dotColor={notificationDotColor} />
             <button
               onClick={() => navigate(profileRoute)}
               className="flex items-center gap-2 rounded-xl border border-border px-2 py-1.5 transition-colors hover:bg-accent"

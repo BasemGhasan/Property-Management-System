@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MaintenanceRequest> MaintenanceRequests => Set<MaintenanceRequest>();
     public DbSet<RequestEvidence> RequestEvidence => Set<RequestEvidence>();
     public DbSet<MaintenanceClaim> MaintenanceClaims => Set<MaintenanceClaim>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +26,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<PropertyResident>()
             .HasIndex(pr => new { pr.PropertyId, pr.ResidentId })
             .IsUnique();
+
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => new { n.UserId, n.CreatedAt });
 
         var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
