@@ -144,7 +144,7 @@ INTENT RULES:
                 return new ChatResponseDto
                 {
                     Intent = "chat",
-                    Reply = "I apologize, but I encountered an error processing your request. Please try again."
+                    Reply = $"I apologize, but I encountered an error processing your request. Dev Error Details: {ex.Message}"
                 };
             }
         }
