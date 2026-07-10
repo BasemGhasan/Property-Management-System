@@ -32,6 +32,7 @@ import MaintenanceRequestsPage from "./pages/owner/maintenanceRequests";
 import RequestManagementPage from "./pages/owner/requestManagement";
 import ClaimRequestsPage from "./pages/owner/claimRequests";
 import OwnerReportsPage from "./pages/owner/ownerReports";
+import OwnerAnalyticsPage from "./pages/owner/ownerAnalytics";
 import OwnerProfilePage from "./pages/owner/ownerProfile";
 
 // ── Batch 4 — Admin Module ───────────────────────────────────────────────────
@@ -84,6 +85,7 @@ export default function App() {
         <Route path={`${OWNER_ROUTES.requestManage}/:id`}    element={<RequestManagementPage />} />
         <Route path={OWNER_ROUTES.claims}                    element={<ClaimRequestsPage />} />
         <Route path={OWNER_ROUTES.reports}                   element={<OwnerReportsPage />} />
+        <Route path={OWNER_ROUTES.analytics}                 element={<OwnerAnalyticsPage />} />
         <Route path={OWNER_ROUTES.profile}                   element={<OwnerProfilePage />} />
         <Route path={OWNER_ROUTES.assistant}                 element={<AssistantPage />} />
 

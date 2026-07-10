@@ -10,6 +10,7 @@ import {
   Wrench,
   ReceiptText,
   BarChart2,
+  TrendingUp,
   User,
   Sparkles,
   type LucideIcon,
@@ -27,6 +28,8 @@ export interface Resident {
   unit: string;
   email: string;
   phone: string;
+  /** ISO timestamp the resident was assigned. Drives occupancy-derived income history. */
+  assignedAt: string;
 }
 
 /** Aggregated stats for a single property. */
@@ -91,6 +94,7 @@ export const OWNER_ROUTES = {
   requestManage: "/owner/requests", // append /:id
   claims: "/owner/claims",
   reports: "/owner/reports",
+  analytics: "/owner/analytics",
   profile: "/owner/profile",
   assistant: "/owner/assistant",
 } as const;
@@ -107,6 +111,7 @@ export const OWNER_NAV: NavItem[] = [
   { label: "Maintenance Requests", to: OWNER_ROUTES.requests,   icon: Wrench },
   { label: "Claim Requests",       to: OWNER_ROUTES.claims,     icon: ReceiptText },
   { label: "Reports",              to: OWNER_ROUTES.reports,    icon: BarChart2 },
+  { label: "Analytics",            to: OWNER_ROUTES.analytics,  icon: TrendingUp },
   { label: "AI Assistant",         to: OWNER_ROUTES.assistant,  icon: Sparkles },
   { label: "Profile",              to: OWNER_ROUTES.profile,    icon: User },
 ];

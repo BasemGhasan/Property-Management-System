@@ -30,6 +30,7 @@ interface ApiProperty {
     residentName: string;
     residentEmail: string;
     unitNumber?: string;
+    assignedAt: string;
   }[];
 }
 
@@ -98,6 +99,7 @@ function toProperty(p: ApiProperty): Property {
       unit: r.unitNumber ?? "",
       email: r.residentEmail,
       phone: "",
+      assignedAt: r.assignedAt,
     })),
     stats: {
       openRequests: p.openRequests,

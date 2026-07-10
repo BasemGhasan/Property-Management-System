@@ -8,8 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PropertyManagement.API.Data;
 
-// Load .env file variables into environment
-DotNetEnv.Env.Load();
+// Load .env file variables into environment.
+// TraversePath() walks up from the working directory (backend/PropertyManagement.API)
+// to the repo root, where .env actually lives. Without it the file is never found and
+// secrets such as GEMINI_API_KEY silently fall back to the empty string in appsettings.
+DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,6 +96,7 @@ builder.Services.AddControllers()
 
 // ── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddHttpClient<PropertyManagement.API.Services.GeminiAssistantService>();
+builder.Services.AddHttpClient<PropertyManagement.API.Services.GeminiInsightService>();
 
 var app = builder.Build();
 
