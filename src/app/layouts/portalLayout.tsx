@@ -11,7 +11,7 @@ import { useState, useCallback, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LogOut, Menu, X, ChevronDown, type LucideIcon } from "lucide-react";
 import { ROUTES } from "../constants/auth";
-import { getStoredUser } from "../lib/auth";
+import { getStoredUser, clearAuth } from "../lib/auth";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "../components/shared/pullToRefreshIndicator";
 import { EmailVerificationBanner } from "../components/shared/emailVerificationBanner";
@@ -102,7 +102,10 @@ function SidebarContent({
       {/* Logout */}
       <div className="border-t border-sidebar-border p-3">
         <button
-          onClick={() => go(ROUTES.login)}
+          onClick={() => {
+            clearAuth();
+            go("/");
+          }}
           className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-critical-soft hover:text-critical"
         >
           <LogOut size={18} />
