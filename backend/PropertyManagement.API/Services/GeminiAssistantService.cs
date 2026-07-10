@@ -46,7 +46,7 @@ INTENT RULES:
         public GeminiAssistantService(HttpClient httpClient, IConfiguration configuration, ILogger<GeminiAssistantService> logger)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["GEMINI_API_KEY"] ?? "";
+            _apiKey = (configuration["GEMINI_API_KEY"] ?? "").Trim();
             _logger = logger;
         }
 
