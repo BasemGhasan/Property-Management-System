@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { ChatMessage, ChatContext, ChatApiResponse } from "@/shared/types/chat";
+import { api } from "@/app/lib/apiClient";
 
 interface UseChatOptions {
     messages: ChatMessage[];
@@ -57,25 +58,11 @@ export function useChat({ messages, onMessageAdd }: UseChatOptions): UseChatResu
                     })
                     .filter((msg) => msg.content);
 
-                const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5183";
-                const response = await fetch(`${BASE_URL}/api/assistant/chat`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        message: content,
-                        history: cleanedHistory,
-                        mapContext,
-                    }),
+                const data = await api.post<ChatApiResponse>("/api/assistant/chat", {
+                    message: content,
+                    history: cleanedHistory,
+                    mapContext,
                 });
-
-                const data: ChatApiResponse = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(
-                        (data as unknown as { error: string }).error ||
-                            "Failed to get response"
-                    );
-                }
 
                 const assistantMessage: ChatMessage = {
                     id: `assistant-${Date.now()}`,
