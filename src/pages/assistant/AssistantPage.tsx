@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
+import { useLocation } from "react-router";
 import { PanelRightOpen, PanelLeftOpen } from "lucide-react";
 import { DashboardLayout } from "@/app/layouts/dashboardLayout";
+import { OwnerLayout } from "@/app/layouts/ownerLayout";
 import Map from "@/features/assistant/components/map/Map";
 import ResultsPanel from "@/features/assistant/components/map/ResultsPanel";
 import ChatSidebar from "@/features/assistant/components/chat/ChatSidebar";
@@ -10,6 +12,10 @@ import { useMarketAnalysis } from "@/features/assistant/hooks/useMarketAnalysis"
 import { ChatContext, ChatMessage, AnalysisCardData } from "@/shared/types/chat";
 
 export default function AssistantPage() {
+    const location = useLocation();
+    const isOwner = location.pathname.startsWith("/owner");
+    const Layout = isOwner ? OwnerLayout : DashboardLayout;
+
     const [map, setMap] = useState<google.maps.Map | null>(null);
     const [isChatOpen, setIsChatOpen] = useState(true);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -153,7 +159,7 @@ export default function AssistantPage() {
     const handleNewChat = () => setMessages([]);
 
     return (
-        <DashboardLayout title="AI Assistant">
+        <Layout title="AI Assistant">
             {/* Content area: chat panel + map, filling the viewport below the header */}
             <div className="relative flex" style={{ height: "calc(100vh - 64px)", margin: "-1.5rem -1rem", marginTop: "-1.5rem" }}>
 
@@ -222,6 +228,6 @@ export default function AssistantPage() {
                     />
                 </div>
             </div>
-        </DashboardLayout>
+        </Layout>
     );
 }
