@@ -57,7 +57,8 @@ export function useChat({ messages, onMessageAdd }: UseChatOptions): UseChatResu
                     })
                     .filter((msg) => msg.content);
 
-                const response = await fetch("http://localhost:5183/api/assistant/chat", {
+                const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5183";
+                const response = await fetch(`${BASE_URL}/api/assistant/chat`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
