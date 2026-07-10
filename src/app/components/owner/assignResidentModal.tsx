@@ -47,16 +47,19 @@ export function AssignResidentModal({ open, residents, unitCount, occupiedUnits,
     e.preventDefault();
     if (!residentId) return;
 
-    if (unit) {
-      const parsed = Number(unit);
-      if (!Number.isInteger(parsed) || parsed < 1 || parsed > unitCount) {
-        setUnitError(`Enter a unit between 1 and ${unitCount}.`);
-        return;
-      }
-      if (occupiedUnits.includes(unit)) {
-        setUnitError(`Unit ${unit} is already occupied.`);
-        return;
-      }
+    if (!unit) {
+      setUnitError("Unit number is required.");
+      return;
+    }
+
+    const parsed = Number(unit);
+    if (!Number.isInteger(parsed) || parsed < 1 || parsed > unitCount) {
+      setUnitError(`Enter a unit between 1 and ${unitCount}.`);
+      return;
+    }
+    if (occupiedUnits.includes(unit)) {
+      setUnitError(`Unit ${unit} is already occupied.`);
+      return;
     }
     setUnitError("");
 
@@ -102,10 +105,11 @@ export function AssignResidentModal({ open, residents, unitCount, occupiedUnits,
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-muted-foreground">
-                Unit Number (optional) — 1 to {unitCount}
+                Unit Number * — 1 to {unitCount}
               </label>
               <input
                 type="number"
+                required
                 min={1}
                 max={unitCount}
                 value={unit}
