@@ -91,6 +91,17 @@ public class ClaimsController(AppDbContext db) : ControllerBase
             .Include(c => c.Property)
             .FirstAsync(c => c.Id == claim.Id);
 
+        if (created.Property.OwnerId != CurrentUserId)
+        {
+            db.Notifications.Add(new Notification
+            {
+                UserId = created.Property.OwnerId,
+                Type = NotificationType.Info,
+                Message = $"{created.Resident.FullName} submitted a {created.MaintenanceType} claim for RM{created.Amount:0.00} on {created.Property.Name}."
+            });
+            await db.SaveChangesAsync();
+        }
+
         return CreatedAtAction(nameof(GetById), new { id = claim.Id }, ToDto(created));
     }
 
