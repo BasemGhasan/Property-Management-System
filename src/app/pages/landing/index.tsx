@@ -33,7 +33,7 @@ export default function LandingPage() {
         <section className="relative pt-24 pb-32 overflow-hidden">
           {/* Subtle grid texture overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
-          
+
           <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
             <h1 className="font-display text-5xl md:text-7xl tracking-tight max-w-4xl text-balance">
               Smarter Property Management, <span className="text-primary italic">Realized.</span>
@@ -52,8 +52,8 @@ export default function LandingPage() {
 
             <div className="mt-20 w-full max-w-5xl rounded-2xl overflow-hidden border border-border shadow-2xl shadow-primary/10">
               <div className="aspect-[16/9] md:aspect-[21/9] relative bg-muted">
-                <img 
-                  src={LANDING_ASSETS.hero} 
+                <img
+                  src={LANDING_ASSETS.hero}
                   alt="Modern apartment building exterior with balconies"
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -122,11 +122,11 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-primary-foreground/20">
               <div className="py-4 md:py-0">
-                <div className="font-display text-5xl font-medium">50+</div>
+                <div className="font-display text-5xl font-medium">5+</div>
                 <div className="mt-2 text-primary-foreground/80">Properties Managed</div>
               </div>
               <div className="py-4 md:py-0">
-                <div className="font-display text-5xl font-medium">10k+</div>
+                <div className="font-display text-5xl font-medium">4+</div>
                 <div className="mt-2 text-primary-foreground/80">Tenants Supported</div>
               </div>
               <div className="py-4 md:py-0">
@@ -161,8 +161,8 @@ export default function LandingPage() {
                   </ul>
                 </div>
                 <div className="rounded-2xl overflow-hidden border border-border bg-muted shadow-lg aspect-square md:aspect-[4/3] relative">
-                  <img 
-                    src={LANDING_ASSETS.showcase1} 
+                  <img
+                    src={LANDING_ASSETS.showcase1}
                     alt="Modern apartment facade"
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -173,8 +173,8 @@ export default function LandingPage() {
               {/* Feature 2 */}
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="order-2 md:order-1 rounded-2xl overflow-hidden border border-border bg-muted shadow-lg aspect-square md:aspect-[4/3] relative">
-                  <img 
-                    src={LANDING_ASSETS.showcase2} 
+                  <img
+                    src={LANDING_ASSETS.showcase2}
                     alt="Apartment building with geometric balconies"
                     className="w-full h-full object-cover"
                     loading="lazy"

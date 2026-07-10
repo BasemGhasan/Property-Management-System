@@ -54,9 +54,9 @@ export default function ResidentProfilePage() {
 
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.put("/api/users/me", { fullName, phone, emailNotificationsEnabled: emailNotif });
+    await api.put("/api/users/me", { fullName, phone, email, emailNotificationsEnabled: emailNotif });
     toast.success("Profile updated successfully.");
-  }, [fullName, phone, emailNotif]);
+  }, [fullName, phone, email, emailNotif]);
 
   const handleUpdatePassword = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();

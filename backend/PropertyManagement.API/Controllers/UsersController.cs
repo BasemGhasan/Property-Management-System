@@ -71,6 +71,14 @@ public class UsersController(AppDbContext db, EmailService emailService) : Contr
 
         if (dto.FullName != null) user.FullName = dto.FullName;
         if (dto.Phone != null) user.Phone = dto.Phone;
+        if (dto.Email != null && dto.Email != user.Email)
+        {
+            if (await db.Users.AnyAsync(u => u.Email == dto.Email && u.Id != CurrentUserId))
+                return BadRequest(new { message = "Email is already in use." });
+                
+            user.Email = dto.Email;
+            user.EmailVerified = false;
+        }
         if (dto.EmailNotificationsEnabled.HasValue) user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled.Value;
 
         await db.SaveChangesAsync();
@@ -163,6 +171,7 @@ public class UsersController(AppDbContext db, EmailService emailService) : Contr
 
 public record UpdateProfileDto(
     string? FullName,
+    string? Email,
     string? Phone,
     bool? EmailNotificationsEnabled
 );
