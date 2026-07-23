@@ -23,6 +23,7 @@ jobs:
 
       - name: Zip artifact
         run: |
+          cp -r backend/PropertyManagement.API/.ebextensions backend/PropertyManagement.API/publish/.ebextensions
           cd backend/PropertyManagement.API/publish
           zip -r ../app.zip .
 
