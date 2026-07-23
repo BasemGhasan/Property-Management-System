@@ -1,0 +1,11 @@
+{
+  "name": "propms-thumbnail-generator",
+  "version": "1.0.0",
+  "description": "Task #2 Part 2 - S3-triggered + API Gateway-fronted Lambda that generates evidence photo thumbnails.",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0",
+    "jimp": "^1.6.0"
+  }
+}

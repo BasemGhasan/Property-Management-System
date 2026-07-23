@@ -70,6 +70,7 @@ jobs:
         env:
           VITE_API_URL: https://d3a7xbmvcwhxka.cloudfront.net
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_THUMBNAIL_API_URL: ${{ secrets.VITE_THUMBNAIL_API_URL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

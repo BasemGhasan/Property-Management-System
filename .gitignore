@@ -24,6 +24,9 @@ obj/
 publish/
 *.user
 
+# Lambda deployment packages
+lambda/**/function.zip
+
 # IDEs, Editors, and OS Files
 .vscode/
 .idea/

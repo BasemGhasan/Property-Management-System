@@ -20,8 +20,25 @@ import { getOwnerRequestById, updateOwnerRequest } from "../../services/ownerSer
 import { OWNER_ROUTES } from "../../constants/owner";
 import { PRIORITY_OPTIONS, categoryLabel } from "../../constants/resident";
 import { REQUEST_STATUS_OPTIONS } from "../../constants/filters";
+import { getThumbnailUrl, fetchOrGenerateThumbnail } from "../../lib/thumbnail";
 import type { OwnerRequest } from "../../constants/owner";
 import type { RequestStatus, RequestPriority } from "../../constants/resident";
+
+// Falls back full-size original -> Lambda-generated thumbnail -> on-demand API Gateway
+// generation -> original again, so a broken/missing thumbnail never blocks the photo.
+async function handleThumbnailError(e: React.SyntheticEvent<HTMLImageElement>, original: string) {
+  const img = e.currentTarget;
+  if (!img.dataset.thumbStage) {
+    img.dataset.thumbStage = "api";
+    const generated = await fetchOrGenerateThumbnail(original);
+    if (generated) {
+      img.src = generated;
+      return;
+    }
+  }
+  img.dataset.thumbStage = "original";
+  img.src = original;
+}
 
 // Component
 export default function RequestManagementPage() {
@@ -128,7 +145,12 @@ export default function RequestManagementPage() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {request.photos.map((src, i) => (
                   <div key={i} className="aspect-video overflow-hidden rounded-xl border border-border">
-                    <img src={src} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
+                    <img
+                      src={getThumbnailUrl(src) ?? src}
+                      alt={`Photo ${i + 1}`}
+                      className="h-full w-full object-cover"
+                      onError={(e) => handleThumbnailError(e, src)}
+                    />
                   </div>
                 ))}
               </div>
