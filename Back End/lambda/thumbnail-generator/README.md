@@ -10,7 +10,7 @@ no cross-compilation needed.
 ## 1. Package the function
 
 ```bash
-cd lambda/thumbnail-generator
+cd "Back End/lambda/thumbnail-generator"
 npm install
 npm install --omit=dev
 zip -r function.zip index.mjs package.json node_modules
@@ -68,7 +68,7 @@ zip -r function.zip index.mjs package.json node_modules
 5. Deploy to stage `prod` (HTTP APIs auto-deploy by default). Note the **Invoke URL**, e.g.
    `https://abc123xyz.execute-api.ap-southeast-2.amazonaws.com`.
 6. Enable **Active tracing** on the stage (Monitoring tab) for X-Ray, same reason as step 2.6 above.
-7. Put the invoke URL into the frontend's `VITE_THUMBNAIL_API_URL` env var (see `.env` / `.env.production` in the repo root).
+7. Put the invoke URL into the frontend's `VITE_THUMBNAIL_API_URL` env var (see `.env` / `.env.production` in `Front End/`).
 
 ## How it works
 

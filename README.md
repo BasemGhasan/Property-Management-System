@@ -62,7 +62,7 @@ The app creates all tables automatically on first run — you only need to creat
 
 ### 2. Configure the backend
 
-Open `backend/PropertyManagement.API/appsettings.json` and update the connection string with your MySQL credentials:
+Open `Back End/PropertyManagement.API/appsettings.json` and update the connection string with your MySQL credentials:
 
 ```json
 {
@@ -76,10 +76,10 @@ Leave everything else unchanged for local dev.
 
 ---
 
-### 4. Run the backend
+### 3. Run the backend
 
 ```bash
-cd backend/PropertyManagement.API
+cd "Back End/PropertyManagement.API"
 dotnet run
 ```
 
@@ -95,26 +95,42 @@ You should see a JSON list of 6 categories.
 
 ---
 
+### 4. Run the frontend
+
+```bash
+cd "Front End"
+npm install
+npm run dev
+```
+
+The app starts at `http://localhost:5173` and talks to the backend via `VITE_API_URL` in `Front End/.env`.
+
+---
+
 ## Project Structure
 
 ```
 Property-Management-System/
-├── backend/
-│   └── PropertyManagement.API/
-│       ├── Controllers/        # API endpoints (Auth, Users, Properties, Requests, Categories)
-│       ├── Data/               # AppDbContext + EF migrations
-│       ├── DTOs/               # Request/response shapes
-│       ├── Models/             # EF entity models
-│       ├── appsettings.json               # Local dev config (edit connection string here)
-│       └── appsettings.Production.json   # Prod config (values injected from EB env vars)
-├── src/
-│   └── app/
-│       ├── layouts/            # Owner / Resident / Admin shell layouts
-│       ├── lib/                # apiClient.ts + auth.ts helpers
-│       ├── pages/              # One folder per role (admin / owner / resident)
-│       └── services/           # API calls per role
-├── .env                        # Frontend dev (points to localhost:5183)
-├── .env.production             # Frontend prod (fill in EB URL before running npm run build)
+├── Back End/
+│   ├── PropertyManagement.API/
+│   │   ├── Controllers/        # API endpoints (Auth, Users, Properties, Requests, Categories)
+│   │   ├── Data/               # AppDbContext + EF migrations
+│   │   ├── DTOs/               # Request/response shapes
+│   │   ├── Models/             # EF entity models
+│   │   ├── appsettings.json               # Local dev config (edit connection string here)
+│   │   └── appsettings.Production.json   # Prod config (values injected from EB env vars)
+│   ├── PropertyManagement.sln
+│   └── lambda/thumbnail-generator/   # S3+API Gateway thumbnail pipeline (Task 2 Part 2)
+├── Front End/
+│   ├── src/
+│   │   └── app/
+│   │       ├── layouts/        # Owner / Resident / Admin shell layouts
+│   │       ├── lib/            # apiClient.ts + auth.ts helpers
+│   │       ├── pages/          # One folder per role (admin / owner / resident)
+│   │       └── services/       # API calls per role
+│   ├── .env                    # Frontend dev (points to localhost:5183)
+│   ├── .env.production         # Frontend prod (fill in EB URL before running npm run build)
+│   └── package.json
 └── README.md
 ```
 
@@ -182,7 +198,7 @@ TODO:
 
 3. **Elastic Beanstalk** — Publish and deploy:
    ```bash
-   cd backend/PropertyManagement.API
+   cd "Back End/PropertyManagement.API"
    dotnet publish -c Release -o ./publish
    # zip the publish folder and upload to EB
    ```
@@ -195,8 +211,9 @@ TODO:
    S3__Region                   = ap-southeast-1
    ```
 
-4. **Frontend** — Edit `.env.production`, replace the placeholder with your EB URL, then build:
+4. **Frontend** — Edit `Front End/.env.production`, replace the placeholder with your EB URL, then build:
    ```bash
+   cd "Front End"
    # edit .env.production first
    npm run build
    # upload dist/ to S3

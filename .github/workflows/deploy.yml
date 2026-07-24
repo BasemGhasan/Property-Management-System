@@ -18,15 +18,15 @@ jobs:
 
       - name: Publish
         run: |
-          cd backend/PropertyManagement.API
+          cd "Back End/PropertyManagement.API"
           dotnet publish -c Release -o ./publish --self-contained true -r linux-x64
 
       - name: Zip artifact
         run: |
-          cp -r backend/PropertyManagement.API/.ebextensions backend/PropertyManagement.API/publish/.ebextensions
-          cp -r backend/PropertyManagement.API/.platform backend/PropertyManagement.API/publish/.platform
-          chmod +x backend/PropertyManagement.API/publish/.platform/hooks/postdeploy/*.sh
-          cd backend/PropertyManagement.API/publish
+          cp -r "Back End/PropertyManagement.API/.ebextensions" "Back End/PropertyManagement.API/publish/.ebextensions"
+          cp -r "Back End/PropertyManagement.API/.platform" "Back End/PropertyManagement.API/publish/.platform"
+          chmod +x "Back End/PropertyManagement.API/publish/.platform/hooks/postdeploy"/*.sh
+          cd "Back End/PropertyManagement.API/publish"
           zip -r ../app.zip .
 
       - name: Configure AWS credentials
@@ -41,7 +41,7 @@ jobs:
           VERSION="deploy-${{ github.sha }}"
           BUCKET="elasticbeanstalk-${{ secrets.AWS_REGION }}-137068252948"
 
-          aws s3 cp backend/PropertyManagement.API/app.zip "s3://$BUCKET/$VERSION.zip"
+          aws s3 cp "Back End/PropertyManagement.API/app.zip" "s3://$BUCKET/$VERSION.zip"
 
           aws elasticbeanstalk create-application-version \
             --application-name "${{ secrets.EB_APP_NAME }}" \
@@ -64,11 +64,14 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: "Front End/package-lock.json"
 
       - name: Install dependencies
+        working-directory: Front End
         run: npm ci
 
       - name: Build
+        working-directory: Front End
         run: npm run build
         env:
           VITE_API_URL: https://d3a7xbmvcwhxka.cloudfront.net
@@ -83,7 +86,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload to S3
-        run: aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }} --delete
+        run: aws s3 sync "Front End/dist/" s3://${{ secrets.S3_BUCKET }} --delete
 
       - name: Invalidate CloudFront cache
         run: |

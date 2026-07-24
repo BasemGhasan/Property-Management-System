@@ -1,5 +1,5 @@
 // Task #2 Part 2 — client for the S3 + Lambda + API Gateway evidence-photo thumbnail pipeline.
-// Thumbnail key rule must stay in sync with lambda/thumbnail-generator/index.mjs:
+// Thumbnail key rule must stay in sync with Back End/lambda/thumbnail-generator/index.mjs:
 //   "evidence/<name>.<ext>"  ->  "thumbnails/<name>.jpg"
 
 const THUMBNAIL_API = import.meta.env.VITE_THUMBNAIL_API_URL as string | undefined;

@@ -9,9 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using PropertyManagement.API.Data;
 
 // Load .env file variables into environment.
-// TraversePath() walks up from the working directory (backend/PropertyManagement.API)
-// to the repo root, where .env actually lives. Without it the file is never found and
-// secrets such as GEMINI_API_KEY silently fall back to the empty string in appsettings.
+// TraversePath() walks up from the working directory (Back End/PropertyManagement.API)
+// to find the nearest .env. Without it the file is never found and secrets such as
+// GEMINI_API_KEY silently fall back to the empty string in appsettings.
 DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
