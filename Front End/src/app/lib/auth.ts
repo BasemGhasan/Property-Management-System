@@ -16,7 +16,9 @@ export function saveAuth(token: string, user: StoredUser) {
 export function updateStoredUser(patch: Partial<StoredUser>) {
   const current = getStoredUser();
   if (!current) return;
-  localStorage.setItem("user", JSON.stringify({ ...current, ...patch }));
+  const updated = { ...current, ...patch };
+  localStorage.setItem("user", JSON.stringify(updated));
+  window.dispatchEvent(new CustomEvent<StoredUser>("auth:user-updated", { detail: updated }));
 }
 
 export function clearAuth() {

@@ -13,7 +13,7 @@ import { PasswordField } from "../../components/auth/passwordField";
 import { CheckboxField } from "../../components/auth/checkboxField";
 import { PrimaryButton } from "../../components/auth/buttons";
 import { FormSection } from "../../components/shared/formSection";
-import { getStoredUser } from "../../lib/auth";
+import { getStoredUser, updateStoredUser } from "../../lib/auth";
 import { api } from "../../lib/apiClient";
 
 // Interfaces
@@ -54,8 +54,13 @@ export default function ResidentProfilePage() {
 
   const handleSaveProfile = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.put("/api/users/me", { fullName, phone, email, emailNotificationsEnabled: emailNotif });
-    toast.success("Profile updated successfully.");
+    const updated = await api.put<{ emailVerified: boolean }>("/api/users/me", { fullName, phone, email, emailNotificationsEnabled: emailNotif });
+    updateStoredUser({ fullName, phone, email, emailVerified: updated.emailVerified });
+    toast.success(
+      updated.emailVerified
+        ? "Profile updated successfully."
+        : "Profile updated. Check your new email for a verification code."
+    );
   }, [fullName, phone, email, emailNotif]);
 
   const handleUpdatePassword = useCallback(async (e: React.FormEvent) => {

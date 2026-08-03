@@ -71,6 +71,7 @@ public class UsersController(AppDbContext db, EmailService emailService) : Contr
 
         if (dto.FullName != null) user.FullName = dto.FullName;
         if (dto.Phone != null) user.Phone = dto.Phone;
+        var emailChanged = false;
         if (dto.Email != null)
         {
             var newEmail = dto.Email.Trim().ToLowerInvariant();
@@ -81,11 +82,24 @@ public class UsersController(AppDbContext db, EmailService emailService) : Contr
 
                 user.Email = newEmail;
                 user.EmailVerified = false;
+                emailChanged = true;
             }
         }
         if (dto.EmailNotificationsEnabled.HasValue) user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled.Value;
 
+        string? code = null;
+        if (emailChanged)
+        {
+            code = GenerateOtp();
+            user.EmailVerificationCodeHash = HashCode(code);
+            user.EmailVerificationExpiresAt = DateTime.UtcNow.AddMinutes(EmailVerificationExpiryMinutes);
+        }
+
         await db.SaveChangesAsync();
+
+        if (emailChanged)
+            await emailService.SendVerificationEmailAsync(user.FullName, user.Email, code!, EmailVerificationExpiryMinutes);
+
         return Ok(ToDto(user));
     }
 

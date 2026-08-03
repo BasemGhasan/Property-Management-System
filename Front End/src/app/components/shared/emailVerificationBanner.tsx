@@ -4,13 +4,13 @@
 // ============================================================================
 
 // Imports
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { MailWarning, X } from "lucide-react";
 import { PrimaryButton } from "../auth/buttons";
 import { verifyEmail, resendVerificationEmail } from "../../services/authService";
-import { getStoredUser } from "../../lib/auth";
+import { getStoredUser, type StoredUser } from "../../lib/auth";
 
 // Component
 export function EmailVerificationBanner() {
@@ -19,6 +19,14 @@ export function EmailVerificationBanner() {
   const [code, setCode] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    const handleUserUpdated = (e: Event) => {
+      setVerified((e as CustomEvent<StoredUser>).detail.emailVerified);
+    };
+    window.addEventListener("auth:user-updated", handleUserUpdated);
+    return () => window.removeEventListener("auth:user-updated", handleUserUpdated);
+  }, []);
 
   const handleVerify = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
