@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react'
 function figmaAssetResolver() {
   return {
     name: 'figma-asset-resolver',
-    resolveId(id) {
+    resolveId(id: string) {
       if (id.startsWith('figma:asset/')) {
         const filename = id.replace('figma:asset/', '')
         return path.resolve(__dirname, 'src/assets', filename)
@@ -30,6 +30,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+
+  // .env lives at the repo root (shared across Front End / Back End), not in this folder
+  envDir: path.resolve(__dirname, '..'),
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
