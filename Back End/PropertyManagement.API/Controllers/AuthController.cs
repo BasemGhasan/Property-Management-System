@@ -19,7 +19,8 @@ public class AuthController(AppDbContext db, IConfiguration config, EmailService
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == req.Email && u.IsActive);
+        var email = req.Email.Trim().ToLowerInvariant();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             return Ok(new AuthResponse(false, "Invalid email or password."));
 
@@ -30,7 +31,8 @@ public class AuthController(AppDbContext db, IConfiguration config, EmailService
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest req)
     {
-        if (await db.Users.AnyAsync(u => u.Email == req.Email))
+        var email = req.Email.Trim().ToLowerInvariant();
+        if (await db.Users.AnyAsync(u => u.Email == email))
             return Conflict(new AuthResponse(false, "An account with this email already exists."));
 
         // Prevent self-registering as Admin
@@ -40,7 +42,7 @@ public class AuthController(AppDbContext db, IConfiguration config, EmailService
         var user = new User
         {
             FullName = req.FullName,
-            Email = req.Email,
+            Email = email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Role = req.Role,
             Phone = req.Phone
@@ -81,7 +83,8 @@ public class AuthController(AppDbContext db, IConfiguration config, EmailService
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
     {
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == req.Email && u.IsActive);
+        var email = req.Email.Trim().ToLowerInvariant();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
         if (user != null)
         {
             var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));

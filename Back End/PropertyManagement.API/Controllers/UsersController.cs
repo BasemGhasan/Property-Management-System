@@ -71,13 +71,17 @@ public class UsersController(AppDbContext db, EmailService emailService) : Contr
 
         if (dto.FullName != null) user.FullName = dto.FullName;
         if (dto.Phone != null) user.Phone = dto.Phone;
-        if (dto.Email != null && dto.Email != user.Email)
+        if (dto.Email != null)
         {
-            if (await db.Users.AnyAsync(u => u.Email == dto.Email && u.Id != CurrentUserId))
-                return BadRequest(new { message = "Email is already in use." });
-                
-            user.Email = dto.Email;
-            user.EmailVerified = false;
+            var newEmail = dto.Email.Trim().ToLowerInvariant();
+            if (newEmail != user.Email)
+            {
+                if (await db.Users.AnyAsync(u => u.Email == newEmail && u.Id != CurrentUserId))
+                    return BadRequest(new { message = "Email is already in use." });
+
+                user.Email = newEmail;
+                user.EmailVerified = false;
+            }
         }
         if (dto.EmailNotificationsEnabled.HasValue) user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled.Value;
 
